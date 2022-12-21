@@ -4,25 +4,29 @@ Graph view of basketball-reference NBA data. Contains two main components, a scr
 
 ### setup
 
-(Download and install neo4j)[https://neo4j.com/download/]
+Install deps (build runs using babel and webpack)
 
 ```
-$ cd nba-graph/cmd/scraper
-$ go build
-$ ./scraper --update_all
+npm install
 ```
 
-Note: `--update_all` is required to initialize the full dataset (this might take a while, in particular the player dataset has to crawl quite a few pages). Run `./scraper` to see full set of usage options.
-
-*UI*
-
-Install http://sigmajs.org/ somehow...
+Build
 
 ```
-$ python -m SimpleHTTPServer
+npm run build
 ```
 
-Navigate to `http://localhost:8000/app/`
+Run server
+
+```
+// TODO!
+```
+
+Run scraper
+
+```
+// TODO!
+```
 
 #### refs
 * http://sigmajs.org/
