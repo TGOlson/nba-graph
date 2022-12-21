@@ -1,5 +1,5 @@
 import type { Season } from './season';
-import { BrefURL, fromRelative, compact } from './bref-url';
+import { BrefURL, fromRelative, compact } from '../util/bref-url';
 
 export type League = {
 	id: string;

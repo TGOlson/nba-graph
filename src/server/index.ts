@@ -1,11 +1,18 @@
-import { League, fromSeasons } from './league';
-import { Season, getSeasons } from './season';
+import { League, fromSeasons } from './scraper/league';
+import { Season, getSeasons } from './scraper/season';
+import { Franchise, getActiveFranchises, getDefunctFranchises } from './scraper/franchise';
 
 async function main() {
-  const seasons: Season[] = await getSeasons();
-  const leagues: League[] = fromSeasons(seasons);
+  // const seasons: Season[] = await getSeasons();
+  // const leagues: League[] = fromSeasons(seasons);
   
-  console.log(seasons, leagues);
+  const activeFranchises: Franchise[] = await getActiveFranchises();
+  const defunctFranchises: Franchise[] = await getDefunctFranchises();
+  const franchises = [...activeFranchises, ...defunctFranchises];
+
+  
+
+  console.log(franchises);
 }
 
 main();
