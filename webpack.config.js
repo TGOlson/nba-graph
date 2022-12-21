@@ -1,36 +1,41 @@
 const path = require('path');
 
-module.exports = {
-  entry: {
-    app: './src/app/index.tsx',
-    cmd: './src/cmd/index.ts',
-    server: './src/server/index.ts'
-  },
-  mode: "development",
+const babelModule = {
+  test: /\.tsx?$/,
+  exclude: /node_modules/,
+  use: {
+    loader: 'babel-loader',
+    options: {
+      presets: [
+        ['@babel/preset-env', { targets: "defaults" }]
+      ]
+    }
+  }
+}
+
+const appConfig = {
+  entry: './src/app/index.tsx',
+  mode: 'development',
+  target: 'web',
   output: {
-    filename: '[name].bundle.js',
+    filename: 'app.bundle.js',
      path: path.resolve(__dirname, 'dist'),
   },
-  module: {
-    rules: [
-      {
-        test: /\.tsx?$/,
-        exclude: /node_modules/,
-        use: {
-          loader: 'babel-loader',
-          options: {
-            presets: [
-              ['@babel/preset-env', { targets: "defaults" }]
-            ]
-          }
-        }
-      }
-    ]
-  },
-  // devServer: {
-  //   contentBase: path.join(__dirname, "public/"),
-  //   port: 3000,
-  //   publicPath: "http://localhost:3000/dist/",
-  //   hotOnly: true
-  // },
+  module: { rules: [babelModule] },
 }
+
+const serverConfig = {
+  entry: './src/server/index.ts',
+  mode: 'development',
+  target: 'node',
+  output: {
+    filename: 'server.bundle.js',
+     path: path.resolve(__dirname, 'dist'),
+  },
+  module: { rules: [babelModule] },
+  resolve: {
+    extensions: ['.js', '.ts' ],
+  },
+}
+
+module.exports = [appConfig, serverConfig];
