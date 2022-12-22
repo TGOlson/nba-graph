@@ -4,8 +4,8 @@ import { fromRelative } from '../util/bref-url';
 import { Player } from './player';
 
 export type PlayerTeam = {
-	playerId: string;
-	teamId: string;
+  playerId: string;
+  teamId: string;
   url: string;
 }
 

@@ -3,9 +3,9 @@ import * as cheerio from 'cheerio';
 import { fromRelative } from '../util/bref-url';
 
 export type Franchise = {
-	id: string;
-	name: string;
-	url: string;
+  id: string;
+  name: string;
+  url: string;
   active: boolean;
 }
 

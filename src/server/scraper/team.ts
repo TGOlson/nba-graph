@@ -4,12 +4,12 @@ import { fromRelative } from '../util/bref-url';
 import { Franchise } from './franchise';
 
 export type Team = {
-	id: string;
-	franchiseId: string;
+  id: string;
+  franchiseId: string;
   seasonId: string;
   name: string;
   year: number;
-	url: string;
+  url: string;
 }
 
 const SELECTOR = 'table.stats_table tbody tr'

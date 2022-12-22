@@ -1,8 +1,8 @@
 import type { Season } from './season';
 
 export type League = {
-	id: string;
-	url: string;
+  id: string;
+  url: string;
 }
 
 const RELATIVE_URL = '/leagues';

@@ -3,10 +3,10 @@ import * as cheerio from 'cheerio';
 import { fromRelative } from '../util/bref-url';
 
 export type Season = {
-	id: string;
-	leagueId: string;
-	year: number;
-	url: string;
+  id: string;
+  leagueId: string;
+  year: number;
+  url: string;
 }
 
 const RELATIVE_URL = '/leagues'

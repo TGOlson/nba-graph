@@ -4,9 +4,9 @@ import { fromRelative } from '../util/bref-url';
 import { Team } from './team';
 
 export type Player = {
-	id: string;
-	name: string;
-	url: string;
+  id: string;
+  name: string;
+  url: string;
 }
 
 const SELECTOR = 'table#roster tbody tr';
