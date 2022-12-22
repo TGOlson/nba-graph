@@ -6,14 +6,14 @@ type Reader<T> = () => Promise<T>;
 type Writer = (Fetch) => Promise<void>;
 
 const VERBOSE_FETCH = true;
-const FETCH_DELAY_MS = 100;
+const FETCH_DELAY_MS = 2500; // basketball-reference seems to get mad at >30 req/m
 
 const readers: {[key: string]: Reader<any> } = {
   '--read-seasons': readSeasons,
   '--read-leagues': readLeagues,
   '--read-franchises': readFranchises,
-  '--read-teams': readTeams,
-  '--read-players': readPlayers,
+  '--read-teams': readTeams, 
+  '--read-players': readPlayers, 
   '--read-player-teams': readPlayerTeams,
 }
 
@@ -21,11 +21,11 @@ const writers: {[key: string]: Writer} = {
   // Note: currently this is a little brittle as each command needs to be run sequentially (eg. teams expects seasons)
   // This is because it's easy to overload b-ref api with too many calls, so it's left to the user to call as needed
   // TODO: needs better error handling, at least
-  '--write-seasons': writeSeasonsAndLeagues,
-  '--write-franchises': writeFranchises,
-  '--write-teams': writeTeams,
-  '--write-players': writePlayers,
-  '--write-player-teams': writePlayerTeams,
+  '--write-seasons': writeSeasonsAndLeagues, // 1 request
+  '--write-franchises': writeFranchises,     // 1 request, 50 results
+  '--write-teams': writeTeams,               // 50 requests, ~1500 results
+  '--write-players': writePlayers,           // ~1500 requests, ?? results
+  '--write-player-teams': writePlayerTeams,  // ??
 }
 
 async function main() {

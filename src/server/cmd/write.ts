@@ -9,16 +9,9 @@ import { getPlayers, Player } from '../scraper/player';
 import { getPlayerTeams, PlayerTeam } from '../scraper/player-teams';
 import { Fetch } from '../util/fetch';
 import { readFranchises, readPlayers, readTeams } from './read';
+import { FRANCHISE_PATH, LEAGUE_PATH, PLAYER_PATH, PLAYER_TEAM_PATH, SEASON_PATH, TEAM_PATH } from './path';
 
 const p = (x: string) => path.resolve(__dirname, x)
-
-const DATA_PATH = p('../data');
-const SEASON_PATH = p('../data/seasons.json');
-const LEAGUE_PATH = p('../data/leagues.json');
-const FRANCHISE_PATH = p('../data/franchises.json');
-const TEAM_PATH = p('../data/team.json');
-const PLAYER_PATH = p('../data/player.json');
-const PLAYER_TEAM_PATH = p('../data/player-teams.json');
 
 async function writeJSON(pth, obj) {
   return await writeFile(pth, JSON.stringify(obj));
