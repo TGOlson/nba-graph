@@ -16,13 +16,13 @@ Build
 npm run build
 ```
 
-Run server
-
-```
-// TODO!
-```
-
 Run scraper
+
+```
+node dist/server.bundle.js --run-scraper
+```
+
+Run server
 
 ```
 // TODO!
