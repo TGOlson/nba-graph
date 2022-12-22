@@ -5,11 +5,13 @@ import { getTeams, Team } from './team';
 import { getPlayers, Player } from './player';
 import { getPlayerTeams, PlayerTeam } from './player-teams';
 
-import { writeFile } from 'fs/promises';
+import { writeFile, mkdir } from 'fs/promises';
 import path from 'path';
+import { existsSync } from 'fs';
 
 const p = (x: string) => path.resolve(__dirname, x)
 
+const DATA_PATH = p('../data');
 const SEASON_PATH = p('../data/seasons.json');
 const LEAGUE_PATH = p('../data/leagues.json');
 const FRANCHISE_PATH = p('../data/franchises.json');
@@ -23,6 +25,11 @@ async function writeJSON(pth, obj) {
 
 export async function run() {
   console.log('*** Running scraper ***');
+
+  console.log('Create "data" dir if it does not already exist...');
+  if (!existsSync(DATA_PATH)) {
+    await mkdir(DATA_PATH, {recursive: false});
+  }
 
   // ** Seasons
   console.log('Fetching seasons...');

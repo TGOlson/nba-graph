@@ -1,4 +1,4 @@
 node_modules/
 old/
 dist/
-data/*.json
+data/
