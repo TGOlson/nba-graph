@@ -8,6 +8,9 @@ export const makeFetch = (verbose: boolean = false): Fetch => {
 
   return (url) => {
     if (verbose) console.log(`[${(new Date()).toISOString()}] Fetching url: ${url}`);
-    return nodeFetch(url, { agent });
+    return nodeFetch(url, { agent }).then(res => {
+      if (res.status !== 200) throw new Error(`Unexpected response. Status: ${res.status}, ${res.statusText}`);
+      return res;
+    });
   }
 }
