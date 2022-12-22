@@ -37,7 +37,7 @@ Available commands:
   '--write-player-teams'
 ]
 
-Note: sequencing of commands is a little brittle. You must `write-seasons` before reading, but also needed to run writers in order the first time to populate data (TODO: should clean this up later).
+Note: sequencing of commands is a little brittle. You must `write-seasons` before reading, but also need to run writers sequencially the first time to populate data (TODO: should clean this up later).
 
 Run server
 
