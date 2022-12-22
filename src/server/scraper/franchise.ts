@@ -1,5 +1,7 @@
 import fetch from 'node-fetch';
 import * as cheerio from 'cheerio';
+import https from 'node:https';
+
 import { fromRelative } from '../util/bref-url';
 
 export type Franchise = {
@@ -15,16 +17,16 @@ const ACTIVE_SELECTOR = `#all_teams_active ${BASE_SELECTOR}`
 const DEFUNCT_SELECTOR = `#all_teams_defunct ${BASE_SELECTOR}`
 const URL_REGEX = /teams\/([A-Z]{3})\//;
 
-export async function getActiveFranchises(): Promise<Franchise[]> {
-  return getFranchises(true);
+export async function getActiveFranchises(agent: https.Agent): Promise<Franchise[]> {
+  return getFranchises(agent, true);
 }
 
-export async function getDefunctFranchises(): Promise<Franchise[]> {
-  return getFranchises(false);
+export async function getDefunctFranchises(agent: https.Agent): Promise<Franchise[]> {
+  return getFranchises(agent, false);
 }
 
-async function getFranchises(active: boolean): Promise<Franchise[]> {
-  const response = await fetch(fromRelative(RELATIVE_URL));
+async function getFranchises(agent: https.Agent, active: boolean): Promise<Franchise[]> {
+  const response = await fetch(fromRelative(RELATIVE_URL), { agent });
   const body = await response.text();
   
   const $ = cheerio.load(body)

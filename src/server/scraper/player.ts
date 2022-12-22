@@ -1,5 +1,7 @@
 import fetch from 'node-fetch';
 import * as cheerio from 'cheerio';
+import https from 'node:https';
+
 import { fromRelative } from '../util/bref-url';
 import { Team } from './team';
 
@@ -12,8 +14,8 @@ export type Player = {
 const SELECTOR = 'table#roster tbody tr';
 const URL_REGEX = /players\/[a-z]{1}\/([a-z]{2,}\d{2}).html/
 
-export async function getPlayers(team: Team): Promise<Player[]> {
-  const response = await fetch(fromRelative(team.url));
+export async function getPlayers(agent: https.Agent, team: Team): Promise<Player[]> {
+  const response = await fetch(fromRelative(team.url), { agent });
   const body = await response.text();
   
   const $ = cheerio.load(body)
