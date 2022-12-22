@@ -19,8 +19,25 @@ npm run build
 Run scraper
 
 ```
-node dist/server.bundle.js --run-scraper
+node dist/server.bundle.js <command>
 ```
+
+Available commands:
+[
+  '--read-seasons',
+  '--read-leagues',
+  '--read-franchises',
+  '--read-teams',
+  '--read-players',
+  '--read-player-teams',
+  '--write-seasons',
+  '--write-franchises',
+  '--write-teams',
+  '--write-players',
+  '--write-player-teams'
+]
+
+Note: sequencing of commands is a little brittle. You must `write-seasons` before reading, but also needed to run writers in order the first time to populate data (TODO: should clean this up later).
 
 Run server
 

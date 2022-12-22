@@ -1,9 +1,12 @@
 import { readFranchises, readLeagues, readPlayers, readPlayerTeams, readSeasons, readTeams } from "./cmd/read";
 import { writeFranchises, writePlayers, writePlayerTeams, writeSeasonsAndLeagues, writeTeams } from "./cmd/write";
-import { Fetch, makeDelayedFetch, makeFetch } from "./util/fetch";
+import { Fetch, makeDelayedFetch } from "./util/fetch";
 
 type Reader<T> = () => Promise<T>;
 type Writer = (Fetch) => Promise<void>;
+
+const VERBOSE_FETCH = true;
+const FETCH_DELAY_MS = 100;
 
 const readers: {[key: string]: Reader<any> } = {
   '--read-seasons': readSeasons,
@@ -31,7 +34,7 @@ async function main() {
     const res: any = await readers[cmd]();
     console.log(res);
   } else if (writers[cmd]) {
-    const fetch = makeDelayedFetch(true, 100);
+    const fetch = makeDelayedFetch(VERBOSE_FETCH, FETCH_DELAY_MS);
     await writers[cmd](fetch);
   } else {
     console.log('Unknown command: ', cmd, '\nAvailable commands:\n', Object.keys(readers), Object.keys(writers));
