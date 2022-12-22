@@ -1,8 +1,7 @@
-import fetch from 'node-fetch';
 import * as cheerio from 'cheerio';
-import https from 'node:https';
 
 import { fromRelative } from '../util/bref-url';
+import { Fetch } from '../util/fetch';
 
 export type Season = {
   id: string;
@@ -15,8 +14,8 @@ const RELATIVE_URL = '/leagues'
 const SELECTOR = 'tr th a[href]'
 const URL_REGEX = /([A-Z]{3})_(\d{4}).html/;
 
-export async function getSeasons(agent: https.Agent): Promise<Season[]> {
-  const response = await fetch(fromRelative(RELATIVE_URL), { agent });
+export async function getSeasons(fetch: Fetch): Promise<Season[]> {
+  const response = await fetch(fromRelative(RELATIVE_URL));
   const body = await response.text();
   
   const $ = cheerio.load(body)
