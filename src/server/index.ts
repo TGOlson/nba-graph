@@ -3,7 +3,7 @@ import { writeFranchises, writePlayers, writePlayerTeams, writeSeasonsAndLeagues
 import { Fetch, makeDelayedFetch } from "./util/fetch";
 
 type Reader<T> = () => Promise<T>;
-type Writer = (Fetch) => Promise<void>;
+type Writer = (fetch: Fetch) => Promise<void>;
 
 const VERBOSE_FETCH = true;
 const FETCH_DELAY_MS = 2500; // basketball-reference seems to get mad at >30 req/m

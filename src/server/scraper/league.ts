@@ -14,10 +14,7 @@ export const fromSeasons = (seasons: Season[]): League[] => {
       url: RELATIVE_URL,
     };
 
-    return {
-      [season.leagueId]: league,
-      ...leagueMap
-    };
+    return null;
   }, {})
 
   return Object.values(leagueMap);

@@ -13,7 +13,7 @@ import { FRANCHISE_PATH, LEAGUE_PATH, PLAYER_PATH, PLAYER_TEAM_PATH, SEASON_PATH
 
 const p = (x: string) => path.resolve(__dirname, x)
 
-async function writeJSON(pth, obj) {
+async function writeJSON(pth: string, obj: object) {
   return await writeFile(pth, JSON.stringify(obj));
 }
 
