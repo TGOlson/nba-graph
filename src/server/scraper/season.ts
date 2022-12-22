@@ -1,12 +1,12 @@
 import fetch from 'node-fetch';
 import * as cheerio from 'cheerio';
-import { BrefURL, fromRelative, compact } from '../util/bref-url';
+import { fromRelative } from '../util/bref-url';
 
 export type Season = {
 	id: string;
 	leagueId: string;
 	year: number;
-	url: BrefURL;
+	url: string;
 }
 
 const RELATIVE_URL = '/leagues'
@@ -20,10 +20,9 @@ export async function getSeasons(): Promise<Season[]> {
   const $ = cheerio.load(body)
 
   return $(SELECTOR).toArray().map((el: cheerio.Element) => {
-    const link = el.attribs.href;
-    const seasonUrl = fromRelative(link);
+    const url = el.attribs.href;
 
-    const res = URL_REGEX.exec(link);
+    const res = URL_REGEX.exec(url);
 
     if (!res) {
       throw new Error('Invalid response from leagues: unparseable url')
@@ -35,7 +34,7 @@ export async function getSeasons(): Promise<Season[]> {
       id: `${leagueId}_${year}`,
       leagueId,
       year: parseInt(year),
-      url: compact(seasonUrl),
+      url,
     }
   });
 }

@@ -1,6 +1,6 @@
 import fetch from 'node-fetch';
 import * as cheerio from 'cheerio';
-import { BrefURL, fromRelative, compact, expand } from '../util/bref-url';
+import { fromRelative } from '../util/bref-url';
 import { Franchise } from './franchise';
 
 export type Team = {
@@ -9,7 +9,7 @@ export type Team = {
   seasonId: string;
   name: string;
   year: number;
-	url: BrefURL;
+	url: string;
 }
 
 const SELECTOR = 'table.stats_table tbody tr'
@@ -17,7 +17,7 @@ const TEAM_URL_REGEX = /teams\/([A-Z]{3})\/(\d{4}).html/;
 const SEASON_URL_REGEX = /([A-Z]{3}_\d{4}).html/;
 
 export async function getTeams(franchise: Franchise): Promise<Team[]> {
-  const response = await fetch(expand(franchise.url));
+  const response = await fetch(fromRelative(franchise.url));
   const body = await response.text();
   
   const $ = cheerio.load(body)
@@ -47,7 +47,7 @@ export async function getTeams(franchise: Franchise): Promise<Team[]> {
       seasonId,
       name,
       year: parseInt(year),
-      url: compact(fromRelative(teamLink)),
+      url: teamLink,
     }
   });
 }

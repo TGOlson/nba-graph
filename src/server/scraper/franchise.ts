@@ -1,11 +1,11 @@
 import fetch from 'node-fetch';
 import * as cheerio from 'cheerio';
-import { BrefURL, fromRelative, compact } from '../util/bref-url';
+import { fromRelative } from '../util/bref-url';
 
 export type Franchise = {
 	id: string;
 	name: string;
-	url: BrefURL;
+	url: string;
   active: boolean;
 }
 
@@ -34,13 +34,13 @@ async function getFranchises(active: boolean): Promise<Franchise[]> {
   return $(selector).toArray().map((el: cheerio.AnyNode) => {
     const aRef = $('th a', el);
     const name = aRef.text();
-    const link = aRef.attr('href');
+    const url = aRef.attr('href');
     
-    if (!link) {
-      throw new Error('Invalid response from franchise: no link')
+    if (!url) {
+      throw new Error('Invalid response from franchise: no url')
     }
     
-    const res = URL_REGEX.exec(link);
+    const res = URL_REGEX.exec(url);
         
     if (!res) {
       throw new Error('Invalid response from franchise: unparseable url')
@@ -51,7 +51,7 @@ async function getFranchises(active: boolean): Promise<Franchise[]> {
     return {
       id,
       name,
-      url: compact(fromRelative(link)),
+      url,
       active,
     }
   });
