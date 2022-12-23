@@ -10,7 +10,6 @@ const appConfig = {
   entry: './src/app/index.tsx',
   mode: 'development',
   target: 'web',
-  watch: true,
   output: {
     filename: 'app.bundle.js',
     path: path.resolve(__dirname, 'dist')
@@ -18,14 +17,29 @@ const appConfig = {
   module: { rules: [tsModule] },
   resolve: {
     extensions: ['.js', '.jsx', '.ts', '.tsx']
-  }
+  },
+  devServer: {
+    static: [
+      { 
+        directory: path.join(__dirname, 'public') 
+      },
+      { 
+        directory: path.join(__dirname, 'dist'),
+        publicPath: '/dist',
+      },
+      { 
+        directory: path.join(__dirname, 'data'),
+        publicPath: '/data',
+      }
+    ],
+    port: 3000,
+  },
 }
 
 const serverConfig = {
   entry: './src/server/index.ts',
   mode: 'development',
   target: 'node',
-  watch: true,
   output: {
     filename: 'server.bundle.js',
     path: path.resolve(__dirname, 'dist')
@@ -33,7 +47,7 @@ const serverConfig = {
   module: { rules: [tsModule] },
   resolve: {
     extensions: ['.js', '.ts']
-  }
+  },
 }
 
 module.exports = [appConfig, serverConfig]

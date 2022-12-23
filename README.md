@@ -13,7 +13,11 @@ npm install
 Build
 
 ```
-npm run build
+// Build once
+npx webpack
+
+// Run dev-server and rebuild on changes
+npx webpack serve
 ```
 
 Run scraper
@@ -50,7 +54,7 @@ Run server
 * https://github.com/jacomyal/sigma.js/wiki
 
 ### todo
-* add team->season relationship
+* improve scraper by downloading pages, then later extracting data (less brittle)
 * consider adding interesting metadata for visualization (team wins, player WS)
 * better error handling in command
 * create webserver for serving graph data
