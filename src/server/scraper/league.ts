@@ -8,13 +8,16 @@ export type League = {
 const RELATIVE_URL = '/leagues';
 
 export const fromSeasons = (seasons: Season[]): League[] => {
-  const leagueMap: {[key: string]: League} = seasons.reduce((leagueMap, season) => {
+  const leagueMap: Record<string, League> = seasons.reduce((leagueMap, season) => {
     const league = {
       id: season.leagueId,
       url: RELATIVE_URL,
     };
 
-    return null;
+    return {
+      [season.leagueId]: league,
+      ...leagueMap
+    };
   }, {})
 
   return Object.values(leagueMap);

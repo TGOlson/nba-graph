@@ -9,7 +9,7 @@ export const delayMS = (t: number): Promise<void> => {
   });
 };
 
-export const makeFetch = (verbose: boolean = false): Fetch => {
+export const makeFetch = (verbose = false): Fetch => {
   const agent = new Agent({ maxSockets: 100 });
 
   return (url) => {
@@ -22,7 +22,7 @@ export const makeFetch = (verbose: boolean = false): Fetch => {
 }
 
 // Kind of lazy fake-throttling, just add a delay before each request...
-export const makeDelayedFetch = (verbose: boolean = false, delay: number): Fetch => {
+export const makeDelayedFetch = (verbose = false, delay: number): Fetch => {
   const fetch = makeFetch(verbose);
   return (url) => delayMS(delay).then(() => fetch(url));
 }

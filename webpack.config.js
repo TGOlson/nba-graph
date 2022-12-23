@@ -1,18 +1,4 @@
-const path = require('path');
-
-// Do I need this anymore? ts-loader seems to handle typecheck and transpile...
-// const babelModule = {
-//   test: /\.tsx?$/,
-//   exclude: /node_modules/,
-//   use: {
-//     loader: 'babel-loader',
-//     options: {
-//       presets: [
-//         ['@babel/preset-env', { targets: 'defaults' }]
-//       ]
-//     }
-//   }
-// }
+const path = require('path'); // eslint-disable-line @typescript-eslint/no-var-requires
 
 const tsModule = {
   test: /\.tsx?$/,

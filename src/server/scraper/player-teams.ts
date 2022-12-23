@@ -33,7 +33,7 @@ export async function getPlayerTeams(fetch: Fetch, player: Player): Promise<Play
       throw new Error('Invalid response from team: unparseable url')
     } 
     
-    const [__, franchiseId, year] = res;
+    const [_, franchiseId, year] = res;
     
     return {
       playerId: player.id,

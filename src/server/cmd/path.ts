@@ -1,6 +1,6 @@
 import path from 'path';
 
-const p = (x: string) => path.resolve(__dirname, x)
+const p = (x: string): string => path.resolve(__dirname, x)
 
 export const DATA_PATH = p('../data');
 export const SEASON_PATH = p('../data/seasons.json');
