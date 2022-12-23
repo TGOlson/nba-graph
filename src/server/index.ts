@@ -1,5 +1,6 @@
+import { PLAYER_PATH } from "./cmd/path";
 import { readFranchises, readLeagues, readPlayers, readPlayerTeams, readSeasons, readTeams } from "./cmd/read";
-import { writeFranchises, writePlayers, writePlayerTeams, writeSeasonsAndLeagues, writeTeams } from "./cmd/write";
+import { dedupe, writeFranchises, writeJSON, writePlayers, writePlayerTeams, writeSeasonsAndLeagues, writeTeams } from "./cmd/write";
 import { Franchise } from "./scraper/franchise";
 import { League } from "./scraper/league";
 import { Player } from "./scraper/player";
@@ -53,6 +54,16 @@ async function main() {
   } else if (writer) {
     const fetch = makeDelayedFetch(VERBOSE_FETCH, FETCH_DELAY_MS);
     await writer(fetch);
+  
+  // One time cleanup command
+  } else if (cmd === '--dedupe-players') {
+    const players = await readPlayers();
+    const dedupedPlayers = dedupe(players);
+
+    console.log('Initial player count: ', players.length);
+    console.log('Deduped player count: ', dedupedPlayers.length);
+
+    await writeJSON(PLAYER_PATH, dedupedPlayers);
   } else {
     console.log('Unknown command: ', cmd, '\nAvailable commands:\n', Object.keys(readers), Object.keys(writers));
   }

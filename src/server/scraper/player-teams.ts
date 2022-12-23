@@ -19,9 +19,15 @@ export async function getPlayerTeams(fetch: Fetch, player: Player): Promise<Play
   
   const $ = cheerio.load(body)
 
-  return $(SELECTOR).toArray().map((el: cheerio.AnyNode) => {
+  const maybePlayerTeams: (PlayerTeam | null)[] = $(SELECTOR).toArray().map((el: cheerio.AnyNode) => {
     const playerLink = $('th a', el).attr('href');
     const teamLink = $('td[data-stat="team_id"] a', el).attr('href');
+
+    // If there is no team link, this is a rollup because the player was on multiple teams
+    // Could also check for team name == "TOT"
+    if (!teamLink) {
+      return null;
+    }
 
     if (!playerLink || !teamLink) {
       throw new Error('Invalid response from player: no link')
@@ -41,4 +47,10 @@ export async function getPlayerTeams(fetch: Fetch, player: Player): Promise<Play
       url: playerLink,
     }
   });
+
+  return just(maybePlayerTeams);
+}
+
+function just<T> (xs: (T | null)[]): T[] {
+  return xs.filter(x => x !== null) as T[];
 }

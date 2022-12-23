@@ -10,7 +10,7 @@ import { Fetch } from '../util/fetch';
 import { readFranchises, readPlayers, readTeams } from './read';
 import { FRANCHISE_PATH, LEAGUE_PATH, PLAYER_PATH, PLAYER_TEAM_PATH, SEASON_PATH, TEAM_PATH } from './path';
 
-async function writeJSON (pth: string, obj: object): Promise<void> {
+export async function writeJSON (pth: string, obj: object): Promise<void> {
   return await writeFile(pth, JSON.stringify(obj));
 }
 
@@ -79,8 +79,10 @@ export async function writePlayers (fetch: Fetch): Promise<void> {
     return async () => await getPlayers(fetch, team)
   })).then(xs => xs.flat());
 
-  console.log(`Writing ${players.length} players to:`, PLAYER_PATH);
-  return await writeJSON(PLAYER_PATH, players);
+  const dedupedPlayers = dedupe(players);
+
+  console.log(`Writing ${dedupedPlayers.length} players to:`, PLAYER_PATH);
+  return await writeJSON(PLAYER_PATH, dedupedPlayers);
 }
 
 export async function writePlayerTeams (fetch: Fetch): Promise<void> {
@@ -93,4 +95,14 @@ export async function writePlayerTeams (fetch: Fetch): Promise<void> {
 
   console.log(`Writing ${playerTeams.length} player teams to:`, PLAYER_TEAM_PATH);
   return await writeJSON(PLAYER_TEAM_PATH, playerTeams);
+}
+
+export const dedupe = (xs: {id: string}[]): {id: string}[] => {
+  const accum: Record<string, {id: string}> = {};
+
+  for (const x of xs) {
+    accum[x.id] = x;
+  }
+
+  return Object.values(accum);
 }
