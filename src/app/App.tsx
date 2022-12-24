@@ -1,8 +1,7 @@
-import { SigmaContainer } from '@react-sigma/core';
 import React, { Component } from 'react';
 import { Franchise, League, Player, PlayerTeam, Season, Team } from '../shared/nba-types';
 import "./App.css";
-import { DisplayGraph, LoadGraph } from './Graph';
+import { DisplayGraph } from './Graph';
 
 async function fetchJSON<T> (url: string): Promise<T> {
   return fetch(url).then(res => res.json() as T);
