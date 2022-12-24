@@ -51,7 +51,9 @@ Run server
 
 #### refs
 * http://sigmajs.org/
-* https://github.com/jacomyal/sigma.js/wiki
+* https://sim51.github.io/react-sigma/
+* https://github.com/graphology/graphology
+* https://graphology.github.io
 
 ### todo
 * improve scraper by downloading pages, then later extracting data (less brittle)
