@@ -1,11 +1,5 @@
 const path = require('path'); // eslint-disable-line @typescript-eslint/no-var-requires
 
-const tsModule = {
-  test: /\.tsx?$/,
-  use: 'ts-loader',
-  exclude: /node_modules/,
-};
-
 module.exports = {
   entry: path.resolve(__dirname, '../src/scraper/index.ts'),
   watch: true,
@@ -16,7 +10,9 @@ module.exports = {
     filename: 'scraper.bundle.js',
     path: path.resolve(__dirname, '../dist')
   },
-  module: { rules: [tsModule] },
+  module: { 
+    rules: [] 
+  },
   resolve: {
     extensions: ['.js', '.ts']
   },

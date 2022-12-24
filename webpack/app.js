@@ -1,11 +1,5 @@
 const path = require('path'); // eslint-disable-line @typescript-eslint/no-var-requires
 
-const tsModule = {
-  test: /\.tsx?$/,
-  use: 'ts-loader',
-  exclude: /node_modules/,
-};
-
 module.exports = {
   entry: path.resolve(__dirname, '../src/app/index.tsx'),
   mode: 'development',
@@ -17,13 +11,10 @@ module.exports = {
     publicPath: '/assets/js',
   },
   module: { 
-    rules: [
-      tsModule,
-      {
-        test: /\.css$/i,
-        use: ["style-loader", "css-loader"],
-      },
-    ] 
+    rules: [{
+      test: /\.css$/i,
+      use: ["style-loader", "css-loader"],
+    }] 
   },
   resolve: {
     extensions: ['.js', '.jsx', '.ts', '.tsx']
