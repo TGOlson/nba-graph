@@ -30,11 +30,16 @@ export async function getTeams(fetch: Fetch, franchise: Franchise): Promise<Team
       throw new Error('Invalid response from franchise: unparseable url');
     }
     
-    const [_, _franchiseId, year] = teamRes;
-    const [_x, seasonId] = seasonRes;
+    // A team's franchise id can change each year, which is what we should use for a year based id. 
+    // eg. Lakers 2022 -> LAL_2022
+    //     Lakers 1950 -> MNL_1950
+    // but they should all be linked to overall LAL franchise
+    const [_, yearAppropriateFranchiseId, year] = teamRes;
+    const [_team, seasonId] = seasonRes;
 
     return {
-      id: `${franchise.id}_${year}`,
+      // should be team id
+      id: `${yearAppropriateFranchiseId}_${year}`,
       franchiseId: franchise.id,
       seasonId,
       name,
