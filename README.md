@@ -53,6 +53,7 @@ Note: sequencing of commands is a little brittle. You must `write-seasons` befor
 * https://sim51.github.io/react-sigma/
 * https://github.com/graphology/graphology
 * https://graphology.github.io
+* highlighting nodes: https://github.com/sim51/react-sigma/blob/main/website/src/components/GraphDefault.tsx#L65
 
 ### todo
 * improve scraper by downloading pages, then later extracting data (less brittle)

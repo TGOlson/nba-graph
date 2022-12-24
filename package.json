@@ -43,6 +43,7 @@
     "@types/react-dom": "^18.0.9",
     "cheerio": "^1.0.0-rc.12",
     "graphology": "^0.25.1",
+    "graphology-layout": "^0.6.1",
     "graphology-layout-forceatlas2": "^0.10.1",
     "graphology-types": "^0.24.5",
     "lodash": "^4.17.21",
