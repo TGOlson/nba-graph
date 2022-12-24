@@ -9,7 +9,6 @@ export const createGraph = (data: NBAData): Graph => {
   // Test: grab a single player, filter their teams
   const players = data.players.slice(10, 11);
   const playerIds = players.map(x => x.id);
-  debugger;
 
   const playerTeams = data.playerTeams.filter(pt => playerIds.includes(pt.playerId));
   const playerTeamIds = playerTeams.map(x => x.teamId);

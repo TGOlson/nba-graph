@@ -38,7 +38,6 @@ export async function getTeams(fetch: Fetch, franchise: Franchise): Promise<Team
     const [_team, seasonId] = seasonRes;
 
     return {
-      // should be team id
       id: `${yearAppropriateFranchiseId}_${year}`,
       franchiseId: franchise.id,
       seasonId,
