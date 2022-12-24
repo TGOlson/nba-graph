@@ -13,12 +13,14 @@ npm install
 Build
 
 ```
-// Build once
-npx webpack
+// build scraper, and watch for changes
+npm run build:scraper
 
-// Run dev-server and rebuild on changes
-// App is available at localhost:3000
-npx webpack serve
+// build app
+npm run build:app
+
+// build app, watch for changes and serve with dev server
+npm run serve:app
 ```
 
 Run scraper

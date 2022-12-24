@@ -3,7 +3,10 @@
   "version": "1.0.0",
   "description": "Graph view of basketball-reference NBA data. Contains two main components, a scraper for downloading and saving the data, and a UI for visualizing it.",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build:scraper": "npx webpack --config ./webpack/config.scraper.js",
+    "build:app": "npx webpack --config ./webpack/config.app.js",
+    "serve:app": "npx webpack serve --config ./webpack/config.app.js"
   },
   "repository": {
     "type": "git",
