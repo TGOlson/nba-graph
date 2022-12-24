@@ -15,7 +15,15 @@ const appConfig = {
     path: path.resolve(__dirname, 'dist'),
     publicPath: '/assets/js',
   },
-  module: { rules: [tsModule] },
+  module: { 
+    rules: [
+      tsModule,
+      {
+        test: /\.css$/i,
+        use: ["style-loader", "css-loader"],
+      },
+    ] 
+  },
   resolve: {
     extensions: ['.js', '.jsx', '.ts', '.tsx']
   },
