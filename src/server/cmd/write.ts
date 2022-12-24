@@ -1,14 +1,15 @@
 import { writeFile } from 'fs/promises';
 
-import { League, fromSeasons } from '../scraper/league';
-import { Season, getSeasons } from '../scraper/season';
-import { Franchise, getActiveFranchises, getDefunctFranchises } from '../scraper/franchise';
-import { getTeams, Team } from '../scraper/team';
-import { getPlayers, Player } from '../scraper/player';
-import { getPlayerTeams, PlayerTeam } from '../scraper/player-teams';
+import { fromSeasons } from '../scraper/league';
+import { getSeasons } from '../scraper/season';
+import { getActiveFranchises, getDefunctFranchises } from '../scraper/franchise';
+import { getTeams } from '../scraper/team';
+import { getPlayers } from '../scraper/player';
+import { getPlayerTeams } from '../scraper/player-teams';
 import { Fetch } from '../util/fetch';
 import { readFranchises, readPlayers, readTeams } from './read';
 import { FRANCHISE_PATH, LEAGUE_PATH, PLAYER_PATH, PLAYER_TEAM_PATH, SEASON_PATH, TEAM_PATH } from './path';
+import { Franchise, League, Player, PlayerTeam, Season, Team } from '../../shared/nba-types';
 
 export async function writeJSON (pth: string, obj: object): Promise<void> {
   return await writeFile(pth, JSON.stringify(obj));

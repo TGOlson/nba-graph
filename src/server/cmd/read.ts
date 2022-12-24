@@ -1,11 +1,6 @@
 import { readFile } from 'fs/promises';
+import { Franchise, League, Player, PlayerTeam, Season, Team } from '../../shared/nba-types';
 
-import { Franchise } from '../scraper/franchise';
-import { League } from '../scraper/league';
-import { Player } from '../scraper/player';
-import { PlayerTeam } from '../scraper/player-teams';
-import { Season } from '../scraper/season';
-import { Team } from '../scraper/team';
 import { FRANCHISE_PATH, LEAGUE_PATH, PLAYER_PATH, PLAYER_TEAM_PATH, SEASON_PATH, TEAM_PATH } from './path';
 
 function reader<T> (path: string): () => Promise<T> {

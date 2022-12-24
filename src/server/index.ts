@@ -1,12 +1,8 @@
 import { PLAYER_PATH } from "./cmd/path";
 import { readFranchises, readLeagues, readPlayers, readPlayerTeams, readSeasons, readTeams } from "./cmd/read";
 import { dedupe, writeFranchises, writeJSON, writePlayers, writePlayerTeams, writeSeasonsAndLeagues, writeTeams } from "./cmd/write";
-import { Franchise } from "./scraper/franchise";
-import { League } from "./scraper/league";
-import { Player } from "./scraper/player";
-import { PlayerTeam } from "./scraper/player-teams";
-import { Season } from "./scraper/season";
-import { Team } from "./scraper/team";
+
+import { Franchise, League, Player, PlayerTeam, Season, Team } from '../shared/nba-types';
 import { Fetch, makeDelayedFetch } from "./util/fetch";
 
 type Reader<T> = () => Promise<T>;
@@ -25,7 +21,7 @@ const readers: Record<string, Reader<ReaderOutput>> = {
   '--read-teams': readTeams, 
   '--read-players': readPlayers, 
   '--read-player-teams': readPlayerTeams,
-}
+};
 
 const getReader = (str: string): Reader<ReaderOutput> | null => readers[str];
 
@@ -38,7 +34,7 @@ const writers: Record<string, Writer> = {
   '--write-teams': writeTeams,               // 50 requests, ~1500 results
   '--write-players': writePlayers,           // ~1500 requests, ?? results
   '--write-player-teams': writePlayerTeams,  // ??
-}
+};
 
 const getWriter = (str: string): Writer | null => writers[str];
 

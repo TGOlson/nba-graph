@@ -1,9 +1,5 @@
-import type { Season } from './season';
+import { League, Season } from '../../shared/nba-types';
 
-export type League = {
-  id: string;
-  url: string;
-}
 
 const RELATIVE_URL = '/leagues';
 
@@ -18,7 +14,7 @@ export const fromSeasons = (seasons: Season[]): League[] => {
       [season.leagueId]: league,
       ...leagueMap
     };
-  }, {})
+  }, {});
 
   return Object.values(leagueMap);
-}
+};

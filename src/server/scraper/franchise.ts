@@ -1,14 +1,8 @@
 import * as cheerio from 'cheerio';
+import { Franchise } from '../../shared/nba-types';
 
 import { fromRelative } from '../util/bref-url';
 import { Fetch } from '../util/fetch';
-
-export type Franchise = {
-  id: string;
-  name: string;
-  url: string;
-  active: boolean;
-};
 
 const RELATIVE_URL = '/teams';
 const BASE_SELECTOR = 'table.stats_table tbody tr.full_table';
