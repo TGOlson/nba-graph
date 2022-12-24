@@ -45,12 +45,12 @@ const appConfig = {
   },
 };
 
-const serverConfig = {
-  entry: './src/server/index.ts',
+const scraperConfig = {
+  entry: './src/scraper/index.ts',
   mode: 'development',
   target: 'node',
   output: {
-    filename: 'server.bundle.js',
+    filename: 'scraper.bundle.js',
     path: path.resolve(__dirname, './dist')
   },
   module: { rules: [tsModule] },
@@ -59,4 +59,4 @@ const serverConfig = {
   },
 };
 
-module.exports = [appConfig, serverConfig];
+module.exports = [appConfig, scraperConfig];

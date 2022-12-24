@@ -1,11 +1,11 @@
 import { writeFile } from 'fs/promises';
 
-import { fromSeasons } from '../scraper/league';
-import { getSeasons } from '../scraper/season';
-import { getActiveFranchises, getDefunctFranchises } from '../scraper/franchise';
-import { getTeams } from '../scraper/team';
-import { getPlayers } from '../scraper/player';
-import { getPlayerTeams } from '../scraper/player-teams';
+import { fromSeasons } from '../core/league';
+import { getSeasons } from '../core/season';
+import { getActiveFranchises, getDefunctFranchises } from '../core/franchise';
+import { getTeams } from '../core/team';
+import { getPlayers } from '../core/player';
+import { getPlayerTeams } from '../core/player-teams';
 import { Fetch } from '../util/fetch';
 import { readFranchises, readPlayers, readTeams } from './read';
 import { FRANCHISE_PATH, LEAGUE_PATH, PLAYER_PATH, PLAYER_TEAM_PATH, SEASON_PATH, TEAM_PATH } from './path';
