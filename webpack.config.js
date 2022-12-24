@@ -10,6 +10,7 @@ const appConfig = {
   entry: './src/app/index.tsx',
   mode: 'development',
   target: 'web',
+  devtool: 'inline-source-map',
   output: {
     filename: 'app.bundle.js',
     path: path.resolve(__dirname, 'dist'),
@@ -49,6 +50,7 @@ const scraperConfig = {
   entry: './src/scraper/index.ts',
   mode: 'development',
   target: 'node',
+  devtool: 'inline-source-map',
   output: {
     filename: 'scraper.bundle.js',
     path: path.resolve(__dirname, './dist')
