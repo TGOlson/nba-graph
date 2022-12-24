@@ -17,13 +17,14 @@ Build
 npx webpack
 
 // Run dev-server and rebuild on changes
+// App is available at localhost:3000
 npx webpack serve
 ```
 
 Run scraper
 
 ```
-node dist/server.bundle.js <command>
+node dist/scraper.bundle.js <command>
 ```
 
 Available commands:
@@ -42,12 +43,6 @@ Available commands:
 ]
 
 Note: sequencing of commands is a little brittle. You must `write-seasons` before reading, but also need to run writers sequencially the first time to populate data (TODO: should clean this up later).
-
-Run server
-
-```
-// TODO!
-```
 
 #### refs
 * http://sigmajs.org/
