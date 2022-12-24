@@ -12,7 +12,8 @@ const appConfig = {
   target: 'web',
   output: {
     filename: 'app.bundle.js',
-    path: path.resolve(__dirname, 'dist')
+    path: path.resolve(__dirname, 'dist'),
+    publicPath: '/assets/js',
   },
   module: { rules: [tsModule] },
   resolve: {
@@ -21,15 +22,15 @@ const appConfig = {
   devServer: {
     static: [
       { 
-        directory: path.join(__dirname, 'public') 
+        directory: path.resolve(__dirname, 'public') 
       },
       { 
-        directory: path.join(__dirname, 'dist'),
-        publicPath: '/dist',
+        directory: path.resolve(__dirname, 'dist'),
+        publicPath: '/assets/js',
       },
       { 
-        directory: path.join(__dirname, 'data'),
-        publicPath: '/data',
+        directory: path.resolve(__dirname, 'data'),
+        publicPath: '/assets/data',
       }
     ],
     port: 3000,
@@ -42,7 +43,7 @@ const serverConfig = {
   target: 'node',
   output: {
     filename: 'server.bundle.js',
-    path: path.resolve(__dirname, 'dist')
+    path: path.resolve(__dirname, './dist')
   },
   module: { rules: [tsModule] },
   resolve: {
