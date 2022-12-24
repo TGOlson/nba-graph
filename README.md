@@ -27,6 +27,7 @@ Run scraper
 node dist/scraper.bundle.js <command>
 ```
 
+```
 Available commands:
 [
   '--read-seasons',
@@ -41,10 +42,11 @@ Available commands:
   '--write-players',
   '--write-player-teams'
 ]
+```
 
 Note: sequencing of commands is a little brittle. You must `write-seasons` before reading, but also need to run writers sequencially the first time to populate data (TODO: should clean this up later).
 
-#### refs
+### refs
 * http://sigmajs.org/
 * https://sim51.github.io/react-sigma/
 * https://github.com/graphology/graphology
