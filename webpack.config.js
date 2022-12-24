@@ -35,7 +35,7 @@ const appConfig = {
     ],
     port: 3000,
   },
-}
+};
 
 const serverConfig = {
   entry: './src/server/index.ts',
@@ -49,6 +49,6 @@ const serverConfig = {
   resolve: {
     extensions: ['.js', '.ts']
   },
-}
+};
 
-module.exports = [appConfig, serverConfig]
+module.exports = [appConfig, serverConfig];

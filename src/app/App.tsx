@@ -6,7 +6,7 @@ class App extends Component {
     fetch('/assets/data/leagues.json')
       .then(res => res.json())
       .then(x => console.log('bang', x))
-      .catch(err => console.log('Err', err))
+      .catch(err => console.log('Err', err));
   }
 
   render () {

@@ -14,7 +14,7 @@ export async function writeJSON (pth: string, obj: object): Promise<void> {
   return await writeFile(pth, JSON.stringify(obj));
 }
 
-type ExecFn<T> = () => Promise<T>
+type ExecFn<T> = () => Promise<T>;
 
 // TODO: later optimize by executing in batches
 async function execSeq<T> (fns: ExecFn<T>[]): Promise<T[]> {
@@ -25,7 +25,7 @@ async function execSeq<T> (fns: ExecFn<T>[]): Promise<T[]> {
       const res = await fn();
       arr.push(res);
     }
-  }
+  };
 
   await promiseExecution();
   return arr;
@@ -64,7 +64,7 @@ export async function writeTeams (fetch: Fetch): Promise<void> {
   const franchises: Franchise[] = await readFranchises();
 
   const teams: Team[] = await execSeq(franchises.map(franchise => {
-    return async () => await getTeams(fetch, franchise)
+    return async () => await getTeams(fetch, franchise);
   })).then(xs => xs.flat());
 
   console.log(`Writing ${teams.length} teams to:`, TEAM_PATH);
@@ -76,7 +76,7 @@ export async function writePlayers (fetch: Fetch): Promise<void> {
   const teams: Team[] = await readTeams();
 
   const players: Player[] = await execSeq(teams.map(team => {
-    return async () => await getPlayers(fetch, team)
+    return async () => await getPlayers(fetch, team);
   })).then(xs => xs.flat());
 
   const dedupedPlayers = dedupe(players);
@@ -90,7 +90,7 @@ export async function writePlayerTeams (fetch: Fetch): Promise<void> {
   const players: Player[] = await readPlayers();
 
   const playerTeams: PlayerTeam[] = await execSeq(players.map(player => {
-    return async () => await getPlayerTeams(fetch, player)
+    return async () => await getPlayerTeams(fetch, player);
   })).then(xs => xs.flat());
 
   console.log(`Writing ${playerTeams.length} player teams to:`, PLAYER_TEAM_PATH);
@@ -105,4 +105,4 @@ export const dedupe = (xs: {id: string}[]): {id: string}[] => {
   }
 
   return Object.values(accum);
-}
+};
