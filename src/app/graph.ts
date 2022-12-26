@@ -17,7 +17,7 @@ export const createGraph = (data: NBAData): Graph => {
   // const teams = data.teams.filter(team => playerTeamIds.includes(team.id));
 
   // teams first, then players
-  const teams = data.teams.slice(0, 300);
+  const teams = data.teams.slice(0, 20);
   const teamIds = teams.map(x => x.id);
 
   const playerTeams = data.playerTeams.filter(pt => teamIds.includes(pt.teamId));
@@ -28,12 +28,12 @@ export const createGraph = (data: NBAData): Graph => {
   console.log('players', players, 'teams', teams, 'playerTeams', playerTeams);
 
   players.forEach(player => {
-    graph.addNode(player.id, {size: 5, label: player.name});
+    graph.addNode(player.id, {size: 2, label: player.name, color: 'green' });
   });
   
   teams.forEach(team => {
     const label = `${team.name} (${team.year})`;
-    graph.addNode(team.id, { size: 15, label });
+    graph.addNode(team.id, { size: 5, label, color: 'red' });
   });
 
   playerTeams.forEach(pt => {
@@ -41,7 +41,6 @@ export const createGraph = (data: NBAData): Graph => {
   });
 
   // mutate graph with layouts
-  // TODO: try using sigma-react for layouts?
   circular.assign(graph);
   forceAtlas2.assign(graph, 50);
 
