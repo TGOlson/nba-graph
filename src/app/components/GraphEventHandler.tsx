@@ -28,6 +28,7 @@ export const GraphEvents = () => {
 
   useEffect(() => {
     setSettings({
+      // TODO: think about intented UI here, kind of messy interactions right now
       nodeReducer: (node: string, data: Attributes): Attributes => {
         // if nothing selected or hovered, quick return
         if (!hoveredNode && !selectedNode) return data;
