@@ -45,7 +45,15 @@ export const GraphEvents = () => {
         if (hoveredNode && graph.neighbors(hoveredNode).includes(node)) return { ...data, highlighted: true };
 
         // otherwise, nothing
-        return {...data, color: '#E2E2E2', highlighted: false };
+        return {
+          ...data, 
+          color: '#E2E2E2', 
+          // labelWeight: 'light',
+          label: null,
+          highlighted: false,
+          // size: data.size - 2,
+          // labelSize: 12, // default 14
+        };
       },
       edgeReducer: (edge: string, data: Attributes): Attributes => {
           // if nothing selected or hovered, quick return

@@ -18,7 +18,7 @@ export const DisplayGraph = (props: DisplayGraphProps) => {
 
   return (
     <SigmaContainer 
-      style={{ height: "700px" }} 
+      style={{ height: "600px" }} 
       graph={graph}
       settings={{
         zIndex: true // TODO: what does this do?
