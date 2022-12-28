@@ -30,7 +30,7 @@ export const playerUrl = (playerId: string): string => `${PLAYERS_URL}/${playerI
 
 // takes a url like: https://www.basketball-reference.com/teams/MIN.html
 // and returns a local path: <pwd>/data/www.basketball-reference.com/teams/MIN.html
-export const localPath = (url: string): [string, string, string] => {
+export const localPath = (url: string): {dirPath: string, filePath: string, fileName: string} => {
   const pieces = url.split('/').slice(1);
   const nPieces = pieces.length;
 
@@ -38,5 +38,5 @@ export const localPath = (url: string): [string, string, string] => {
   const dirPath = path.resolve(__dirname, '../data', ...pieces.slice(0, nPieces - 1));
   const filePath = path.resolve(dirPath, fileName);
 
-  return [dirPath, filePath, fileName];
+  return {dirPath, filePath, fileName};
 };

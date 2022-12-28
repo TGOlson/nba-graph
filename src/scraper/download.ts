@@ -14,7 +14,7 @@ async function downloadPage(fetch: Fetch, url: string): Promise<void> {
 
   if (!html) throw new Error(`Unexpected response from ${url}: ${response.status}, ${response.statusText}`);
 
-  const [dirPath, filePath, _fileName] = localPath(url);
+  const {dirPath, filePath} = localPath(url);
 
   console.log('Saving file to:', filePath);
 
