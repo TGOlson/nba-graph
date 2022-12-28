@@ -1,27 +1,35 @@
+import { readFile } from "fs/promises";
 import * as cheerio from 'cheerio';
-import { Franchise } from '../../shared/nba-types';
 
-import { TEAMS_URL } from '../util/bref-url';
-import { Fetch } from '../util/fetch';
+import { localPath, TEAMS_URL } from "../util/bref-url";
+import { Franchise } from "../../shared/nba-types";
 
 const BASE_SELECTOR = 'table.stats_table tbody tr.full_table';
 const ACTIVE_SELECTOR = `#all_teams_active ${BASE_SELECTOR}`;
 const DEFUNCT_SELECTOR = `#all_teams_defunct ${BASE_SELECTOR}`;
 const URL_REGEX = /teams\/([A-Z]{3})\//;
 
-export async function getActiveFranchises(fetch: Fetch): Promise<Franchise[]> {
-  return getFranchises(fetch, true);
+export async function extractFranchises(): Promise<Franchise[]> {
+  const activeFranchises = await extractActiveFranchises();
+  const defunctFranchises = await extractDefunctFranchises();
+
+  return [...activeFranchises, ...defunctFranchises];
 }
 
-export async function getDefunctFranchises(fetch: Fetch): Promise<Franchise[]> {
-  return getFranchises(fetch, false);
+export async function extractActiveFranchises(): Promise<Franchise[]> {
+  return extractFranchisesInternal(true);
 }
 
-async function getFranchises(fetch: Fetch, active: boolean): Promise<Franchise[]> {
-  const response = await fetch(TEAMS_URL);
-  const body = await response.text();
-  
-  const $ = cheerio.load(body);
+export async function extractDefunctFranchises(): Promise<Franchise[]> {
+  return extractFranchisesInternal(false);
+}
+
+export async function extractFranchisesInternal(active: boolean): Promise<Franchise[]> {
+  const [_dir, filePath] = localPath(TEAMS_URL);
+
+  const page = await readFile(filePath, 'utf8');
+
+  const $ = cheerio.load(page);
 
   const selector = active ? ACTIVE_SELECTOR : DEFUNCT_SELECTOR;
 

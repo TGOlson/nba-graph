@@ -2,7 +2,6 @@ const path = require('path'); // eslint-disable-line @typescript-eslint/no-var-r
 
 module.exports = {
   entry: path.resolve(__dirname, '../src/scraper/index.ts'),
-  watch: true,
   mode: 'development',
   target: 'node',
   devtool: 'inline-source-map',

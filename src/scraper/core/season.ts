@@ -1,15 +1,14 @@
 import * as cheerio from 'cheerio';
 import { Season } from '../../shared/nba-types';
 
-import { fromRelative } from '../util/bref-url';
+import { LEAGUES_URL } from '../util/bref-url';
 import { Fetch } from '../util/fetch';
 
-const RELATIVE_URL = '/leagues';
 const SELECTOR = 'tr th a[href]';
 const URL_REGEX = /([A-Z]{3})_(\d{4}).html/;
 
 export async function getSeasons(fetch: Fetch): Promise<Season[]> {
-  const response = await fetch(fromRelative(RELATIVE_URL));
+  const response = await fetch(LEAGUES_URL);
   const body = await response.text();
   
   const $ = cheerio.load(body);

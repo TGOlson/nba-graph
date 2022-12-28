@@ -13,8 +13,11 @@ npm install
 Build
 
 ```
-// build scraper, and watch for changes
+// build scraper
 npm run build:scraper
+
+// build scraper and watch for change
+npm run watch:scraper
 
 // build app
 npm run build:app
@@ -23,30 +26,29 @@ npm run build:app
 npm run serve:app
 ```
 
+### scraper
+
+The scraper downloads and extracts the relevant NBA data from `www.basketball-reference.com`. Output data is stored under `/data`, first as `.html` files from the initial download, then as `.csv` files after the data is extracted. 
+
+Some download commands can be run in any order, while some require data to exist before they can be run. Suggested order for downloads is: `leagues`, `teams`, `seasons`, `players-index`, then `players`.
+
+Afterwards, extraction commands can be run in any order: `extract-{leagues,franchises,teams,seasons,players}`.
+
 Run scraper
 
 ```
-node dist/scraper.bundle.js <command>
+TODO
 ```
 
-```
-Available commands:
-[
-  '--read-seasons',
-  '--read-leagues',
-  '--read-franchises',
-  '--read-teams',
-  '--read-players',
-  '--read-player-teams',
-  '--write-seasons',
-  '--write-franchises',
-  '--write-teams',
-  '--write-players',
-  '--write-player-teams'
-]
-```
+### graph
 
-Note: sequencing of commands is a little brittle. You must `write-seasons` before reading, but also need to run writers sequencially the first time to populate data (TODO: should clean this up later).
+The graph is built and constructed via the `--build-graph` command, and stored in `/data/graph.json`. It using the same graph library the frontend uses to render the graph. 
+
+Run graph builder
+
+```
+TODO
+```
 
 ### refs
 * http://sigmajs.org/
