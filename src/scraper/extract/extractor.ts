@@ -13,7 +13,7 @@ export type ExtractOptions = {
 };
 
 export async function runExtractor<T>(e: Extractor<T>, opts?: ExtractOptions): Promise<T> {
-  console.log('Extracting form file:', e.inputPath);
+  console.log('Extracting from file:', e.inputPath);
 
   const input = await readFile(e.inputPath, 'utf8');
   const res = e.extract(input);

@@ -9,7 +9,7 @@ const SELECTOR = 'tr th a[href]';
 const URL_REGEX = /([A-Z]{3})_(\d{4}).html/;
 
 
-export const extractLeagues = (body: string): League[] => {
+export const extract = (body: string): League[] => {
   const $ = cheerio.load(body);
 
   const leaguesWithDupes = $(SELECTOR).toArray().map((el: cheerio.Element) => {
@@ -36,13 +36,13 @@ export const extractLeagues = (body: string): League[] => {
   const initial: {[key: string]: League} = {};
 
   const leagueMap = leaguesWithDupes.reduce((accum, league) => {
-    const res = accum[league.id];
+    const res: League | undefined = accum[league.id];
 
-    if (res) {
-      return accum;
+    if (!res) {
+      return {...accum, [league.id]: league};
     }
 
-    return {...accum, [league.id]: league};
+    return accum;
   }, initial);
 
   return Object.values(leagueMap);
@@ -52,5 +52,5 @@ export const LeagueExtractor: Extractor<League[]> = {
   inputPath: localPath(LEAGUES_URL).filePath,
   outputDir: path.resolve(__dirname, '../data/extracted'),
   outputFileName: 'leagues.json',
-  extract: extractLeagues,
+  extract,
 };

@@ -45,10 +45,5 @@ export const FranchiseExtractor: Extractor<Franchise[]> = {
   inputPath: localPath(TEAMS_URL).filePath,
   outputDir: path.resolve(__dirname, '../data/extracted'),
   outputFileName: 'franchises.json',
-  extract: (str: string): Franchise[] => {
-    const activeFranchises = extractFranchises(str, true);
-    const defunctFranchises = extractFranchises(str, false);
-    
-    return [...activeFranchises, ...defunctFranchises];
-  }
+  extract: (str: string): Franchise[] => [...extractFranchises(str, true), ...extractFranchises(str, false)]
 };

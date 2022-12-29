@@ -2,6 +2,8 @@ import { downloadLeagueIndex, downloadPlayer, downloadPlayerIndex, downloadTeam,
 import { runExtractor } from "./extract/extractor";
 import { FranchiseExtractor } from "./extract/franchise";
 import { LeagueExtractor } from "./extract/league";
+import { SeasonExtractor } from "./extract/seasons";
+import { makeTeamExtractor } from "./extract/team";
 import { makeDelayedFetch, makeFetch } from "./util/fetch";
 import { execSeq } from "./util/promise";
 
@@ -68,7 +70,18 @@ async function main() {
 
     // *** extract commands
     case commands.extract.Leagues: return await runExtractor(LeagueExtractor, { save: true });
+    case commands.extract.Seasons: return await runExtractor(SeasonExtractor, { save: true });
     case commands.extract.Franchises: return await runExtractor(FranchiseExtractor, { save: true });
+    case commands.extract.Teams: {
+      const franchises = await runExtractor(FranchiseExtractor);
+      const franchiseIds = franchises.map(x => x.id);
+
+      return execSeq(franchiseIds.map(id => {
+        return () => runExtractor(makeTeamExtractor(id), { save: true });
+      }));
+    }
+    // case commands.extract.Players: return await runExtractor(SeasonExtractor, { save: true });
+    // case commands.extract.PlayerSeasons: return await runExtractor(FranchiseExtractor, { save: true });
 
     default: 
       console.log('Unknown command: ', cmd, '\nAvailable commands:\n', Object.values(commands));
