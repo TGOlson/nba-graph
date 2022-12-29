@@ -2,7 +2,8 @@ import { downloadLeagueIndex, downloadPlayer, downloadPlayerIndex, downloadTeam,
 import { runExtractor } from "./extract/extractor";
 import { FranchiseExtractor } from "./extract/franchise";
 import { LeagueExtractor } from "./extract/league";
-import { SeasonExtractor } from "./extract/seasons";
+import { makePlayerExtractor } from "./extract/player";
+import { SeasonExtractor } from "./extract/season";
 import { makeTeamExtractor } from "./extract/team";
 import { makeDelayedFetch, makeFetch } from "./util/fetch";
 import { execSeq } from "./util/promise";
@@ -80,7 +81,11 @@ async function main() {
         return () => runExtractor(makeTeamExtractor(id), { save: true });
       }));
     }
-    // case commands.extract.Players: return await runExtractor(SeasonExtractor, { save: true });
+    case commands.extract.Players: 
+      return execSeq(azLowercase.map(id => {
+        return () => runExtractor(makePlayerExtractor(id), { save: true });
+      }));
+
     // case commands.extract.PlayerSeasons: return await runExtractor(FranchiseExtractor, { save: true });
 
     default: 
