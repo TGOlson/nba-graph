@@ -23,7 +23,7 @@ export async function getPlayers(fetch: Fetch, team: Team): Promise<Player[]> {
     
     const res = URL_REGEX.exec(url);
         
-    if (!res || res.length === 1) {
+    if (!res?.[1] || res.length === 1) {
       throw new Error(`Invalid response from team: unparseable url. ${url}`);
     } 
     

@@ -15,9 +15,13 @@ export const extractLeagues = (body: string): League[] => {
   const leaguesWithDupes = $(SELECTOR).toArray().map((el: cheerio.Element) => {
     const url = el.attribs.href;
 
+    if (!url) {
+      throw new Error('Invalid response from leagues: unparseable url');
+    }
+
     const res = URL_REGEX.exec(url);
 
-    if (!res) {
+    if (!res?.[1]) {
       throw new Error('Invalid response from leagues: unparseable url');
     }
 
@@ -29,13 +33,17 @@ export const extractLeagues = (body: string): League[] => {
     };
   });
 
-  const leagueMap = leaguesWithDupes.reduce((accum: {[key: string]: League}, league) => {
-    if (accum[league.id]) {
+  const initial: {[key: string]: League} = {};
+
+  const leagueMap = leaguesWithDupes.reduce((accum, league) => {
+    const res = accum[league.id];
+
+    if (res) {
       return accum;
     }
 
     return {...accum, [league.id]: league};
-  }, {});
+  }, initial);
 
   return Object.values(leagueMap);
 };

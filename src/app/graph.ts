@@ -19,14 +19,26 @@ export const createGraph = (data: NBAData): Graph => {
     return accum;
   }, {});
 
-  const playerTeams = teams.map(team => playerTeamsByTeamId[team.id]).flat();
+  const playerTeams: PlayerTeam[] = teams.map(team => {
+    const res: PlayerTeam[] | undefined = playerTeamsByTeamId[team.id];
+
+    if (!res) throw new Error('Unexpected access error');
+
+    return res;
+  }).flat();
 
   const playersById: Record<string, Player> = data.players.reduce((accum: Record<string, Player>, player: Player) => {
     accum[player.id] = player;
     return accum;
   }, {});
 
-  const players: Player[] = playerTeams.map(pt => playersById[pt.playerId]);
+  const players: Player[] = playerTeams.map(pt => {
+    const res = playersById[pt.playerId];
+
+    if (!res) throw new Error('Unexpected access error');
+
+    return res;
+  });
 
   console.log('players', players, 'teams', teams, 'playerTeams', playerTeams);
 

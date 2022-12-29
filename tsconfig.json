@@ -1,6 +1,8 @@
 {
+  "include": ["./src/**/*"],
   "compilerOptions": {
     "outDir": "./dist/",
+    "strict": true,
     "sourceMap": true,
     "noImplicitAny": true,
     "module": "es6",
@@ -9,6 +11,6 @@
     "allowJs": true,
     "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
-    "strictNullChecks": true,
+    "noUncheckedIndexedAccess": true,
   }
 }

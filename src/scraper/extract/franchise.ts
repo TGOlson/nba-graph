@@ -26,7 +26,7 @@ const extractFranchises = (body: string, active: boolean): Franchise[] => {
     
     const res = URL_REGEX.exec(url);
         
-    if (!res) {
+    if (!res?.[1]) {
       throw new Error('Invalid response from franchise: unparseable url');
     }
     

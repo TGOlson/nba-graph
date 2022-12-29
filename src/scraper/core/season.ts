@@ -16,9 +16,13 @@ export async function getSeasons(fetch: Fetch): Promise<Season[]> {
   return $(SELECTOR).toArray().map((el: cheerio.Element) => {
     const url = el.attribs.href;
 
+    if (!url) {
+      throw new Error('Invalid response from leagues: unparseable url');
+    }
+
     const res = URL_REGEX.exec(url);
 
-    if (!res) {
+    if (!res?.[1] || !res[2]) {
       throw new Error('Invalid response from leagues: unparseable url');
     }
 

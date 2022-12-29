@@ -26,7 +26,7 @@ export async function getTeams(fetch: Fetch, franchise: Franchise): Promise<Team
     const teamRes = TEAM_URL_REGEX.exec(teamLink);
     const seasonRes = SEASON_URL_REGEX.exec(seasonLink);
         
-    if (!teamRes || !seasonRes) {
+    if (!teamRes?.[1] || !teamRes[2] || !seasonRes?.[1]) {
       throw new Error('Invalid response from franchise: unparseable url');
     }
     
