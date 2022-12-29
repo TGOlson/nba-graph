@@ -26,9 +26,9 @@ export const PLAYERS_URL = fromRelative('/players');
 
 export const teamUrl = (franchiseId: string): string => `${TEAMS_URL}/${franchiseId}`;
 export const playerIndexUrl = (firstLetterLastName: string): string => `${PLAYERS_URL}/${firstLetterLastName}`;
-export const playerUrl = (playerId: string): string => `${PLAYERS_URL}/${playerId[0] ?? ''}/${playerId}`;
+export const playerUrl = (playerId: string): string => `${PLAYERS_URL}/${playerId[0] ?? ''}/${playerId}.html`;
 
-// takes a url like: https://www.basketball-reference.com/teams/MIN.html
+// takes a url like: https://www.basketball-reference.com/teams/MIN
 // and returns a local path: <pwd>/data/www.basketball-reference.com/teams/MIN.html
 export const localPath = (url: string): {dirPath: string, filePath: string, fileName: string} => {
   const pieces = url.split('/').slice(1);
@@ -37,7 +37,7 @@ export const localPath = (url: string): {dirPath: string, filePath: string, file
 
   if (!last) throw new Error(`Bad url path: ${url}`);
 
-  const fileName = `${last}.html`;
+  const fileName = last.includes('.html') ? last : `${last}.html`;
   const dirPath = path.resolve(__dirname, '../data', ...pieces.slice(0, nPieces - 1));
   const filePath = path.resolve(dirPath, fileName);
 

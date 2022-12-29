@@ -26,6 +26,7 @@ const commands = {
     PlayerIndex: '--download-player-index',
     PlayerIndexAll: '--download-player-index-all',
     Player: '--download-player',
+    PlayerGroup: '--download-player-group',
     PlayerAll: '--download-player-all'
   },
   extract: {
@@ -39,7 +40,7 @@ const commands = {
 };
 
 // ['a' ... 'z']
-const azLowercase: string[] = [...Array(25).keys()].map((x: number) => String.fromCharCode(x + 97));
+const azLowercase: string[] = [...Array(26).keys()].map((x: number) => String.fromCharCode(x + 97));
 
 async function main() {
   const [_, __, cmd, arg] = process.argv;
@@ -67,7 +68,26 @@ async function main() {
       }));
 
     case commands.download.Player: return downloadPlayer(fetch, requireArg(arg, `${commands.download.Player} <player-id>`));
-    // case '--download-player-all': 
+    case commands.download.PlayerGroup: {
+      const section = requireArg(arg, `${commands.download.PlayerGroup} <letter>`);
+      const players = await runExtractor(makePlayerExtractor(section));
+      const playerIds = players.map(x => x.id);
+
+      return execSeq(playerIds.map(id => {
+        return () => downloadPlayer(delayedFetch, id);
+      }));
+    }
+    case '--download-player-all': {
+      const players = await Promise.all(
+        azLowercase.map(x => runExtractor(makePlayerExtractor(x)))
+      ).then(x => x.flat());
+
+      const playerIds = players.map(x => x.id);
+
+      return execSeq(playerIds.map(id => {
+        return () => downloadPlayer(delayedFetch, id);
+      }));
+    }
 
     // *** extract commands
     case commands.extract.Leagues: return await runExtractor(LeagueExtractor, { save: true });
