@@ -1,7 +1,7 @@
 import Graph, { DirectedGraph } from "graphology";
 import { circular } from 'graphology-layout';
 import forceAtlas2 from 'graphology-layout-forceatlas2';
-import { Team, PlayerTeam, Player } from "../shared/nba-types";
+import { Team, PlayerSeason, Player } from "../shared/nba-types";
 
 import { NBAData } from "./api";
 
@@ -11,7 +11,7 @@ export const createGraph = (data: NBAData): Graph => {
   // grab all teams since 2010
   const teams: Team[] = data.teams.filter(team => team.year >= 2010);
 
-  const playerTeamsByTeamId: Record<string, PlayerTeam[]> = data.playerTeams.reduce((accum: Record<string, PlayerTeam[]>, pt: PlayerTeam) => {
+  const playerTeamsByTeamId: Record<string, PlayerSeason[]> = data.playerTeams.reduce((accum: Record<string, PlayerSeason[]>, pt: PlayerSeason) => {
     const prev = accum[pt.teamId] || [];
     
     accum[pt.teamId] = [...prev, pt];
@@ -19,8 +19,8 @@ export const createGraph = (data: NBAData): Graph => {
     return accum;
   }, {});
 
-  const playerTeams: PlayerTeam[] = teams.map(team => {
-    const res: PlayerTeam[] | undefined = playerTeamsByTeamId[team.id];
+  const playerTeams: PlayerSeason[] = teams.map(team => {
+    const res: PlayerSeason[] | undefined = playerTeamsByTeamId[team.id];
 
     if (!res) throw new Error('Unexpected access error');
 

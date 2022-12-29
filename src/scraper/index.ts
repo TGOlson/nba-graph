@@ -3,6 +3,7 @@ import { runExtractor } from "./extract/extractor";
 import { FranchiseExtractor } from "./extract/franchise";
 import { LeagueExtractor } from "./extract/league";
 import { makePlayerExtractor } from "./extract/player";
+import { makePlayerSeasonExtractor } from "./extract/player-season";
 import { SeasonExtractor } from "./extract/season";
 import { makeTeamExtractor } from "./extract/team";
 import { makeDelayedFetch, makeFetch } from "./util/fetch";
@@ -106,7 +107,17 @@ async function main() {
         return () => runExtractor(makePlayerExtractor(id), { save: true });
       }));
 
-    // case commands.extract.PlayerSeasons: return await runExtractor(FranchiseExtractor, { save: true });
+    case commands.extract.PlayerSeasons: {
+      const players = await execSeq(azLowercase.map(id => {
+        return () => runExtractor(makePlayerExtractor(id));
+      }));
+
+      const playerIds = players.flat().map(x => x.id);
+
+      return await Promise.all(playerIds.map(id => {
+        return runExtractor(makePlayerSeasonExtractor(id), { save: true });
+      }));
+    }
 
     default: 
       console.log('Unknown command: ', cmd, '\nAvailable commands:\n', Object.values(commands));

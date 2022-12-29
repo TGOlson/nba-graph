@@ -19,10 +19,10 @@ export async function runExtractor<T>(e: Extractor<T>, opts?: ExtractOptions): P
   const res = e.extract(input);
 
   if (opts?.save) {
-    await mkdir(e.outputDir, { recursive: true });
-  
     const filePath = path.resolve(e.outputDir, e.outputFileName);
     console.log('Saving output to:', filePath);
+
+    await mkdir(e.outputDir, { recursive: true });
     await writeFile(filePath, JSON.stringify(res));
   }
 

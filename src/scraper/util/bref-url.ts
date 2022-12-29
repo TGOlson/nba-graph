@@ -26,7 +26,7 @@ export const PLAYERS_URL = fromRelative('/players');
 
 export const teamUrl = (franchiseId: string): string => `${TEAMS_URL}/${franchiseId}`;
 export const playerIndexUrl = (firstLetterLastName: string): string => `${PLAYERS_URL}/${firstLetterLastName}`;
-export const playerUrl = (playerId: string): string => `${PLAYERS_URL}/${playerId[0] ?? ''}/${playerId}.html`;
+export const playerUrl = (playerId: string): string => `${PLAYERS_URL}/${playerId[0] ?? '_'}/${playerId}.html`;
 
 // takes a url like: https://www.basketball-reference.com/teams/MIN
 // and returns a local path: <pwd>/data/www.basketball-reference.com/teams/MIN.html

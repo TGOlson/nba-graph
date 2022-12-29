@@ -28,7 +28,7 @@ Player
   - name
   - url
 
-PlayerTeams (links a player with a team -- these will be nodes, not edges)
+PlayerSeasons (links a player with a team -- these will be nodes, not edges)
   - playerID
   - teamID
 

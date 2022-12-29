@@ -1,4 +1,4 @@
-import { Franchise, League, Player, PlayerTeam, Season, Team } from '../shared/nba-types';
+import { Franchise, League, Player, PlayerSeason, Season, Team } from '../shared/nba-types';
 
 export type NBAData = {
   leagues: League[];
@@ -6,7 +6,7 @@ export type NBAData = {
   teams: Team[];
   seasons: Season[];
   players: Player[];
-  playerTeams: PlayerTeam[];
+  playerTeams: PlayerSeason[];
 };
 
 async function fetchJSON<T> (url: string): Promise<T> {
@@ -20,7 +20,7 @@ export async function fetchNBAData(): Promise<NBAData> {
     fetchJSON<Team[]>('/assets/data/teams.json'),
     fetchJSON<Season[]>('/assets/data/seasons.json'),
     fetchJSON<Player[]>('/assets/data/players.json'),
-    fetchJSON<PlayerTeam[]>('/assets/data/player-teams.json'),
+    fetchJSON<PlayerSeason[]>('/assets/data/player-teams.json'),
   ])
     .then(([
       leagues,

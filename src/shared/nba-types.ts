@@ -1,3 +1,18 @@
+// NBA, ABA...
+export type League = {
+  id: string;
+  url: string;
+};
+
+// NBA_2015, NBA_2020...
+export type Season = {
+  id: string;
+  leagueId: string;
+  year: number;
+  url: string;
+};
+
+// LAL, MIN...
 export type Franchise = {
   id: string;
   name: string;
@@ -5,11 +20,7 @@ export type Franchise = {
   active: boolean;
 };
 
-export type League = {
-  id: string;
-  url: string;
-};
-
+// LAL_2015, MIN_2020...
 export type Team = {
   id: string;
   franchiseId: string;
@@ -19,20 +30,15 @@ export type Team = {
   url: string;
 };
 
-export type Season = {
-  id: string;
-  leagueId: string;
-  year: number;
-  url: string;
-};
-
+// James Harden, Steph Curry...
 export type Player = {
   id: string;
   name: string;
   url: string;
 };
 
-export type PlayerTeam = {
+// James Harden HOU_2015, James Harden BKN_2021...
+export type PlayerSeason = {
   playerId: string;
   teamId: string;
   url: string;
