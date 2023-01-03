@@ -1,17 +1,19 @@
 import { downloadLeagueIndex, downloadPlayer, downloadPlayerIndex, downloadTeam, downloadTeamIndex } from "./download";
+
 import { runHtmlParser } from "./parsers/html-parser";
 import { franchiseParser } from "./parsers/franchise";
 import { leagueParser } from "./parsers/league";
 import { makePlayerParser } from "./parsers/player";
-// import { makePlayerSeasonParser } from "./parsers/player-season";
 import { seasonParser } from "./parsers/season";
-// import { makeTeamParser } from "./parsers/team";
-import { makeDelayedFetch, makeFetch } from "./util/fetch";
-import { execSeq } from "./util/promise";
-import { loadNBAData, persistFranchises, persistGraph, persistLeagues, persistPlayers, persistPlayerSeasons, persistSeasons, persistTeams } from "./storage";
 import { makeTeamParser } from "./parsers/team";
 import { makePlayerSeasonParser } from "./parsers/player-season";
-import { buildGraph } from "./graph";
+
+import { loadNBAData, persistFranchises, persistGraph, persistLeagues, persistPlayers, persistPlayerSeasons, persistSeasons, persistTeams } from "./storage";
+import { buildGraph } from "./builder";
+
+import { makeDelayedFetch, makeFetch } from "./util/fetch";
+import { execSeq } from "./util/promise";
+import { GRAPH_CONFIG } from "./builder/config";
 
 const VERBOSE_FETCH = true;
 const FETCH_DELAY_MS = 6000; // basketball-reference seems to get mad at >~30 req/m
@@ -135,7 +137,7 @@ async function main() {
 
     case commands.graph.Build: {
       const nbaData = await loadNBAData();
-      const graph = buildGraph(nbaData);
+      const graph = buildGraph(nbaData, GRAPH_CONFIG);
 
       return await persistGraph(graph);
     }

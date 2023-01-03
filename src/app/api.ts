@@ -1,35 +1,29 @@
-import { Franchise, League, Player, PlayerSeason, Season, Team } from '../shared/nba-types';
+import { Attributes, GraphOptions, SerializedEdge, SerializedNode } from 'graphology-types';
 
-export type NBAData = {
-  leagues: League[];
-  franchises: Franchise[];
-  teams: Team[];
-  seasons: Season[];
-  players: Player[];
-  playerTeams: PlayerSeason[];
+export type GraphData = {
+  attributes: Attributes;
+  options: GraphOptions;
+  nodes: SerializedNode[];
+  edges: SerializedEdge[];
 };
 
 async function fetchJSON<T> (url: string): Promise<T> {
   return fetch(url).then(res => res.json() as T);
 }
 
-export async function fetchNBAData(): Promise<NBAData> {
+export async function fetchGraphData(): Promise<GraphData> {
   return Promise.all([
-    fetchJSON<League[]>('/assets/data/leagues.json'), 
-    fetchJSON<Franchise[]>('/assets/data/franchises.json'),
-    fetchJSON<Team[]>('/assets/data/teams.json'),
-    fetchJSON<Season[]>('/assets/data/seasons.json'),
-    fetchJSON<Player[]>('/assets/data/players.json'),
-    fetchJSON<PlayerSeason[]>('/assets/data/player-teams.json'),
+    fetchJSON<Attributes>('/assets/data/graph/attributes.json'), 
+    fetchJSON<GraphOptions>('/assets/data/graph/options.json'),
+    fetchJSON<SerializedNode[]>('/assets/data/graph/nodes.json'),
+    fetchJSON<SerializedEdge[]>('/assets/data/graph/edges.json'),
   ])
     .then(([
-      leagues,
-      franchises,
-      teams,
-      seasons,
-      players,
-      playerTeams,
+      attributes,
+      options,
+      nodes,
+      edges,
     ]) => {
-      return { leagues, franchises, teams, seasons, players, playerTeams };
+      return { attributes, options, nodes, edges };
     });
 }

@@ -3,18 +3,17 @@ import { ControlsContainer, FullScreenControl, SearchControl, SigmaContainer, Zo
 
 import "@react-sigma/core/lib/react-sigma.min.css";
 
-import { createGraph } from '../graph';
-import { NBAData } from '../api';
+import { GraphData } from '../api';
 import { GraphEvents } from './GraphEventHandler';
+import Graph from 'graphology';
 
 type DisplayGraphProps = {
-  data: NBAData
+  data: GraphData
 };
 
 export const DisplayGraph = (props: DisplayGraphProps) => {
-
-  // TODO: should make this async, graph can take a while to create...
-  const graph = createGraph(props.data);
+  const graph = new Graph();
+  graph.import(props.data);
 
   return (
     <SigmaContainer 

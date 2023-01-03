@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { fetchNBAData, NBAData } from './api';
+import { fetchGraphData, GraphData } from './api';
 
 import "./App.css";
 import { DisplayGraph } from './components/Graph';
@@ -7,7 +7,7 @@ import { DisplayGraph } from './components/Graph';
 
 type AppProps = Record<string, never>; // empty object
 type AppState = {
-  data: NBAData | null;
+  data: GraphData | null;
 };
 
 class App extends Component<AppProps, AppState> {
@@ -18,7 +18,7 @@ class App extends Component<AppProps, AppState> {
   }
 
   componentDidMount() {
-    fetchNBAData()
+    fetchGraphData()
       .then(data => this.setState({ data }))
       .catch(err => console.log('Err in app component initial data fetch', err));
   }
@@ -29,7 +29,7 @@ class App extends Component<AppProps, AppState> {
     return (
       <div>
         <h1> Hellooo, World! </h1>
-        {data ? <p>Found {data.players.length} players!</p> : <p>Loading...</p>}
+        {data ? <p>Found {data.nodes.length} graph nodes!</p> : <p>Loading...</p>}
         {data ? <DisplayGraph data={data}/> : null}
       </div>
     );

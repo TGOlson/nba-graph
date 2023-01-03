@@ -2,7 +2,7 @@ import nodeFetch, { Response } from 'node-fetch';
 
 export type Fetch = (str: string) => Promise<Response>;
 
-export const delayMS = (t: number): Promise<void> => {
+const delayMS = (t: number): Promise<void> => {
   return new Promise(resolve => {
     setTimeout(() => resolve(), t);
   });

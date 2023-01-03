@@ -1,18 +1,18 @@
 import Graph, { DirectedGraph } from "graphology";
-import { circular } from 'graphology-layout';
-import forceAtlas2 from 'graphology-layout-forceatlas2';
-import { Team, PlayerSeason, Player } from "../shared/nba-types";
+import { circular } from "graphology-layout";
+import forceAtlas2 from "graphology-layout-forceatlas2";
 
-import { NBAData } from "./api";
+import { NBAData, Player, PlayerSeason, Team } from "../../shared/nba-types";
+import { GraphConfig } from "./config";
+// import { Franchise, League, NBAData, Player, PlayerSeason, Season, Team } from "../shared/nba-types";
 
-export const createGraph = (data: NBAData): Graph => {
+export const buildGraph = (data: NBAData, config: GraphConfig): Graph => {
   const graph = new DirectedGraph();
 
-  // grab all teams since 2010
-  const teams: Team[] = data.teams.filter(team => team.year >= 2010);
+  const teams: Team[] = data.teams.filter(team => team.year >= config.startYear);
 
-  const playerTeamsByTeamId: Record<string, PlayerSeason[]> = data.playerTeams.reduce((accum: Record<string, PlayerSeason[]>, pt: PlayerSeason) => {
-    const prev = accum[pt.teamId] || [];
+  const playerTeamsByTeamId: Record<string, PlayerSeason[]> = data.playerSeasons.reduce((accum: Record<string, PlayerSeason[]>, pt: PlayerSeason) => {
+    const prev = accum[pt.teamId] ?? [];
     
     accum[pt.teamId] = [...prev, pt];
 
@@ -40,7 +40,7 @@ export const createGraph = (data: NBAData): Graph => {
     return res;
   });
 
-  console.log('players', players, 'teams', teams, 'playerTeams', playerTeams);
+  // console.log('players', players, 'teams', teams, 'playerTeams', playerTeams);
 
   players.forEach(player => {
     // kind of a hack around shitty data...
@@ -59,7 +59,6 @@ export const createGraph = (data: NBAData): Graph => {
     graph.addEdge(pt.playerId, pt.teamId);
   });
 
-  // mutate graph with layouts
   circular.assign(graph);
   forceAtlas2.assign(graph, 50);
 
