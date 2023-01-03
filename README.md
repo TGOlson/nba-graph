@@ -42,13 +42,13 @@ _note: some commands may take a while to finish as basketball-reference severly 
 
 2. Parsing
 
-After the data is downloaded, it can then be parses into json files. Parsing commands can be run in any order.
+After the data is downloaded, it can then be parsed into json files. Parsing commands can be run in any order.
 
 `node graph.bundle.js --parse-{leagues,seasons,franchises,teams,players,player-seasons}`
 
 3. Creating the graph
 
-Lastly, once all the data is parsed and downloaded, an output graph can be created.
+Lastly, once all the data is downloaded and parsed, an output graph can be created.
 
 `node graph.bundle.js --build-graph`
 
@@ -62,9 +62,6 @@ The output graph data is stored in `./data/graph/graph.json`. The graph is built
 * highlighting nodes: https://github.com/sim51/react-sigma/blob/main/website/src/components/GraphDefault.tsx#L65
 
 ### todo
-* improve scraper by downloading pages, then later extracting data (less brittle)
 * consider adding interesting metadata for visualization (team wins, player WS)
-* better error handling in command
-* create webserver for serving graph data
 * UI
 * Upload final datasets to S3
