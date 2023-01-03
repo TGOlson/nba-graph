@@ -13,11 +13,11 @@ npm install
 Build
 
 ```
-// build scraper
-npm run build:scraper
+// build graph CLI tool
+npm run build:graph
 
-// build scraper and watch for change
-npm run watch:scraper
+// build graph and watch for change
+npm run watch:graph
 
 // build app
 npm run build:app
@@ -26,15 +26,17 @@ npm run build:app
 npm run serve:app
 ```
 
-### scraper
+### graph
 
-The scraper downloads and extracts the relevant NBA data from `www.basketball-reference.com`. Output data is stored under `/data`, first as `.html` files from the initial download, then as `.csv` files after the data is extracted. 
+The `graph` module is a CLI tool which downloads and parses NBA data from `www.basketball-reference.com`, and builds a graph from the output. 
+
+Output data is stored under `/data`, first as `.html` files from the initial download, then as `.json` files after the data is parsed. 
 
 Some download commands can be run in any order, while some require data to exist before they can be run. Suggested order for downloads is: `leagues`, `teams`, `seasons`, `players-index`, then `players`.
 
 Afterwards, extraction commands can be run in any order: `extract-{leagues,franchises,teams,seasons,players}`.
 
-Run scraper
+Run graph
 
 ```
 TODO

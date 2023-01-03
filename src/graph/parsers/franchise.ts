@@ -1,18 +1,15 @@
 import * as cheerio from 'cheerio';
-import path from "path";
 
 import { localPath, TEAMS_URL } from "../util/bref-url";
 import { Franchise } from "../../shared/nba-types";
-import { Extractor } from "./extractor";
+import { HtmlParser } from "./html-parser";
 
 const BASE_SELECTOR = 'table.stats_table tbody tr.full_table';
 const ACTIVE_SELECTOR = `#all_teams_active ${BASE_SELECTOR}`;
 const DEFUNCT_SELECTOR = `#all_teams_defunct ${BASE_SELECTOR}`;
 const URL_REGEX = /teams\/([A-Z]{3})\//;
 
-const extractFranchises = (body: string, active: boolean): Franchise[] => {
-  const $ = cheerio.load(body);
-
+const parseFranchises = ($: cheerio.CheerioAPI, active: boolean): Franchise[] => {
   const selector = active ? ACTIVE_SELECTOR : DEFUNCT_SELECTOR;
 
   return $(selector).toArray().map((el: cheerio.AnyNode) => {
@@ -41,9 +38,9 @@ const extractFranchises = (body: string, active: boolean): Franchise[] => {
   });
 };
 
-export const FranchiseExtractor: Extractor<Franchise[]> = {
+export const franchiseParser: HtmlParser<Franchise[]> = {
   inputPath: localPath(TEAMS_URL).filePath,
-  outputDir: path.resolve(__dirname, '../data/extracted'),
-  outputFileName: 'franchises.json',
-  extract: (str: string): Franchise[] => [...extractFranchises(str, true), ...extractFranchises(str, false)]
+  // outputDir: path.resolve(__dirname, '../data/extracted'),
+  // outputFileName: 'franchises.json',
+  parse: ($: cheerio.CheerioAPI): Franchise[] => [...parseFranchises($, true), ...parseFranchises($, false)]
 };

@@ -4,8 +4,8 @@
   "description": "Graph view of basketball-reference NBA data. Contains two main components, a scraper for downloading and saving the data, and a UI for visualizing it.",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build:scraper": "npx webpack --config webpack/common.js --config webpack/scraper.js --merge",
-    "watch:scraper": "npx webpack watch --config webpack/common.js --config webpack/scraper.js --merge",
+    "build:graph": "npx webpack --config webpack/common.js --config webpack/graph.js --merge",
+    "watch:graph": "npx webpack watch --config webpack/common.js --config webpack/graph.js --merge",
     "build:app": "npx webpack --config webpack/common.js --config webpack/app.js --merge",
     "serve:app": "npx webpack serve --config webpack/common.js --config webpack/app.js --merge"
   },

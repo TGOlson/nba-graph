@@ -1,17 +1,14 @@
 import * as cheerio from 'cheerio';
-import path from "path";
 
 import { LEAGUES_URL, localPath, toRelative } from "../util/bref-url";
 import { League } from "../../shared/nba-types";
-import { Extractor } from "./extractor";
+import { HtmlParser } from "./html-parser";
 
 const SELECTOR = 'tr th a[href]';
 const URL_REGEX = /([A-Z]{3})_(\d{4}).html/;
 
 
-export const extract = (body: string): League[] => {
-  const $ = cheerio.load(body);
-
+export const parse = ($: cheerio.CheerioAPI): League[] => {
   const leaguesWithDupes = $(SELECTOR).toArray().map((el: cheerio.Element) => {
     const url = el.attribs.href;
 
@@ -48,9 +45,9 @@ export const extract = (body: string): League[] => {
   return Object.values(leagueMap);
 };
 
-export const LeagueExtractor: Extractor<League[]> = {
+export const leagueParser: HtmlParser<League[]> = {
   inputPath: localPath(LEAGUES_URL).filePath,
-  outputDir: path.resolve(__dirname, '../data/extracted'),
-  outputFileName: 'leagues.json',
-  extract,
+  // outputDir: path.resolve(__dirname, '../data/extracted'),
+  // outputFileName: 'leagues.json',
+  parse,
 };

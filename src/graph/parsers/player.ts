@@ -1,16 +1,13 @@
 import * as cheerio from 'cheerio';
-import path from "path";
 
 import { localPath, playerIndexUrl } from "../util/bref-url";
 import { Player } from "../../shared/nba-types";
-import { Extractor } from "./extractor";
+import { HtmlParser } from "./html-parser";
 
 const SELECTOR = 'table#players tbody tr';
 const URL_REGEX = /players\/[a-z]{1}\/([a-z]{2,}\d{2}).html/;
 
-const extract = (franchiseId: string, body: string): Player[] => {
-  const $ = cheerio.load(body);
-
+const parse = (franchiseId: string, $: cheerio.CheerioAPI): Player[] => {
   return $(SELECTOR).toArray().map((el: cheerio.AnyNode) => {
     const url = $('th[data-stat="player"] a', el).attr('href');
     const name = $('th[data-stat="player"] a[href]', el).text();
@@ -35,9 +32,9 @@ const extract = (franchiseId: string, body: string): Player[] => {
   });
 };
 
-export const makePlayerExtractor = (firstLetterLastName: string): Extractor<Player[]> => ({
+export const makePlayerParser = (firstLetterLastName: string): HtmlParser<Player[]> => ({
   inputPath: localPath(playerIndexUrl(firstLetterLastName)).filePath,
-  outputDir: path.resolve(__dirname, '../data/extracted/players'),
-  outputFileName: `${firstLetterLastName}.json`,
-  extract: (str: string) => extract(firstLetterLastName, str)
+  // outputDir: path.resolve(__dirname, '../data/extracted/players'),
+  // outputFileName: `${firstLetterLastName}.json`,
+  parse: ($: cheerio.CheerioAPI) => parse(firstLetterLastName, $)
 });

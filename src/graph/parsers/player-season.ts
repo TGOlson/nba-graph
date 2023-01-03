@@ -1,16 +1,13 @@
 import * as cheerio from 'cheerio';
-import path from "path";
 
 import { localPath, playerUrl } from "../util/bref-url";
 import { PlayerSeason } from "../../shared/nba-types";
-import { Extractor } from "./extractor";
+import { HtmlParser } from "./html-parser";
 
 const SELECTOR = 'table#per_game tbody tr';
 const URL_REGEX = /teams\/([A-Z]{3})\/(\d{4}).html/;
 
-const extract = (playerId: string, body: string): PlayerSeason[] => {
-  const $ = cheerio.load(body);
-
+const parse = (playerId: string, $: cheerio.CheerioAPI): PlayerSeason[] => {
   const maybePlayerSeasons = $(SELECTOR).toArray().map((el: cheerio.AnyNode) => {
     const playerLink = $('th a', el).attr('href');
     const teamLink = $('td[data-stat="team_id"] a', el).attr('href');
@@ -43,11 +40,11 @@ const extract = (playerId: string, body: string): PlayerSeason[] => {
   return just(maybePlayerSeasons);
 };
 
-export const makePlayerSeasonExtractor = (playerId: string): Extractor<PlayerSeason[]> => ({
+export const makePlayerSeasonParser = (playerId: string): HtmlParser<PlayerSeason[]> => ({
   inputPath: localPath(playerUrl(playerId)).filePath,
-  outputDir: path.resolve(__dirname, `../data/extracted/players/${playerId[0] ?? '_'}`),
-  outputFileName: `${playerId}.json`,
-  extract: (str: string) => extract(playerId, str)
+  // outputDir: path.resolve(__dirname, `../data/extracted/players/${playerId[0] ?? '_'}`),
+  // outputFileName: `${playerId}.json`,
+  parse: ($: cheerio.CheerioAPI) => parse(playerId, $)
 });
 
 function just<T> (xs: (T | null)[]): T[] {

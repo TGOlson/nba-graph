@@ -1,16 +1,13 @@
 import * as cheerio from 'cheerio';
-import path from "path";
 
 import { LEAGUES_URL, localPath } from "../util/bref-url";
-import { League, Season } from "../../shared/nba-types";
-import { Extractor } from "./extractor";
+import { Season } from "../../shared/nba-types";
+import { HtmlParser } from "./html-parser";
 
 const SELECTOR = 'tr th a[href]';
 const URL_REGEX = /([A-Z]{3})_(\d{4}).html/;
 
-export const extract = (body: string): Season[] => {
-  const $ = cheerio.load(body);
-
+export const parse = ($: cheerio.CheerioAPI): Season[] => {
   return $(SELECTOR).toArray().map((el: cheerio.Element) => {
     const url = el.attribs.href;
 
@@ -35,9 +32,9 @@ export const extract = (body: string): Season[] => {
   });
 };
 
-export const SeasonExtractor: Extractor<League[]> = {
+export const seasonParser: HtmlParser<Season[]> = {
   inputPath: localPath(LEAGUES_URL).filePath,
-  outputDir: path.resolve(__dirname, '../data/extracted'),
-  outputFileName: 'seasons.json',
-  extract,
+  // outputDir: path.resolve(__dirname, '../data/extracted'),
+  // outputFileName: 'seasons.json',
+  parse,
 };

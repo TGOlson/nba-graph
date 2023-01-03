@@ -1,13 +1,16 @@
 import { downloadLeagueIndex, downloadPlayer, downloadPlayerIndex, downloadTeam, downloadTeamIndex } from "./download";
-import { runExtractor } from "./extract/extractor";
-import { FranchiseExtractor } from "./extract/franchise";
-import { LeagueExtractor } from "./extract/league";
-import { makePlayerExtractor } from "./extract/player";
-import { makePlayerSeasonExtractor } from "./extract/player-season";
-import { SeasonExtractor } from "./extract/season";
-import { makeTeamExtractor } from "./extract/team";
+import { runHtmlParser } from "./parsers/html-parser";
+import { franchiseParser } from "./parsers/franchise";
+import { leagueParser } from "./parsers/league";
+import { makePlayerParser } from "./parsers/player";
+// import { makePlayerSeasonParser } from "./parsers/player-season";
+import { seasonParser } from "./parsers/season";
+// import { makeTeamParser } from "./parsers/team";
 import { makeDelayedFetch, makeFetch } from "./util/fetch";
 import { execSeq } from "./util/promise";
+import { persistFranchises, persistLeagues, persistPlayers, persistPlayerSeasons, persistSeasons, persistTeams } from "./persist";
+import { makeTeamParser } from "./parsers/team";
+import { makePlayerSeasonParser } from "./parsers/player-season";
 
 const VERBOSE_FETCH = true;
 const FETCH_DELAY_MS = 6000; // basketball-reference seems to get mad at >~30 req/m
@@ -30,13 +33,13 @@ const commands = {
     PlayerGroup: '--download-player-group',
     PlayerAll: '--download-player-all'
   },
-  extract: {
-    Leagues: '--extract-leagues', // NBA, ABA...
-    Seasons: '--extract-seasons', // NBA_2015, ABA_1950
-    Franchises: '--extract-franchises', // LAL, MIN...
-    Teams: '--extract-teams', // LAL_2015, MIN_2022
-    Players: '--extract-players', // James Harden
-    PlayerSeasons: '--extract-player-seasons' // James Harden HOU_2015, James Harden BKN_2021
+  parse: {
+    Leagues: '--parse-leagues', // NBA, ABA...
+    Seasons: '--parse-seasons', // NBA_2015, ABA_1950
+    Franchises: '--parse-franchises', // LAL, MIN...
+    Teams: '--parse-teams', // LAL_2015, MIN_2022
+    Players: '--parse-players', // James Harden
+    PlayerSeasons: '--parse-player-seasons' // James Harden HOU_2015, James Harden BKN_2021
   }
 };
 
@@ -55,7 +58,7 @@ async function main() {
     case commands.download.TeamIndex: return downloadTeamIndex(fetch);
     case commands.download.Team: return downloadTeam(fetch, requireArg(arg, `${commands.download.Team} <franchise-id>`));
     case commands.download.TeamAll: {
-      const franchises = await runExtractor(FranchiseExtractor);
+      const franchises = await runHtmlParser(franchiseParser);
 
       return execSeq(franchises.map(franchise => {
         return () => downloadTeam(delayedFetch, franchise.id);
@@ -71,7 +74,7 @@ async function main() {
     case commands.download.Player: return downloadPlayer(fetch, requireArg(arg, `${commands.download.Player} <player-id>`));
     case commands.download.PlayerGroup: {
       const section = requireArg(arg, `${commands.download.PlayerGroup} <letter>`);
-      const players = await runExtractor(makePlayerExtractor(section));
+      const players = await runHtmlParser(makePlayerParser(section));
       const playerIds = players.map(x => x.id);
 
       return execSeq(playerIds.map(id => {
@@ -80,7 +83,7 @@ async function main() {
     }
     case '--download-player-all': {
       const players = await Promise.all(
-        azLowercase.map(x => runExtractor(makePlayerExtractor(x)))
+        azLowercase.map(x => runHtmlParser(makePlayerParser(x)))
       ).then(x => x.flat());
 
       const playerIds = players.map(x => x.id);
@@ -91,32 +94,39 @@ async function main() {
     }
 
     // *** extract commands
-    case commands.extract.Leagues: return await runExtractor(LeagueExtractor, { save: true });
-    case commands.extract.Seasons: return await runExtractor(SeasonExtractor, { save: true });
-    case commands.extract.Franchises: return await runExtractor(FranchiseExtractor, { save: true });
-    case commands.extract.Teams: {
-      const franchises = await runExtractor(FranchiseExtractor);
+    case commands.parse.Leagues: return await runHtmlParser(leagueParser).then(persistLeagues);
+    case commands.parse.Seasons: return await runHtmlParser(seasonParser).then(persistSeasons);
+    case commands.parse.Franchises: return await runHtmlParser(franchiseParser).then(persistFranchises);
+    case commands.parse.Teams: {
+      const franchises = await runHtmlParser(franchiseParser);
       const franchiseIds = franchises.map(x => x.id);
 
-      return execSeq(franchiseIds.map(id => {
-        return () => runExtractor(makeTeamExtractor(id), { save: true });
-      }));
+      const teams = await Promise.all(
+        franchiseIds.map(id => runHtmlParser(makeTeamParser(id)))
+      ).then(xs => xs.flat());
+      
+      return await persistTeams(teams);
     }
-    case commands.extract.Players: 
-      return execSeq(azLowercase.map(id => {
-        return () => runExtractor(makePlayerExtractor(id), { save: true });
-      }));
+    case commands.parse.Players: {
+      const players = await Promise.all(
+        azLowercase.map(x => runHtmlParser(makePlayerParser(x)))
+      ).then(xs => xs.flat());
 
-    case commands.extract.PlayerSeasons: {
-      const players = await execSeq(azLowercase.map(id => {
-        return () => runExtractor(makePlayerExtractor(id));
-      }));
+      return await persistPlayers(players);
+    }
 
-      const playerIds = players.flat().map(x => x.id);
+    case commands.parse.PlayerSeasons: {
+      const players = await Promise.all(
+        azLowercase.map(x => runHtmlParser(makePlayerParser(x)))
+      ).then(xs => xs.flat());
 
-      return await Promise.all(playerIds.map(id => {
-        return runExtractor(makePlayerSeasonExtractor(id), { save: true });
-      }));
+      const playerIds = players.map(x => x.id);
+
+      const playerSeasons = await Promise.all(
+        playerIds.map(id => runHtmlParser(makePlayerSeasonParser(id)))
+      ).then(xs => xs.flat());
+
+      return await persistPlayerSeasons(playerSeasons);
     }
 
     default: 
