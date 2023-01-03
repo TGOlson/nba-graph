@@ -1,10 +1,10 @@
 # nba-graph
 
-Graph view of basketball-reference NBA data. Contains two main components, a scraper for downloading and saving the data, and a UI for visualizing it.
+Graph visualization of historical NBA data
 
 ### setup
 
-Install deps (build runs using babel and webpack)
+Install deps
 
 ```
 npm install
@@ -16,13 +16,13 @@ Build
 // build graph CLI tool
 npm run build:graph
 
-// build graph and watch for change
+// build graph and watch for changes
 npm run watch:graph
 
 // build app
 npm run build:app
 
-// build app, watch for changes and serve with dev server
+// build app, watch for changes and serve with dev server (served @ localhost:3000)
 npm run serve:app
 ```
 
@@ -30,27 +30,27 @@ npm run serve:app
 
 The `graph` module is a CLI tool which downloads and parses NBA data from `www.basketball-reference.com`, and builds a graph from the output. 
 
-Output data is stored under `/data`, first as `.html` files from the initial download, then as `.json` files after the data is parsed. 
+Downloading data
+
+Output data is stored under `/data`, first as `.html` files from the initial download, then as `.json` files after the data is parsed. To download data, the following commands can be used: 
+
+`node graph.bundle.js --download-{leagues,teams,seasons,players-index,players}`
 
 Some download commands can be run in any order, while some require data to exist before they can be run. Suggested order for downloads is: `leagues`, `teams`, `seasons`, `players-index`, then `players`.
 
-Afterwards, extraction commands can be run in any order: `extract-{leagues,franchises,teams,seasons,players}`.
+Parsing data
 
-Run graph
+After the data is downloaded, it can then be parses into json files. Parsing commands can be run in any order.
 
-```
-TODO
-```
+`node graph.bundle.js --parse-{leagues,seasons,franchises,teams,players,player-seasons}`
 
-### graph
+Creating the graph
 
-The graph is built and constructed via the `--build-graph` command, and stored in `/data/graph.json`. It using the same graph library the frontend uses to render the graph. 
+Lastly, once all the data is parsed and downloaded, an output graph can be created.
 
-Run graph builder
+`node graph.bundle.js --build-graph`
 
-```
-TODO
-```
+The output graph data is stored in `data/graph/graph.json`. The graph is built and constructed using the `graphology` library, which is the same graph library the frontend uses to render the graph. 
 
 ### refs
 * http://sigmajs.org/
