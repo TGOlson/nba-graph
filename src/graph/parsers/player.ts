@@ -34,7 +34,5 @@ const parse = (franchiseId: string, $: cheerio.CheerioAPI): Player[] => {
 
 export const makePlayerParser = (firstLetterLastName: string): HtmlParser<Player[]> => ({
   inputPath: localPath(playerIndexUrl(firstLetterLastName)).filePath,
-  // outputDir: path.resolve(__dirname, '../data/extracted/players'),
-  // outputFileName: `${firstLetterLastName}.json`,
   parse: ($: cheerio.CheerioAPI) => parse(firstLetterLastName, $)
 });

@@ -8,9 +8,10 @@ import { seasonParser } from "./parsers/season";
 // import { makeTeamParser } from "./parsers/team";
 import { makeDelayedFetch, makeFetch } from "./util/fetch";
 import { execSeq } from "./util/promise";
-import { persistFranchises, persistLeagues, persistPlayers, persistPlayerSeasons, persistSeasons, persistTeams } from "./persist";
+import { loadNBAData, persistFranchises, persistGraph, persistLeagues, persistPlayers, persistPlayerSeasons, persistSeasons, persistTeams } from "./storage";
 import { makeTeamParser } from "./parsers/team";
 import { makePlayerSeasonParser } from "./parsers/player-season";
+import { buildGraph } from "./graph";
 
 const VERBOSE_FETCH = true;
 const FETCH_DELAY_MS = 6000; // basketball-reference seems to get mad at >~30 req/m
@@ -40,6 +41,9 @@ const commands = {
     Teams: '--parse-teams', // LAL_2015, MIN_2022
     Players: '--parse-players', // James Harden
     PlayerSeasons: '--parse-player-seasons' // James Harden HOU_2015, James Harden BKN_2021
+  },
+  graph: {
+    Build: '--build-graph'
   }
 };
 
@@ -127,6 +131,13 @@ async function main() {
       ).then(xs => xs.flat());
 
       return await persistPlayerSeasons(playerSeasons);
+    }
+
+    case commands.graph.Build: {
+      const nbaData = await loadNBAData();
+      const graph = buildGraph(nbaData);
+
+      return await persistGraph(graph);
     }
 
     default: 

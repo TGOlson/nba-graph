@@ -47,7 +47,5 @@ export const parse = ($: cheerio.CheerioAPI): League[] => {
 
 export const leagueParser: HtmlParser<League[]> = {
   inputPath: localPath(LEAGUES_URL).filePath,
-  // outputDir: path.resolve(__dirname, '../data/extracted'),
-  // outputFileName: 'leagues.json',
   parse,
 };

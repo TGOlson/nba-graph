@@ -40,7 +40,5 @@ const parseFranchises = ($: cheerio.CheerioAPI, active: boolean): Franchise[] =>
 
 export const franchiseParser: HtmlParser<Franchise[]> = {
   inputPath: localPath(TEAMS_URL).filePath,
-  // outputDir: path.resolve(__dirname, '../data/extracted'),
-  // outputFileName: 'franchises.json',
   parse: ($: cheerio.CheerioAPI): Franchise[] => [...parseFranchises($, true), ...parseFranchises($, false)]
 };

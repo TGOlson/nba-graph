@@ -43,3 +43,12 @@ export type PlayerSeason = {
   teamId: string;
   url: string;
 };
+
+export type NBAData = {
+  leagues: League[];
+  seasons: Season[];
+  franchises: Franchise[];
+  teams: Team[];
+  players: Player[];
+  playerSeasons: PlayerSeason[];
+};
