@@ -4,9 +4,9 @@ import forceAtlas2 from "graphology-layout-forceatlas2";
 
 import { NBAData, Player, PlayerSeason, Team } from "../../shared/nba-types";
 import { GraphConfig } from "./config";
-// import { Franchise, League, NBAData, Player, PlayerSeason, Season, Team } from "../shared/nba-types";
 
 export const buildGraph = (data: NBAData, config: GraphConfig): Graph => {
+  console.log('Building graph');
   const graph = new DirectedGraph();
 
   const teams: Team[] = data.teams.filter(team => team.year >= config.startYear);
@@ -52,15 +52,19 @@ export const buildGraph = (data: NBAData, config: GraphConfig): Graph => {
   
   teams.forEach(team => {
     const label = `${team.name} (${team.year})`;
-    graph.addNode(team.id, { size: 5, label, color: 'red' });
+    graph.addNode(team.id, { size: 5, label, color: 'red', image: team.img, type: 'image' });
   });
 
   playerTeams.forEach(pt => {
     graph.addEdge(pt.playerId, pt.teamId);
   });
 
+  console.log('Assigning locations');
   circular.assign(graph);
+
+  // This call takes a little while...
   forceAtlas2.assign(graph, 50);
 
+  console.log('Done!');
   return graph;
 };

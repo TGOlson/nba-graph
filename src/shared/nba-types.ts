@@ -27,6 +27,7 @@ export type Team = {
   seasonId: string;
   name: string;
   year: number;
+  img: string;
   url: string;
 };
 

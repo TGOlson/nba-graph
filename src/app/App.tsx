@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
-import { fetchGraphData, GraphData } from './api';
 
-import "./App.css";
+import { fetchGraphData, GraphData } from './api';
 import { DisplayGraph } from './components/Graph';
 
+import "./App.css";
 
 type AppProps = Record<string, never>; // empty object
 type AppState = {
