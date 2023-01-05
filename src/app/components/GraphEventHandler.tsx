@@ -7,7 +7,6 @@ import { Attributes } from 'graphology-types';
 import "@react-sigma/core/lib/react-sigma.min.css";
 // import Graph from 'graphology';
 
-
 export const GraphEvents = () => {
   const sigma = useSigma();
   const setSettings = useSetSettings();
@@ -45,7 +44,7 @@ export const GraphEvents = () => {
         const nodeIsSelected = selectedNode === node;
         const nodeIsHovered = hoveredNode === node;
 
-        // (window as any).sigma = sigma;
+        (window as any).sigma = sigma;
         
         // check neighbors...
         const graph = sigma.getGraph();
@@ -79,6 +78,7 @@ export const GraphEvents = () => {
           return { 
             ...data, 
             highlighted: true,
+            size: data.size + 3
             // x: newX,
             // y: newY,
           };
@@ -86,21 +86,25 @@ export const GraphEvents = () => {
 
 
         // if current reducer node is selected or hovered, apply styles
-        if (nodeIsSelected || nodeIsHovered) return { ...data, highlighted: true };
+        if (nodeIsSelected) return { ...data, highlighted: true, size: data.size + 3 };
+        if (nodeIsHovered) return { ...data, highlighted: true };
         
         if (hoveredNode && graph.neighbors(hoveredNode).includes(node)) return { ...data, highlighted: true };
 
         // otherwise, de-emphasize node
         return {
           ...data, 
-          color: '#E2E2E2', 
+          color: '#E2E2E2',
+          // Test switching images to de-emphasize. Later this should switch to black & white image version...
+          // image: 'https://cdn.ssref.net/req/202212191/tlogo/bbr/MIN.png',
+          type: null,
           label: null,
           highlighted: false,
         };
       },
       edgeReducer: (edge: string, data: Attributes): Attributes => {
-        // if nothing selected or hovered, quick return default
-        if (!hoveredNode && !selectedNode) return data;
+        // if nothing selected or hovered, hide all edges
+        if (!hoveredNode && !selectedNode) return { ...data, hidden: true };
 
         // check neighbors
         const graph = sigma.getGraph();
@@ -108,9 +112,10 @@ export const GraphEvents = () => {
         const isSelectedNeighbor = selectedNode && graph.extremities(edge).includes(selectedNode);
         const isHoveredNeighbor = hoveredNode && graph.extremities(edge).includes(hoveredNode);
 
-        if (!isSelectedNeighbor && !isHoveredNeighbor) return { ...data, hidden: true };
+        // if it's an edge of a selected node, don't hide
+        if (isSelectedNeighbor || isHoveredNeighbor) return data;
 
-        return data;
+        return { ...data, hidden: true };
       }
     });
   }, [hoveredNode, selectedNode, setSettings, sigma]);

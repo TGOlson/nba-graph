@@ -1,16 +1,13 @@
 import React from 'react';
 import { ControlsContainer, FullScreenControl, SearchControl, SigmaContainer, ZoomControl } from "@react-sigma/core";
+
+import Graph from 'graphology';
+import { Settings } from 'sigma/settings';
 import getNodeProgramImage from "sigma/rendering/webgl/programs/node.image";
-// import NodeProgramBorder from "sigma/rendering/webgl/programs/node.border";
-// import  from "./node.border";
-
-
 import "@react-sigma/core/lib/react-sigma.min.css";
 
 import { GraphData } from '../api';
 import { GraphEvents } from './GraphEventHandler';
-import Graph from 'graphology';
-import { Settings } from 'sigma/settings';
 
 type DisplayGraphProps = {
   data: GraphData
@@ -21,7 +18,7 @@ export const DisplayGraph = (props: DisplayGraphProps) => {
   graph.import(props.data);
 
   const settings: Partial<Settings> = {
-    zIndex: true,
+    // zIndex: true,
     labelDensity: 0.07,
     labelGridCellSize: 60,
     labelRenderedSizeThreshold: 15,
@@ -29,7 +26,6 @@ export const DisplayGraph = (props: DisplayGraphProps) => {
     labelWeight: 'light',
     nodeProgramClasses: {
       image: getNodeProgramImage(),
-      // border: NodeProgramBorder,
     }
   };
 
