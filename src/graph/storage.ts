@@ -19,16 +19,25 @@ const GRAPH_OPTIONS_FILENAME = 'options.json';
 const GRAPH_NODES_FILENAME = 'nodes.json';
 const GRAPH_EDGES_FILENAME = 'edges.json';
 
+// image data
+const IMAGE_PATH = path.resolve(__dirname, '../data/img');
+const FRANCHISE_IMAGE_DIR = path.resolve(IMAGE_PATH, 'franchise');
+const franchiseImgPath = (id: string) => path.resolve(FRANCHISE_IMAGE_DIR, id, '.png');
+
 export type Persist<T> = (x: T) => Promise<void>;
+
+async function writeFileInternal(dir: string, fileName: string, data: string | Buffer): Promise<void> {
+  const filePath = path.resolve(dir, fileName);
+  console.log('Saving output to:', filePath);
+  
+  await mkdir(dir, { recursive: true });
+  
+  return await writeFile(filePath, data);
+}
 
 function persistJSON<T> (dir: string, fileName: string): Persist<T> {
   return async (x: T): Promise<void> => {
-    const filePath = path.resolve(dir, fileName);
-    console.log('Saving output to:', filePath);
-  
-    await mkdir(dir, { recursive: true });
-  
-    return await writeFile(filePath, JSON.stringify(x));
+    return writeFileInternal(dir, fileName, JSON.stringify(x));
   };
 }
 
@@ -63,4 +72,12 @@ export async function persistGraph(graph: Graph): Promise<void> {
   await persistJSON(GRAPH_PATH, GRAPH_OPTIONS_FILENAME)(options);
   await persistJSON(GRAPH_PATH, GRAPH_NODES_FILENAME)(nodes);
   return persistJSON(GRAPH_PATH, GRAPH_EDGES_FILENAME)(edges);
+}
+
+export async function persistFranchiseImage(id: string, img: Buffer): Promise<void> {
+  return writeFileInternal(FRANCHISE_IMAGE_DIR, `${id}.png`, img);
+}
+
+export async function loadTeamImage(franchiseId: string): Promise<Buffer> {
+  return readFile(franchiseImgPath(franchiseId));
 }

@@ -1,4 +1,4 @@
-import { downloadLeagueIndex, downloadPlayer, downloadPlayerIndex, downloadTeam, downloadTeamIndex } from "./download";
+import { downloadLeagueIndex, downloadPlayer, downloadPlayerIndex, downloadTeam, downloadTeamImage, downloadTeamIndex } from "./download";
 
 import { runHtmlParser } from "./parsers/html-parser";
 import { franchiseParser } from "./parsers/franchise";
@@ -34,7 +34,8 @@ const commands = {
     PlayerIndexAll: '--download-player-index-all',
     Player: '--download-player',
     PlayerGroup: '--download-player-group',
-    PlayerAll: '--download-player-all'
+    PlayerAll: '--download-player-all',
+    FranchiseLogos: '--download-franchise-logos'
   },
   parse: {
     Leagues: '--parse-leagues', // NBA, ABA...
@@ -87,7 +88,7 @@ async function main() {
         return () => downloadPlayer(delayedFetch, id);
       }));
     }
-    case '--download-player-all': {
+    case commands.download.PlayerAll: {
       const players = await Promise.all(
         azLowercase.map(x => runHtmlParser(makePlayerParser(x)))
       ).then(x => x.flat());
@@ -97,6 +98,18 @@ async function main() {
       return execSeq(playerIds.map(id => {
         return () => downloadPlayer(delayedFetch, id);
       }));
+    }
+
+    case commands.download.FranchiseLogos: {
+      const franchises = await runHtmlParser(franchiseParser);
+      const franchiseIds = franchises.map(x => x.id);
+
+      return await execSeq(
+        franchiseIds.map(id => 
+          () => downloadTeamImage(fetch, id)
+          .catch(err => console.log('Error download image for ', id, err))
+        )
+      );
     }
 
     // *** extract commands

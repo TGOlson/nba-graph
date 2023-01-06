@@ -3,6 +3,7 @@ import { circular } from "graphology-layout";
 import forceAtlas2 from "graphology-layout-forceatlas2";
 
 import { NBAData, Player, PlayerSeason, Team } from "../../shared/nba-types";
+import { assets } from "../util/assets";
 import { GraphConfig } from "./config";
 
 export const buildGraph = (data: NBAData, config: GraphConfig): Graph => {
@@ -52,7 +53,9 @@ export const buildGraph = (data: NBAData, config: GraphConfig): Graph => {
   
   teams.forEach(team => {
     const label = `${team.name} (${team.year})`;
-    graph.addNode(team.id, { size: 5, label, color: 'red', image: team.img, type: 'image' });
+
+    const image = assets.img.franchise(team.franchiseId);
+    graph.addNode(team.id, { size: 5, label, color: 'red', image, type: 'image' });
   });
 
   playerTeams.forEach(pt => {

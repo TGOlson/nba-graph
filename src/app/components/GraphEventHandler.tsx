@@ -78,7 +78,7 @@ export const GraphEvents = () => {
           return { 
             ...data, 
             highlighted: true,
-            size: data.size + 3
+            size: data.size as number + 3
             // x: newX,
             // y: newY,
           };
@@ -86,7 +86,7 @@ export const GraphEvents = () => {
 
 
         // if current reducer node is selected or hovered, apply styles
-        if (nodeIsSelected) return { ...data, highlighted: true, size: data.size + 3 };
+        if (nodeIsSelected) return { ...data, highlighted: true, size: data.size as number + 3 };
         if (nodeIsHovered) return { ...data, highlighted: true };
         
         if (hoveredNode && graph.neighbors(hoveredNode).includes(node)) return { ...data, highlighted: true };
