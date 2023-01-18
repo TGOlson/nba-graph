@@ -96,8 +96,8 @@ export const GraphEvents = () => {
           ...data, 
           color: '#E2E2E2',
           // Test switching images to de-emphasize. Later this should switch to black & white image version...
-          // image: 'https://cdn.ssref.net/req/202212191/tlogo/bbr/MIN.png',
-          type: null,
+          image: '/assets/img/franchise/CHA_muted.png',
+          // type: null,
           label: null,
           highlighted: false,
         };

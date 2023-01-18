@@ -4,6 +4,7 @@ import { fetchGraphData, GraphData } from './api';
 import { DisplayGraph } from './components/Graph';
 
 import "./App.css";
+import { GraphTest } from './components/GraphTest';
 
 type AppProps = Record<string, never>; // empty object
 type AppState = {
@@ -30,7 +31,7 @@ class App extends Component<AppProps, AppState> {
       <div>
         <h1> Hellooo, World! </h1>
         {data ? <p>Found {data.nodes.length} graph nodes!</p> : <p>Loading...</p>}
-        {data ? <DisplayGraph data={data}/> : null}
+        {data ? <GraphTest data={data}/> : null}
       </div>
     );
   }

@@ -1,5 +1,4 @@
 const path = require('path'); // eslint-disable-line @typescript-eslint/no-var-requires
-const CopyPlugin = require("copy-webpack-plugin");
 
 module.exports = {
   entry: path.resolve(__dirname, '../src/app/index.tsx'),

@@ -8,12 +8,14 @@ import { seasonParser } from "./parsers/season";
 import { makeTeamParser } from "./parsers/team";
 import { makePlayerSeasonParser } from "./parsers/player-season";
 
-import { loadNBAData, persistFranchises, persistGraph, persistLeagues, persistPlayers, persistPlayerSeasons, persistSeasons, persistTeams } from "./storage";
+import { franchiseImgFileName, FRANCHISE_IMAGE_DIR, loadNBAData, persistFranchises, persistGraph, persistLeagues, persistPlayers, persistPlayerSeasons, persistSeasons, persistTeams } from "./storage";
 import { buildGraph } from "./builder";
 
 import { makeDelayedFetch, makeFetch } from "./util/fetch";
 import { execSeq } from "./util/promise";
 import { GRAPH_CONFIG } from "./builder/config";
+import { convertToBW } from "./util/image";
+import path from "path";
 
 const VERBOSE_FETCH = true;
 const FETCH_DELAY_MS = 6000; // basketball-reference seems to get mad at >~30 req/m
@@ -110,6 +112,13 @@ async function main() {
           .catch(err => console.log('Error download image for ', id, err))
         )
       );
+    }
+
+    case '--test': {
+      const inputPath = path.resolve(FRANCHISE_IMAGE_DIR, franchiseImgFileName('CHA'));
+      const outputPath = path.resolve(FRANCHISE_IMAGE_DIR, franchiseImgFileName('CHA_muted'));
+
+      return await convertToBW(inputPath, outputPath);
     }
 
     // *** extract commands

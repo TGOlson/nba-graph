@@ -21,8 +21,8 @@ const GRAPH_EDGES_FILENAME = 'edges.json';
 
 // image data
 const IMAGE_PATH = path.resolve(__dirname, '../data/img');
-const FRANCHISE_IMAGE_DIR = path.resolve(IMAGE_PATH, 'franchise');
-const franchiseImgPath = (id: string) => path.resolve(FRANCHISE_IMAGE_DIR, id, '.png');
+export const FRANCHISE_IMAGE_DIR = path.resolve(IMAGE_PATH, 'franchise');
+export const franchiseImgFileName = (id: string) => `${id}.png`;
 
 export type Persist<T> = (x: T) => Promise<void>;
 
@@ -75,9 +75,5 @@ export async function persistGraph(graph: Graph): Promise<void> {
 }
 
 export async function persistFranchiseImage(id: string, img: Buffer): Promise<void> {
-  return writeFileInternal(FRANCHISE_IMAGE_DIR, `${id}.png`, img);
-}
-
-export async function loadTeamImage(franchiseId: string): Promise<Buffer> {
-  return readFile(franchiseImgPath(franchiseId));
+  return writeFileInternal(FRANCHISE_IMAGE_DIR, franchiseImgFileName(id), img);
 }
