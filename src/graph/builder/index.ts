@@ -62,11 +62,13 @@ export const buildGraph = (data: NBAData, config: GraphConfig): Graph => {
     graph.addEdge(pt.playerId, pt.teamId);
   });
 
-  console.log('Assigning locations');
-  circular.assign(graph);
-
-  // This call takes a little while...
-  forceAtlas2.assign(graph, 50);
+  if (config.assignLocations) {
+    console.log('Assigning locations');
+    circular.assign(graph);
+  
+    // This call takes a little while...
+    forceAtlas2.assign(graph, 50);
+  }
 
   console.log('Done!');
   return graph;

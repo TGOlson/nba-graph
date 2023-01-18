@@ -5,6 +5,7 @@ import cytoscape, { NodeSingular, EventHandler } from 'cytoscape';
 import React, { Component } from 'react';
 
 import { GraphData } from '../api';
+import { graphStyle } from './graph-style';
 
 type Props = {
   data: GraphData
@@ -66,56 +67,10 @@ export class GraphTest extends Component<Props> {
       },
       motionBlur: true,
       // autoungrabify: true,
-      // hideEdgesOnViewport: true,
+      hideEdgesOnViewport: true,
       // autolock: true,
       // textureOnViewport: true,
-      style: [
-        {
-          selector: 'node',
-          style: {
-            width: '20px',
-            height: '20px',
-            'background-color': 'grey',
-          }
-        }, 
-        {
-          selector: 'node[image]',
-          style: {
-            'background-image': 'data(image)',
-            'background-image-opacity': 0.3,
-            'background-fit': 'contain',
-          }
-        },
-        {
-          selector: 'node.selected, node.hovered',
-          style: {
-            'background-color': 'blue',
-            'background-image-opacity': 1,
-          }
-        },
-        {
-          selector: 'node.selected[label], node.hovered[label]',
-          style: {
-            'font-size': '12px',
-            label: 'data(label)'
-          }
-        },
-        {
-          selector: 'edge',
-          style: {
-            display: 'none',
-            width: '2px',
-            'curve-style': 'haystack'
-          }
-        }, 
-        {
-          selector: 'edge.selected, edge.hovered',
-          style: {
-            display: 'element',
-            'line-color': 'blue',
-          }
-        }, 
-      ],
+      style: graphStyle,
       // layout: {
         // name: 'concentric',
         // concentric: (node) => Math.floor(Math.random() * 10)
