@@ -65,6 +65,7 @@ The output graph data is stored in `./data/graph/graph.json`. The graph is built
 * test rendering sprites (basic + webgl)
 * improve locations
 * improve / fix search to move to current node
+* test animations for force layout and other movements 
 * test moving neighbors in a circle around selected node (and keeping them there... animation?)
 * add other interesting nodes (MVP, champion, X time all star)
 * filters and advanved search
