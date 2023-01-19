@@ -62,6 +62,9 @@ The output graph data is stored in `./data/graph/graph.json`. The graph is built
 * highlighting nodes: https://github.com/sim51/react-sigma/blob/main/website/src/components/GraphDefault.tsx#L65
 
 ### todo
-* consider adding interesting metadata for visualization (team wins, player WS)
-* UI
-* Upload final datasets to S3
+* test rendering sprites (basic + webgl)
+* improve locations
+* improve / fix search to move to current node
+* test moving neighbors in a circle around selected node (and keeping them there... animation?)
+* add other interesting nodes (MVP, champion, X time all star)
+* filters and advanved search

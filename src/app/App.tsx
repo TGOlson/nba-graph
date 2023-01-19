@@ -1,10 +1,9 @@
 import React, { Component } from 'react';
 
 import { fetchGraphData, GraphData } from './api';
-import { DisplayGraph } from './components/Graph';
+import { NBAGraph } from './components/NBAGraph';
 
 import "./App.css";
-import { GraphTest } from './components/GraphTest';
 
 type AppProps = Record<string, never>; // empty object
 type AppState = {
@@ -31,7 +30,7 @@ class App extends Component<AppProps, AppState> {
       <div>
         <h1> Hellooo, World! </h1>
         {data ? <p>Found {data.nodes.length} graph nodes!</p> : <p>Loading...</p>}
-        {data ? <GraphTest data={data}/> : null}
+        {data ? <NBAGraph data={data}/> : null}
       </div>
     );
   }

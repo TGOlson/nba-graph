@@ -13,7 +13,7 @@ type DisplayGraphProps = {
   data: GraphData
 };
 
-export const DisplayGraph = (props: DisplayGraphProps) => {
+export const NBAGraph = (props: DisplayGraphProps) => {
   const graph = new Graph();
   graph.import(props.data);
 
@@ -31,7 +31,7 @@ export const DisplayGraph = (props: DisplayGraphProps) => {
 
   return (
     <SigmaContainer 
-      style={{ height: "600px" }} 
+      style={{ height: "700px" }} 
       graph={graph}
       settings={settings}
     >
