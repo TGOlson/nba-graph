@@ -9,6 +9,8 @@ import "@react-sigma/core/lib/react-sigma.min.css";
 
 export const GraphEvents = () => {
   const sigma = useSigma();
+  (window as any).sigma = sigma; // eslint-disable-line
+
   const setSettings = useSetSettings();
   const registerEvents: (eventHandlers: Partial<EventHandlers>) => void = useRegisterEvents();
   const { gotoNode } = useCamera();
@@ -43,8 +45,6 @@ export const GraphEvents = () => {
 
         const nodeIsSelected = selectedNode === node;
         const nodeIsHovered = hoveredNode === node;
-
-        (window as any).sigma = sigma;
         
         // check neighbors...
         const graph = sigma.getGraph();

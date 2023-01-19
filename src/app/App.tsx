@@ -29,6 +29,7 @@ class App extends Component<AppProps, AppState> {
     return (
       <div>
         <h1> Hellooo, World! </h1>
+        <div className='sprite'></div>
         {data ? <p>Found {data.nodes.length} graph nodes!</p> : <p>Loading...</p>}
         {data ? <NBAGraph data={data}/> : null}
       </div>

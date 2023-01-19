@@ -60,6 +60,7 @@ The output graph data is stored in `./data/graph/graph.json`. The graph is built
 * https://github.com/graphology/graphology
 * https://graphology.github.io
 * highlighting nodes: https://github.com/sim51/react-sigma/blob/main/website/src/components/GraphDefault.tsx#L65
+* large graph FA2 rendering: https://codesandbox.io/s/github/jacomyal/sigma.js/tree/main/examples/large-graphs?file=/index.ts:234-307
 
 ### todo
 * test rendering sprites (basic + webgl)

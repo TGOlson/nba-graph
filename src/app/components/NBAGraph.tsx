@@ -4,6 +4,7 @@ import { ControlsContainer, FullScreenControl, SearchControl, SigmaContainer, Zo
 import Graph from 'graphology';
 import { Settings } from 'sigma/settings';
 import getNodeProgramImage from "sigma/rendering/webgl/programs/node.image";
+
 import "@react-sigma/core/lib/react-sigma.min.css";
 
 import { GraphData } from '../api';
@@ -26,7 +27,10 @@ export const NBAGraph = (props: DisplayGraphProps) => {
     labelWeight: 'light',
     nodeProgramClasses: {
       image: getNodeProgramImage(),
-    }
+    },
+    // edgeProgramClasses: {
+    //   line: EdgesFastProgram,
+    // }
   };
 
   return (
