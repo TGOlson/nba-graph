@@ -1,8 +1,8 @@
 import * as cheerio from 'cheerio';
 import { mkdir, writeFile } from 'fs/promises';
-import { persistFranchiseImage } from './storage';
+import { persistImage } from './storage';
 
-import { LEAGUES_URL, localPath, playerIndexUrl, playerUrl, TEAMS_URL, teamUrl } from './util/bref-url';
+import { ImageUrl, LEAGUES_URL, localPath, playerIndexUrl, playerUrl, TEAMS_URL, teamUrl } from './util/bref-url';
 import { Fetch } from './util/fetch';
 
 async function downloadPage(fetch: Fetch, url: string): Promise<void> {
@@ -50,12 +50,14 @@ export async function downloadPlayer(fetch: Fetch, playerId: string): Promise<vo
 //
 // TODO: update this to parse urls from downloaded files instead of relying on URL pattern
 
-export async function downloadTeamImage(fetch: Fetch, franchiseId: string): Promise<void> {
-  const url = `https://cdn.ssref.net/req/202301032/tlogo/bbr/${franchiseId}.png`;
+export async function downloadImage(fetch: Fetch, imageUrl: ImageUrl, namespace: string, id: string): Promise<void> {
+  const res = await fetch(imageUrl.url).catch((err) => {
+    console.log('Error fetching url, trying fallback: ', imageUrl.url, err);
+    return fetch(imageUrl.fallback);
+  });
 
-  const res = await fetch(url);
   const body = await res.arrayBuffer();
   const img = Buffer.from(body);
 
-  return await persistFranchiseImage(franchiseId, img);
+  return await persistImage(namespace, id, img);
 }

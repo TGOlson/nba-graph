@@ -43,3 +43,26 @@ export const localPath = (url: string): {dirPath: string, filePath: string, file
 
   return {dirPath, filePath, fileName};
 };
+
+
+export type ImageUrl = {
+  url: string,
+  fallback: string,
+};
+
+const BASE_LOGO_URL = 'https://cdn.ssref.net/req/202301032/tlogo/bbr/';
+const LOGO_SUFFIX = '.png';
+
+export const getFranchiseLogoUrl = (franchiseId: string): ImageUrl => {
+  return {
+    url: `${BASE_LOGO_URL}${franchiseId}${LOGO_SUFFIX}`,
+    fallback: 'TODO!'
+  };
+};
+
+export const getTeamLogoUrl = (franchiseId: string, yearAppropriateFranchiseId: string, year: number): ImageUrl => {
+  return {
+    url: `${BASE_LOGO_URL}${yearAppropriateFranchiseId}-${year}${LOGO_SUFFIX}`,
+    fallback: getFranchiseLogoUrl(franchiseId).url,
+  };
+};

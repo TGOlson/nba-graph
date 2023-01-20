@@ -54,7 +54,7 @@ export const buildGraph = (data: NBAData, config: GraphConfig): Graph => {
   teams.forEach(team => {
     const label = `${team.name} (${team.year})`;
 
-    const image = assets.img.franchise(team.franchiseId);
+    const image: string = assets.img.team(team.id);
     graph.addNode(team.id, { size: 5, label, color: 'red', image, type: 'image' });
   });
 

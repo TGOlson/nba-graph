@@ -1,6 +1,6 @@
 import * as cheerio from 'cheerio';
 
-import { localPath, TEAMS_URL } from "../util/bref-url";
+import { getFranchiseLogoUrl, localPath, TEAMS_URL } from "../util/bref-url";
 import { Franchise } from "../../shared/nba-types";
 import { HtmlParser } from "./html-parser";
 
@@ -29,11 +29,14 @@ const parseFranchises = ($: cheerio.CheerioAPI, active: boolean): Franchise[] =>
     
     const [_, id] = res;
 
+    const image = getFranchiseLogoUrl(id);
+    
     return {
       id,
       name,
-      url,
       active,
+      image,
+      url,
     };
   });
 };

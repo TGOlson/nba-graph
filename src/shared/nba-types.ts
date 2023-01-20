@@ -1,3 +1,5 @@
+import { ImageUrl } from "../graph/util/bref-url";
+
 // NBA, ABA...
 export type League = {
   id: string;
@@ -16,8 +18,9 @@ export type Season = {
 export type Franchise = {
   id: string;
   name: string;
-  url: string;
   active: boolean;
+  image: ImageUrl;
+  url: string;
 };
 
 // LAL_2015, MIN_2020...
@@ -27,7 +30,7 @@ export type Team = {
   seasonId: string;
   name: string;
   year: number;
-  img: string;
+  image: ImageUrl;
   url: string;
 };
 

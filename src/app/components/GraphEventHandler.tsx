@@ -92,11 +92,20 @@ export const GraphEvents = () => {
         if (hoveredNode && graph.neighbors(hoveredNode).includes(node)) return { ...data, highlighted: true };
 
         // otherwise, de-emphasize node
+        let mutedImage = data.image as string | undefined;
+
+        // pretty hacky! clean up later when improving image handling : )
+        if (mutedImage) {
+          const i = mutedImage.split('.');
+          const first = i[0] as string;
+
+          mutedImage = `${first}_muted.png`;
+        }
+
         return {
           ...data, 
           color: '#E2E2E2',
-          // Test switching images to de-emphasize. Later this should switch to black & white image version...
-          image: '/assets/img/franchise/CHA_muted.png',
+          image: mutedImage,
           // type: null,
           label: null,
           highlighted: false,

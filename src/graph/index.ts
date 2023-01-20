@@ -1,4 +1,4 @@
-import { downloadLeagueIndex, downloadPlayer, downloadPlayerIndex, downloadTeam, downloadTeamImage, downloadTeamIndex } from "./download";
+import { downloadLeagueIndex, downloadPlayer, downloadPlayerIndex, downloadTeam, downloadImage, downloadTeamIndex } from "./download";
 
 import { runHtmlParser } from "./parsers/html-parser";
 import { franchiseParser } from "./parsers/franchise";
@@ -8,14 +8,14 @@ import { seasonParser } from "./parsers/season";
 import { makeTeamParser } from "./parsers/team";
 import { makePlayerSeasonParser } from "./parsers/player-season";
 
-import { franchiseImgFileName, FRANCHISE_IMAGE_DIR, loadNBAData, persistFranchises, persistGraph, persistLeagues, persistPlayers, persistPlayerSeasons, persistSeasons, persistTeams } from "./storage";
+import { loadNBAData, persistFranchises, persistGraph, persistLeagues, persistPlayers, persistPlayerSeasons, persistSeasons, persistTeams } from "./storage";
 import { buildGraph } from "./builder";
 
 import { makeDelayedFetch, makeFetch } from "./util/fetch";
 import { execSeq } from "./util/promise";
 import { GRAPH_CONFIG } from "./builder/config";
-import { convertToBW } from "./util/image";
-import path from "path";
+// import { convertToBW } from "./util/image";
+// import path from "path";
 
 const VERBOSE_FETCH = true;
 const FETCH_DELAY_MS = 6000; // basketball-reference seems to get mad at >~30 req/m
@@ -37,7 +37,8 @@ const commands = {
     Player: '--download-player',
     PlayerGroup: '--download-player-group',
     PlayerAll: '--download-player-all',
-    FranchiseLogos: '--download-franchise-logos'
+    FranchiseLogos: '--download-franchise-logos',
+    TeamLogos: '--download-team-logos'
   },
   parse: {
     Leagues: '--parse-leagues', // NBA, ABA...
@@ -46,6 +47,9 @@ const commands = {
     Teams: '--parse-teams', // LAL_2015, MIN_2022
     Players: '--parse-players', // James Harden
     PlayerSeasons: '--parse-player-seasons' // James Harden HOU_2015, James Harden BKN_2021
+  },
+  misc: {
+    ConvertImages: '--convert-images',
   },
   graph: {
     Build: '--build-graph'
@@ -104,21 +108,28 @@ async function main() {
 
     case commands.download.FranchiseLogos: {
       const franchises = await runHtmlParser(franchiseParser);
-      const franchiseIds = franchises.map(x => x.id);
+      const fns = franchises.map(x => {
+          return () => downloadImage(fetch, x.image, 'franchise', x.id)
+            .catch(err => console.log('Error download image for. Skipping ', x.id, err));
+      });
 
-      return await execSeq(
-        franchiseIds.map(id => 
-          () => downloadTeamImage(fetch, id)
-          .catch(err => console.log('Error download image for ', id, err))
-        )
-      );
+      return await execSeq(fns);
     }
 
-    case '--test': {
-      const inputPath = path.resolve(FRANCHISE_IMAGE_DIR, franchiseImgFileName('CHA'));
-      const outputPath = path.resolve(FRANCHISE_IMAGE_DIR, franchiseImgFileName('CHA_muted'));
+    case commands.download.TeamLogos: {
+      const franchises = await runHtmlParser(franchiseParser);
+      const franchiseIds = franchises.map(x => x.id);
 
-      return await convertToBW(inputPath, outputPath);
+      const teams = await Promise.all(
+        franchiseIds.map(id => runHtmlParser(makeTeamParser(id)))
+      ).then(xs => xs.flat());
+
+      const fns = teams.map(x => {
+          return () => downloadImage(fetch, x.image, 'team', x.id)
+            .catch(err => console.log('Error download image for. Skipping ', x.id, err));
+      });
+
+      return await execSeq(fns);
     }
 
     // *** extract commands
@@ -157,12 +168,29 @@ async function main() {
       return await persistPlayerSeasons(playerSeasons);
     }
 
+    // *** graph commands
     case commands.graph.Build: {
       const nbaData = await loadNBAData();
       const graph = buildGraph(nbaData, GRAPH_CONFIG);
 
       return await persistGraph(graph);
     }
+
+    // *** misc commands
+    // case commands.misc.ConvertImages: {
+    //   const franchises = await runHtmlParser(franchiseParser);
+    //   const franchiseIds = franchises.map(x => x.id);
+
+    //   return Promise.all(franchiseIds.map(id => {
+    //     const inputPath = path.resolve(FRANCHISE_IMAGE_DIR, franchiseImgFileName(id));
+    //     const outputPath = path.resolve(FRANCHISE_IMAGE_DIR, franchiseImgFileName(`${id}_muted`));
+  
+    //     return convertToBW(inputPath, outputPath)
+    //       .catch(err => {
+    //         console.log('Skipping converting franchise image', id, err);
+    //       });
+    //   }));
+    // }
 
     default: 
       console.log('Unknown command: ', cmd, '\nAvailable commands:\n', Object.values(commands));

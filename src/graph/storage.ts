@@ -22,7 +22,7 @@ const GRAPH_EDGES_FILENAME = 'edges.json';
 // image data
 const IMAGE_PATH = path.resolve(__dirname, '../data/img');
 export const FRANCHISE_IMAGE_DIR = path.resolve(IMAGE_PATH, 'franchise');
-export const franchiseImgFileName = (id: string) => `${id}.png`;
+export const imgFileName = (id: string) => `${id}.png`;
 
 export type Persist<T> = (x: T) => Promise<void>;
 
@@ -74,6 +74,6 @@ export async function persistGraph(graph: Graph): Promise<void> {
   return persistJSON(GRAPH_PATH, GRAPH_EDGES_FILENAME)(edges);
 }
 
-export async function persistFranchiseImage(id: string, img: Buffer): Promise<void> {
-  return writeFileInternal(FRANCHISE_IMAGE_DIR, franchiseImgFileName(id), img);
+export async function persistImage(namespace: string, id: string, img: Buffer): Promise<void> {
+  return writeFileInternal(path.resolve(IMAGE_PATH, namespace), imgFileName(id), img);
 }

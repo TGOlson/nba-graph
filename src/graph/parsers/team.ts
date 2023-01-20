@@ -1,6 +1,6 @@
 import * as cheerio from 'cheerio';
 
-import { localPath, teamUrl } from "../util/bref-url";
+import { getTeamLogoUrl, localPath, teamUrl } from "../util/bref-url";
 import { Team } from "../../shared/nba-types";
 import { HtmlParser } from "./html-parser";
 import assert from 'assert';
@@ -33,13 +33,15 @@ const parse = (franchiseId: string, $: cheerio.CheerioAPI): Team[] => {
     const [_, yearAppropriateFranchiseId, year] = teamRes;
     const [_team, seasonId] = seasonRes;
 
+    const image = getTeamLogoUrl(franchiseId, yearAppropriateFranchiseId, parseInt(year));
+
     return {
       id: `${yearAppropriateFranchiseId}_${year}`,
       franchiseId,
       seasonId,
       name,
       year: parseInt(year),
-      img,
+      image,
       url: teamLink,
     };
   });

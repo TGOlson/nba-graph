@@ -63,7 +63,8 @@ The output graph data is stored in `./data/graph/graph.json`. The graph is built
 * large graph FA2 rendering: https://codesandbox.io/s/github/jacomyal/sigma.js/tree/main/examples/large-graphs?file=/index.ts:234-307
 
 ### todo
-* test rendering sprites (basic + webgl)
+* ~~test rendering sprites (basic + webgl)~~ (possible w/ some array index hacks, at least for single image...)
+* download player images
 * improve locations
 * improve / fix search to move to current node
 * test animations for force layout and other movements 
