@@ -1,5 +1,5 @@
 .sprite {
-  background: url('https://cloud.netlifyusercontent.com/assets/344dbf88-fdf9-42bb-adb4-46f01eedd629/4e036165-6189-49ad-82ea-1c604fe95719/pokemon.gif') top right no-repeat;
+  background: url('http://localhost:3000/assets/img/pokemon.gif') top right no-repeat;
   height: 100px;
   width: 100px;
   background-color: green;

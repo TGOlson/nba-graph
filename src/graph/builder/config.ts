@@ -5,7 +5,7 @@ export type GraphConfig = {
 };
 
 export const GRAPH_CONFIG = {
-  startYear: 1980,
+  startYear: 2023,
   includeDefunct: true,
   assignLocations: true,
 };

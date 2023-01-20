@@ -1,8 +1,5 @@
-import cytoscape, { NodeSingular, EventHandler } from 'cytoscape';
-// import { NodeSingular } from 'cytoscape';
-
-
 import React, { Component } from 'react';
+import cytoscape, { NodeSingular } from 'cytoscape';
 
 import { GraphData } from '../api';
 import { graphStyle } from './graph-style';
@@ -34,7 +31,7 @@ const addClassNeighbors = (node: NodeSingular, className: string) => {
 };
 
 export class GraphTest extends Component<Props> {
-  graphRef?: React.RefObject<HTMLDivElement>;
+  graphRef: React.RefObject<HTMLDivElement>;
   
   constructor(props: Props) {
     super(props);
@@ -42,12 +39,8 @@ export class GraphTest extends Component<Props> {
     this.graphRef = React.createRef();
   }
 
-  // const toStyle = (obj: {[key: string]: string}): {selector: string, style: any} => {
-
-  // }
-
   componentDidMount() {
-    const el = this.graphRef?.current;
+    const el = this.graphRef.current;
     
     if (!el) throw new Error('Unexpected error not able to find #graph-container');
     
