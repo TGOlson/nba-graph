@@ -58,7 +58,9 @@ export const buildGraph = (data: NBAData, config: GraphConfig): Graph => {
     
     // this kind of works, but loads ~2k images... don't use unique team images unless we get sprites working
     // const image: string = assets.img.team(team.id);
-    graph.addNode(team.id, { size: 5, label, color: 'red', image, type: 'image' });
+    const x = Math.random() * 125;
+    const y = Math.random() * 125;
+    graph.addNode(team.id, { size: 5, label, color: 'red', image, type: 'image', crop: {x, y, size: 75} });
   });
 
   playerTeams.forEach(pt => {

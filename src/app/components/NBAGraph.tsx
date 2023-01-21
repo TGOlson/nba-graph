@@ -3,13 +3,12 @@ import { ControlsContainer, FullScreenControl, SearchControl, SigmaContainer, Zo
 
 import Graph from 'graphology';
 import { Settings } from 'sigma/settings';
-// import getNodeProgramImage from "sigma/rendering/webgl/programs/node.image";
 
 import "@react-sigma/core/lib/react-sigma.min.css";
 
 import { GraphData } from '../api';
 import { GraphEvents } from './GraphEventHandler';
-import { SpriteNodeImageProgram } from '../program/node-image-program';
+import getNodeImageProgram from '../program/node-image-program';
 
 type DisplayGraphProps = {
   data: GraphData
@@ -27,7 +26,7 @@ export const NBAGraph = (props: DisplayGraphProps) => {
     labelSize: 12,
     labelWeight: 'light',
     nodeProgramClasses: {
-      image: SpriteNodeImageProgram,
+      image: getNodeImageProgram(),
     },
     // edgeProgramClasses: {
     //   line: EdgesFastProgram,
