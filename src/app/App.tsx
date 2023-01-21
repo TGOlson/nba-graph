@@ -4,7 +4,7 @@ import { fetchGraphData, GraphData } from './api';
 import { NBAGraph } from './components/NBAGraph';
 
 import "./App.css";
-import { createDrawer, loadImageAndCreateTextureInfo } from './program/test';
+// import { createDrawer, DEFAULT_DRAW_SPEC, loadImageAndCreateTextureInfo } from './program/test';
 
 type AppProps = Record<string, never>; // empty object
 type AppState = {
@@ -26,47 +26,36 @@ class App extends Component<AppProps, AppState> {
       .then(data => this.setState({ data }))
       .catch(err => console.log('Err in app component initial data fetch', err));
   
-    const canvas = this.testCanvas.current;
-    console.log(canvas?.width, canvas?.height);
+    // const canvas = this.testCanvas.current;
+    // console.log(canvas?.width, canvas?.height);
 
-    if (!canvas) throw new Error('Unexpected error not able to find test-canvas');
+    // if (!canvas) throw new Error('Unexpected error not able to find test-canvas');
     
-    const gl: WebGLRenderingContext | null = canvas.getContext('webgl');
+    // const gl: WebGLRenderingContext | null = canvas.getContext('webgl');
 
-    if (!gl) throw new Error('Unable to create webgl');
+    // if (!gl) throw new Error('Unable to create webgl');
 
-    const drawer = createDrawer(gl);
+    // const drawer = createDrawer(gl);
 
-    const chaTextureInfo = loadImageAndCreateTextureInfo(gl, 'http://localhost:3000/assets/img/franchise/CHA.png');
-    const chaDrawParams = { 
-      x: 100,
-      y: 100,
-      dx: 0,
-      dy: 0,
-      textureInfo: chaTextureInfo
-    };
+    // const chaTextureInfo = loadImageAndCreateTextureInfo(gl, 'http://localhost:3000/assets/img/franchise/CHA.png');
+    // const chaDrawParams = { 
+    //   src: {x: 50, y: 50, width: 50, height: 50},
+    //   dest: DEFAULT_DRAW_SPEC,
+    //   textureInfo: chaTextureInfo
+    // };
 
-    drawer.draw([chaDrawParams]);
+    // const minTextureInfo = loadImageAndCreateTextureInfo(gl, 'http://localhost:3000/assets/img/franchise/MIN.png');
+    // const minDrawParams = { 
+    //   src: DEFAULT_DRAW_SPEC,
+    //   dest: {x: 200, y: 200, width: 50, height: 50},
+    //   textureInfo: minTextureInfo
+    // };
+
+    // drawer.draw([chaDrawParams, minDrawParams]);
     
-    setTimeout(() => {
-      drawer.draw([chaDrawParams]);
-    }, 500);
-
-    // const CHA_URL = 'http://localhost:3000/assets/img/franchise/CHA.png';
-    // const CHA_PARAMS = {x: 10, y: 20, offsetX: 0, offsetY: 0};
-
-    // const MIN_URL = 'http://localhost:3000/assets/img/franchise/MIN.png';
-    // const MIN_PARAMS = {x: 100, y: 100, offsetX: 0, offsetY: 0};
-
-    // void Promise.all([
-    //   loadImage(CHA_URL),
-    //   loadImage(MIN_URL)
-    // ]).then(([chImage, mnImage]) => drawImages(context, [
-    //   {image: chImage, ...CHA_PARAMS},
-    //   {image: mnImage, ...MIN_PARAMS}
-    // ]));
-
-    // void loadImage(MIN_URL).then(image => drawImage(context, {image, ...MIN_PARAMS}));
+    // setTimeout(() => {
+    //   drawer.draw([chaDrawParams, minDrawParams]);
+    // }, 500);
   }
 
   render () {
@@ -75,8 +64,6 @@ class App extends Component<AppProps, AppState> {
     return (
       <div>
         <h1> Hellooo, World! </h1>
-        <canvas width="450" height="299" style={{width: 450, height: 299}} ref={this.testCanvas}></canvas>
-        <div className='sprite'></div>
         {data ? <p>Found {data.nodes.length} graph nodes!</p> : <p>Loading...</p>}
         {data ? <NBAGraph data={data}/> : null}
       </div>

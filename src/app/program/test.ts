@@ -1,21 +1,23 @@
 import { createProgram } from "./program";
 import { createFragmentShader, createVertexShader } from "./shaders";
-
-type m4 = {
-  orthographic: () => void
-};
-
-declare const m4: any; // TODO
+import m4 from '../../vendor/m4';
 
 export type Drawer = {
   draw: (params: DrawParams[]) => void
 };
 
-export type DrawParams = {
+export const DEFAULT_DRAW_SPEC: DrawSpec = {x: 0, y: 0, height: null, width: null};
+
+export type DrawSpec = {
   x: number,
   y: number,
-  dx: number,
-  dy: number,
+  height: number | null,
+  width: number | null,
+};
+
+export type DrawParams = {
+  src: DrawSpec, 
+  dest: DrawSpec, 
   textureInfo: TextureInfo
 };
 
@@ -36,10 +38,14 @@ export const createDrawer = (gl: WebGLRenderingContext): Drawer => {
 
   // lookup uniforms
   const matrixLocation = gl.getUniformLocation(program, 'u_matrix');
-  if(!matrixLocation) throw new Error('Unable to get matrix location');
+  if(!matrixLocation) throw new Error('Unable to get matrixLocation');
+  
+  const textureMatrixLocation = gl.getUniformLocation(program, 'u_textureMatrix');
+  if(!textureMatrixLocation) throw new Error('Unable to get textureMatrixLocation');
+
   
   const textureLocation = gl.getUniformLocation(program, 'u_texture');
-  if(!textureLocation) throw new Error('Unable to get matrix location');
+  if(!textureLocation) throw new Error('Unable to get textureLocation');
 
   // Create a buffer.
   const positionBuffer = gl.createBuffer();
@@ -73,10 +79,13 @@ export const createDrawer = (gl: WebGLRenderingContext): Drawer => {
 
   // Unlike images, textures do not have a width and height associated
   // with them so we'll pass in the width and height of the texture
-  const drawImage = (tex: WebGLTexture, texWidth: number, texHeight: number, dstX: number, dstY: number) => {
-    console.log('drawing image!');
+  const drawImage = ({textureInfo, src, dest}: DrawParams) => {
+    const srcWidth = src.width === null ? textureInfo.width : src.width;
+    const srcHeight = src.height === null ? textureInfo.height : src.height;
+    const destWidth = dest.width === null ? srcWidth : dest.width;
+    const destHeight = dest.height === null ? srcHeight : dest.height;
 
-    gl.bindTexture(gl.TEXTURE_2D, tex);
+    gl.bindTexture(gl.TEXTURE_2D, textureInfo.texture);
 
     // Tell WebGL to use our shader program pair
     gl.useProgram(program);
@@ -89,18 +98,35 @@ export const createDrawer = (gl: WebGLRenderingContext): Drawer => {
     gl.enableVertexAttribArray(texcoordLocation);
     gl.vertexAttribPointer(texcoordLocation, 2, gl.FLOAT, false, 0, 0);
 
+    /* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument */
+    // Note: m4 is a vendored 3rd party library, with some jsdoc-style types
+    // however, it's not completely typed, and kind of a pair to improve on the partial typing
+    // so just ignore for this section of calls
+
     // this matrix will convert from pixels to clip space
     let matrix = m4.orthographic(0, gl.canvas.width, gl.canvas.height, 0, -1, 1);
 
     // this matrix will translate our quad to dstX, dstY
-    matrix = m4.translate(matrix, dstX, dstY, 0);
+    matrix = m4.translate(matrix, dest.x, dest.y, 0);
 
     // this matrix will scale our 1 unit quad
     // from 1 unit to texWidth, texHeight units
-    matrix = m4.scale(matrix, texWidth, texHeight, 1);
-
+    matrix = m4.scale(matrix, destWidth, destHeight, 1);
+    
     // Set the matrix.
     gl.uniformMatrix4fv(matrixLocation, false, matrix);
+    // if (textureInfo.width === 125) debugger;
+
+    // Because texture coordinates go from 0 to 1
+    // and because our texture coordinates are already a unit quad
+    // we can select an area of the texture by scaling the unit quad
+    // down
+    let texMatrix = m4.translation(src.x / textureInfo.width, src.y / textureInfo.height, 0);
+    texMatrix = m4.scale(texMatrix, srcWidth / textureInfo.width, srcHeight / textureInfo.height, 1);
+    
+    // Set the texture matrix.
+    gl.uniformMatrix4fv(textureMatrixLocation, false, texMatrix);
+    /* eslint-enable */
 
     // Tell the shader to get the texture from texture unit 0
     gl.uniform1i(textureLocation, 0);
@@ -118,9 +144,7 @@ export const createDrawer = (gl: WebGLRenderingContext): Drawer => {
       gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
       gl.clear(gl.COLOR_BUFFER_BIT);
     
-      params.forEach(({textureInfo, x, y}) => {
-        drawImage(textureInfo.texture, textureInfo.width, textureInfo.height, x, y);
-      });
+      params.forEach(drawImage);
     }
   };
 };
@@ -143,19 +167,18 @@ export const loadImageAndCreateTextureInfo = (gl: WebGLRenderingContext, url: st
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
 
   const textureInfo = {
-    width: 100,   // we don't know the size until it loads
-    height: 100,
+    width: 1,   // we don't know the size until it loads
+    height: 1,
     texture: tex,
   };
   
   const image: HTMLImageElement = new Image();
   
   image.onload = () => {
-
     textureInfo.width = image.width;
     textureInfo.height = image.height;
 
-    console.log('image loaded!', image.width, image.height);
+    console.log('loaded');
 
     gl.bindTexture(gl.TEXTURE_2D, textureInfo.texture);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
