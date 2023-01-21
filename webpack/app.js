@@ -14,7 +14,7 @@ module.exports = {
     rules: [{
       test: /\.css$/i,
       use: ["style-loader", "css-loader"],
-    }] 
+    }]
   },
   resolve: {
     extensions: ['.js', '.jsx', '.ts', '.tsx'],
@@ -38,6 +38,10 @@ module.exports = {
       { 
         directory: path.resolve(__dirname, '../data/img'),
         publicPath: '/assets/img',
+      },
+      { 
+        directory: path.resolve(__dirname, '../data/sprites'),
+        publicPath: '/assets/sprites',
       }      
     ],
     port: 3000,

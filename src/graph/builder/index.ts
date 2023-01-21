@@ -4,9 +4,10 @@ import forceAtlas2 from "graphology-layout-forceatlas2";
 
 import { NBAData, Player, PlayerSeason, Team } from "../../shared/nba-types";
 import { assets } from "../util/assets";
+import { LocationMapping } from "../util/image";
 import { GraphConfig } from "./config";
 
-export const buildGraph = (data: NBAData, config: GraphConfig): Graph => {
+export const buildGraph = (data: NBAData, config: GraphConfig, imgLocations: LocationMapping): Graph => {
   console.log('Building graph');
   const graph = new DirectedGraph();
 
@@ -54,13 +55,13 @@ export const buildGraph = (data: NBAData, config: GraphConfig): Graph => {
   teams.forEach(team => {
     const label = `${team.name} (${team.year})`;
 
-    const image: string = assets.img.franchise(team.franchiseId);
-    
-    // this kind of works, but loads ~2k images... don't use unique team images unless we get sprites working
-    // const image: string = assets.img.team(team.id);
-    const x = Math.random() * 125;
-    const y = Math.random() * 125;
-    graph.addNode(team.id, { size: 5, label, color: 'red', image, type: 'image', crop: {x, y, size: 75} });
+
+    const image: string = assets.img.franchiseSprite();
+    const location = imgLocations[team.franchiseId];
+
+    const imgProps = location ? {type: 'image', image, crop: location} : {};
+  
+    graph.addNode(team.id, { size: 5, label, color: 'red', ...imgProps });
   });
 
   playerTeams.forEach(pt => {

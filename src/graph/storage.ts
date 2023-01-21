@@ -48,7 +48,7 @@ export const persistSeasons: Persist<Season[]> = persistJSON(PARSED_PATH, SEASON
 export const persistPlayers: Persist<Player[]> = persistJSON(PARSED_PATH, PLAYER_FILENAME);
 export const persistPlayerSeasons: Persist<PlayerSeason[]> = persistJSON(PARSED_PATH, PLAYER_SEASON_FILENAME);
 
-async function readJSON<T>(dir: string, fileName: string): Promise<T> {
+export async function readJSON<T>(dir: string, fileName: string): Promise<T> {
   const raw = await readFile(path.resolve(dir, fileName), 'utf8');
   return JSON.parse(raw) as T;
 }

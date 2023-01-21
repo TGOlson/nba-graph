@@ -1,4 +1,5 @@
-const path = require('path'); // eslint-disable-line @typescript-eslint/no-var-requires
+const path = require('path');
+const webpack = require('webpack');
 
 module.exports = {
   entry: path.resolve(__dirname, '../src/graph/index.ts'),
@@ -10,9 +11,20 @@ module.exports = {
     path: path.resolve(__dirname, '../dist')
   },
   module: { 
-    rules: [] 
+    rules: [
+      {
+        test: /\.node$/,
+        use: 'node-loader'
+      }
+    ],
+  },
+  plugins: [
+    new webpack.NormalModuleReplacementPlugin(/^vertx/, '@vertx/core')
+  ],
+  externals : { 
+    // canvas: {} 
   },
   resolve: {
-    extensions: ['.js', '.ts']
+    extensions: ['.js', '.ts'],
   },
 };

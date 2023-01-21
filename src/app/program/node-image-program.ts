@@ -15,8 +15,7 @@ import { AbstractNodeProgram } from 'sigma/rendering/webgl/programs/common/node'
 import { RenderParams } from 'sigma/rendering/webgl/programs/common/program';
 import Sigma from 'sigma';
 import { FRAGMENT_SHADER_GLSL, VERTEX_SHADER_GLSL } from './shaders';
-
-type CropSpec = {x: number, y: number, size: number};
+import { Location } from '../../shared/sprite';
 
 const POINTS = 1,
   ATTRIBUTES = 8,
@@ -28,7 +27,7 @@ const POINTS = 1,
 
 type ImageLoading = { status: 'loading' };
 type ImageError = { status: 'error' };
-type ImagePending = { status: 'pending'; image: HTMLImageElement, crop?: CropSpec };
+type ImagePending = { status: 'pending'; image: HTMLImageElement, crop?: Location };
 type ImageReady = { status: 'ready' } & Coordinates & Dimensions;
 type ImageType = ImageLoading | ImageError | ImagePending | ImageReady;
 
@@ -45,8 +44,8 @@ class AbstractNodeImageProgram extends AbstractNodeProgram {
   /* eslint-enable @typescript-eslint/no-empty-function, @typescript-eslint/no-unused-vars */
 }
 
-const getImageKey = (url: string, crop?: CropSpec): string => {
-  return crop ? `${url}?x=${crop.x}&y=${crop.y}&size=${crop.size}` : url;
+const getImageKey = (url: string, crop?: Location): string => {
+  return crop ? `${url}?x=${crop.x}&y=${crop.y}&width=${crop.width}&height=${crop.height}` : url;
 };
 
 /**
@@ -75,13 +74,13 @@ export default function getNodeImageProgram(): typeof AbstractNodeImageProgram {
     image: HTMLImageElement;
     id: string;
     size: number;
-    crop?: CropSpec;
+    crop?: Location;
   };
 
   /**
    * Helper to load an image:
    */
-  function loadImage(imageSource: string, crop?: CropSpec): void {
+  function loadImage(imageSource: string, crop?: Location): void {
     const imageKey = getImageKey(imageSource, crop);
 
     if (images[imageKey]) return;
@@ -158,7 +157,9 @@ export default function getNodeImageProgram(): typeof AbstractNodeImageProgram {
       }
 
       pendingImages.forEach(({ id, image, size, crop }) => {
-        const srcSize = crop?.size ?? size;
+        // Note: this takes the min of height and width for the crop in order to make it equal dimensions
+        // This is a bit lazy... we could also center the crop like the code does for non-crop below...
+        const srcSize = crop ? Math.min(crop.width, crop.height) : size;
 
         const imageSizeInTexture = Math.min(MAX_TEXTURE_SIZE, srcSize);
 
@@ -282,7 +283,7 @@ export default function getNodeImageProgram(): typeof AbstractNodeImageProgram {
       );
     }
 
-    process(data: NodeDisplayData & { image?: string, crop?: CropSpec }, hidden: boolean, offset: number): void {
+    process(data: NodeDisplayData & { image?: string, crop?: Location }, hidden: boolean, offset: number): void {
       const array = this.array;
       let i = offset * POINTS * ATTRIBUTES;
 

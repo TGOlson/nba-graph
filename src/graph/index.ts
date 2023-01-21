@@ -8,12 +8,14 @@ import { seasonParser } from "./parsers/season";
 import { makeTeamParser } from "./parsers/team";
 import { makePlayerSeasonParser } from "./parsers/player-season";
 
-import { loadNBAData, persistFranchises, persistGraph, persistLeagues, persistPlayers, persistPlayerSeasons, persistSeasons, persistTeams } from "./storage";
+import { FRANCHISE_IMAGE_DIR, loadNBAData, persistFranchises, persistGraph, persistLeagues, persistPlayers, persistPlayerSeasons, persistSeasons, persistTeams, readJSON } from "./storage";
 import { buildGraph } from "./builder";
 
 import { makeDelayedFetch, makeFetch } from "./util/fetch";
 import { execSeq } from "./util/promise";
 import { GRAPH_CONFIG } from "./builder/config";
+import { convertToBW, createSpriteImage, LocationMapping } from "./util/image";
+import path from "path";
 // import { convertToBW } from "./util/image";
 // import path from "path";
 
@@ -171,26 +173,23 @@ async function main() {
     // *** graph commands
     case commands.graph.Build: {
       const nbaData = await loadNBAData();
-      const graph = buildGraph(nbaData, GRAPH_CONFIG);
+
+      // TODO: isolation this call, just a hack to test stuff
+      const locationMappings: LocationMapping = await readJSON(path.resolve(__dirname, '../data/sprites'), 'teams.mapping.json');
+      const graph = buildGraph(nbaData, GRAPH_CONFIG, locationMappings);
 
       return await persistGraph(graph);
     }
 
     // *** misc commands
-    // case commands.misc.ConvertImages: {
-    //   const franchises = await runHtmlParser(franchiseParser);
-    //   const franchiseIds = franchises.map(x => x.id);
-
-    //   return Promise.all(franchiseIds.map(id => {
-    //     const inputPath = path.resolve(FRANCHISE_IMAGE_DIR, franchiseImgFileName(id));
-    //     const outputPath = path.resolve(FRANCHISE_IMAGE_DIR, franchiseImgFileName(`${id}_muted`));
-  
-    //     return convertToBW(inputPath, outputPath)
-    //       .catch(err => {
-    //         console.log('Skipping converting franchise image', id, err);
-    //       });
-    //   }));
-    // }
+    case commands.misc.ConvertImages: {
+      const outputImageFile = path.resolve(__dirname, '../data/sprites', 'teams.png');
+      const outputImageFileMuted = path.resolve(__dirname, '../data/sprites', 'teams_muted.png');
+      const outputMappingFile = path.resolve(__dirname, '../data/sprites', 'teams.mapping.json');
+      
+      await createSpriteImage(FRANCHISE_IMAGE_DIR, outputImageFile, outputMappingFile);
+      return await convertToBW(outputImageFile, outputImageFileMuted);
+    }
 
     default: 
       console.log('Unknown command: ', cmd, '\nAvailable commands:\n', Object.values(commands));
