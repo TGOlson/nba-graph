@@ -2,7 +2,7 @@ import { mkdir, readFile, writeFile } from "fs/promises";
 import Graph from "graphology";
 import path from "path";
 import { Franchise, League, NBAData, NBAType, Player, PlayerSeason, Season, Team } from "../../shared/nba-types";
-import { Mapping } from "../../shared/sprite";
+import { LocationMapping } from "../../shared/sprite";
 import {
   LEAGUE_PATH,
   FRANCHISE_PATH,
@@ -36,7 +36,7 @@ export async function loadNBAData(): Promise<NBAData> {
   return {leagues, franchises, teams, seasons, players, playerSeasons};
 }
 
-export async function loadSpriteMapping(typ: NBAType): Promise<Mapping> {
+export async function loadSpriteMapping(typ: NBAType): Promise<LocationMapping> {
   return readJSON(spriteMappingPath(typ));
 }
 

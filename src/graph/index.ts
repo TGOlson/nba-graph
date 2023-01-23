@@ -16,7 +16,7 @@ import { GRAPH_CONFIG } from "./builder/config";
 
 import { makeDelayedFetch, makeFetch } from "./util/fetch";
 import { execSeq } from "./util/promise";
-import { convertToBW, createSpriteImage, LocationMapping } from "./util/image";
+import { convertToBW, createSpriteImage } from "./util/image";
 import { NBAType } from "../shared/nba-types";
 
 const VERBOSE_FETCH = true;
@@ -174,16 +174,20 @@ async function main() {
     case commands.graph.Build: {
       const nbaData = await loadNBAData();
 
-      const locationMappings: LocationMapping = await loadSpriteMapping(NBAType.FRANCHISE);
-      const graph = buildGraph(nbaData, GRAPH_CONFIG, locationMappings);
+      const teamLocationMappings = await loadSpriteMapping(NBAType.TEAM);
+      const franchiseLocationMappings = await loadSpriteMapping(NBAType.FRANCHISE);
+      const graph = buildGraph(nbaData, GRAPH_CONFIG, [
+        {typ: NBAType.TEAM, map: teamLocationMappings},
+        {typ: NBAType.FRANCHISE, map: franchiseLocationMappings}
+      ]);
 
       return await persistGraph(graph);
     }
 
     // *** misc commands
     case commands.misc.ConvertImages: {
-      // const typ = NBAType.FRANCHISE;
-      const typ = NBAType.TEAM;
+      const typ = NBAType.FRANCHISE;
+      // const typ = NBAType.TEAM;
       
       const imagePath = spritePath(typ);
       const imagePathMuted = spritePath(typ, true);

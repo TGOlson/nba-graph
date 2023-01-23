@@ -59,6 +59,13 @@ export default function getNodeImageProgram(): typeof AbstractNodeImageProgram {
    * returned by this call to getNodeProgramImage:
    */
   const rebindTextureFns: (() => void)[] = [];
+
+  const canvasCache: Record<string, CanvasRenderingContext2D> = {};
+
+  // Images tracked by base url, to help track loading
+  // const baseImages: Record<string, ImageType> = {};
+
+  // Images keyed w/ cropping info, to track status of each unique view
   const images: Record<string, ImageType> = {};
   let textureImage: ImageData;
   let hasReceivedImages = false;
@@ -178,6 +185,7 @@ export default function getNodeImageProgram(): typeof AbstractNodeImageProgram {
           }
         }
 
+        // ctx.drawImage(image, dx, dy, size, size, xOffset, yOffset, imageSizeInTexture, imageSizeInTexture); // orig
         ctx.drawImage(image, dx, dy, srcSize, srcSize, xOffset, yOffset, imageSizeInTexture, imageSizeInTexture);
 
         // Update image state:
@@ -194,6 +202,7 @@ export default function getNodeImageProgram(): typeof AbstractNodeImageProgram {
 
       hasReceivedImages = true;
       textureImage = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      // textureImage = ctx.getImageData(0, 0, canvas.width, canvas.height); // orig
     };
 
     let rowImages: PendingImage[] = [];

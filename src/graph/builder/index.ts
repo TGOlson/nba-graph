@@ -2,12 +2,12 @@ import Graph, { DirectedGraph } from "graphology";
 import { circular } from "graphology-layout";
 import forceAtlas2 from "graphology-layout-forceatlas2";
 
-import { NBAData, Player, PlayerSeason, Team } from "../../shared/nba-types";
+import { NBAData, NBAType, Player, PlayerSeason, Team } from "../../shared/nba-types";
+import { LocationMapping } from "../../shared/sprite";
 import { assets } from "../util/assets";
-import { LocationMapping } from "../util/image";
 import { GraphConfig } from "./config";
 
-export const buildGraph = (data: NBAData, config: GraphConfig, imgLocations: LocationMapping): Graph => {
+export const buildGraph = (data: NBAData, config: GraphConfig, imgLocations: {typ: NBAType, map: LocationMapping}[]): Graph => {
   console.log('Building graph');
   const graph = new DirectedGraph();
 
@@ -52,14 +52,29 @@ export const buildGraph = (data: NBAData, config: GraphConfig, imgLocations: Loc
     }
   });
   
+  const teamLocations = imgLocations.find(({typ}) => typ === NBAType.TEAM)?.map;
+  const franchiseLocations = imgLocations.find(({typ}) => typ === NBAType.FRANCHISE)?.map;
+
+  console.log('Unique team images', Object.keys(teamLocations ?? {}).length);
+
+  const teamSprite = assets.img.teamSprite();
+  const franchiseSprite = assets.img.franchiseSprite();
+
   teams.forEach(team => {
     const label = `${team.name} (${team.year})`;
 
+    const teamLocation = teamLocations?.[team.id];
+    const franchiseLocation = franchiseLocations?.[team.franchiseId];
+    
+    let imgProps = {};
 
-    const image: string = assets.img.franchiseSprite();
-    const location = imgLocations[team.franchiseId];
-
-    const imgProps = location ? {type: 'image', image, crop: location} : {};
+    if (teamLocation) {
+      imgProps = {type: 'image', image: teamSprite, crop: teamLocation};
+    } else if (franchiseLocation) {
+    // if (franchiseLocation) {
+      imgProps = {type: 'image', image: franchiseSprite, crop: franchiseLocation};
+    }
+    // TODO: should default to some generic pic if no franchise sprite is found
   
     graph.addNode(team.id, { size: 5, label, color: 'red', ...imgProps });
   });

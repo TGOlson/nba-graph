@@ -3,14 +3,15 @@ import Jimp from 'jimp/es';
 import path from 'path';
 import { persistJSON } from '../storage';
 
-export type LocationMapping = {
-  [key: string]: {x: number, y: number, width: number, height: number}
-};
+// TODO: this doesn't seem to do anything
+// another way would be to reduce image size to maybe 75x75 for each (125x125 currently, not needed to be so big)
+const DEFAULT_QUALITY = 30;
 
 export async function convertToBW(inputPath: string, outputPath: string): Promise<void> {
   const image = await Jimp.read(inputPath);
 
   image
+    .quality(DEFAULT_QUALITY)
     .greyscale()
     .opacity(0.5)
     .background(0xE2E2E2)
@@ -34,7 +35,7 @@ export async function createSpriteImage(inputDir: string, imagePath: string, map
   });
   
   const images: {key: string, img: Jimp}[] = await Promise.all(filePaths.map(x => {
-    return Jimp.read(x.path).then(img => ({key: x.key, img}));
+    return Jimp.read(x.path).then(img => ({key: x.key, img: img}));
   }));
 
   const specs: Spec[] = [];
@@ -54,7 +55,7 @@ export async function createSpriteImage(inputDir: string, imagePath: string, map
   const width = Math.max(...images.map(({img}) => img.getWidth()));
   const height = images.reduce((acc, {img}) => acc + img.getHeight(), 0);
 
-  const image = new Jimp(width, height, 0x00000000);
+  const image = new Jimp(width, height, 0x00000000).quality(DEFAULT_QUALITY);
 
   specs.forEach(spec => {
     image.composite(spec.img, spec.x, spec.y);
