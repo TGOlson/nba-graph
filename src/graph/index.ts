@@ -8,16 +8,16 @@ import { seasonParser } from "./parsers/season";
 import { makeTeamParser } from "./parsers/team";
 import { makePlayerSeasonParser } from "./parsers/player-season";
 
-import { FRANCHISE_IMAGE_DIR, loadNBAData, persistFranchises, persistGraph, persistLeagues, persistPlayers, persistPlayerSeasons, persistSeasons, persistTeams, readJSON } from "./storage";
+import { loadNBAData, loadSpriteMapping, persistFranchises, persistGraph, persistLeagues, persistPlayers, persistPlayerSeasons, persistSeasons, persistTeams } from "./storage";
+import { imageDir, spriteMappingPath, spritePath } from "./storage/paths";
+
 import { buildGraph } from "./builder";
+import { GRAPH_CONFIG } from "./builder/config";
 
 import { makeDelayedFetch, makeFetch } from "./util/fetch";
 import { execSeq } from "./util/promise";
-import { GRAPH_CONFIG } from "./builder/config";
 import { convertToBW, createSpriteImage, LocationMapping } from "./util/image";
-import path from "path";
-// import { convertToBW } from "./util/image";
-// import path from "path";
+import { NBAType } from "../shared/nba-types";
 
 const VERBOSE_FETCH = true;
 const FETCH_DELAY_MS = 6000; // basketball-reference seems to get mad at >~30 req/m
@@ -111,7 +111,7 @@ async function main() {
     case commands.download.FranchiseLogos: {
       const franchises = await runHtmlParser(franchiseParser);
       const fns = franchises.map(x => {
-          return () => downloadImage(fetch, x.image, 'franchise', x.id)
+          return () => downloadImage(fetch, x.image, NBAType.FRANCHISE, x.id)
             .catch(err => console.log('Error download image for. Skipping ', x.id, err));
       });
 
@@ -127,7 +127,7 @@ async function main() {
       ).then(xs => xs.flat());
 
       const fns = teams.map(x => {
-          return () => downloadImage(fetch, x.image, 'team', x.id)
+          return () => downloadImage(fetch, x.image, NBAType.TEAM, x.id)
             .catch(err => console.log('Error download image for. Skipping ', x.id, err));
       });
 
@@ -174,8 +174,7 @@ async function main() {
     case commands.graph.Build: {
       const nbaData = await loadNBAData();
 
-      // TODO: isolation this call, just a hack to test stuff
-      const locationMappings: LocationMapping = await readJSON(path.resolve(__dirname, '../data/sprites'), 'teams.mapping.json');
+      const locationMappings: LocationMapping = await loadSpriteMapping(NBAType.FRANCHISE);
       const graph = buildGraph(nbaData, GRAPH_CONFIG, locationMappings);
 
       return await persistGraph(graph);
@@ -183,12 +182,15 @@ async function main() {
 
     // *** misc commands
     case commands.misc.ConvertImages: {
-      const outputImageFile = path.resolve(__dirname, '../data/sprites', 'teams.png');
-      const outputImageFileMuted = path.resolve(__dirname, '../data/sprites', 'teams_muted.png');
-      const outputMappingFile = path.resolve(__dirname, '../data/sprites', 'teams.mapping.json');
+      // const typ = NBAType.FRANCHISE;
+      const typ = NBAType.TEAM;
       
-      await createSpriteImage(FRANCHISE_IMAGE_DIR, outputImageFile, outputMappingFile);
-      return await convertToBW(outputImageFile, outputImageFileMuted);
+      const imagePath = spritePath(typ);
+      const imagePathMuted = spritePath(typ, true);
+      const mappingPath = spriteMappingPath(typ);
+      
+      await createSpriteImage(imageDir(typ), imagePath, mappingPath);
+      return await convertToBW(imagePath, imagePathMuted);
     }
 
     default: 

@@ -10,6 +10,6 @@ export const assets: AssetPathBuilder = {
   img: {
     franchise: (id: string): string => `/assets/img/franchise/${id}.png`,
     team: (id: string): string => `/assets/img/team/${id}.png`,
-    franchiseSprite: (): string => `/assets/sprites/teams.png`,
+    franchiseSprite: (): string => `/assets/sprites/franchise.png`,
   }
 };

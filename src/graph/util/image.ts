@@ -1,6 +1,7 @@
-import { readdir, writeFile } from 'fs/promises';
+import { readdir } from 'fs/promises';
 import Jimp from 'jimp/es';
 import path from 'path';
+import { persistJSON } from '../storage';
 
 export type LocationMapping = {
   [key: string]: {x: number, y: number, width: number, height: number}
@@ -23,7 +24,7 @@ type Spec = {
   y: number,
 };
 
-export async function createSpriteImage(inputDir: string, outputImageFile: string, outputMappingFile: string): Promise<void> {
+export async function createSpriteImage(inputDir: string, imagePath: string, mappingPath: string): Promise<void> {
   const fileNames: string[] = await readdir(inputDir);
   const filePaths: {key: string, path: string}[] = fileNames.map(f => {
     const key = f.split('.')[0];
@@ -59,11 +60,11 @@ export async function createSpriteImage(inputDir: string, outputImageFile: strin
     image.composite(spec.img, spec.x, spec.y);
   });
 
-  await image.writeAsync(outputImageFile);
+  await image.writeAsync(imagePath);
 
   const mapping = specs.reduce((map, {key, x, y, img}) => {
     return {...map, [key]: {x, y, width: img.getWidth(), height: img.getHeight()}};
   }, {});
   
-  await writeFile(outputMappingFile, JSON.stringify(mapping));
+  await persistJSON(mappingPath)(mapping);
 }

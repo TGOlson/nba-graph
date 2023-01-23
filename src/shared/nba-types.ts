@@ -1,5 +1,14 @@
 import { ImageUrl } from "../graph/util/bref-url";
 
+export enum NBAType {
+  LEAGUE = 'league',
+  SEASON = 'season',
+  FRANCHISE = 'franchise',
+  TEAM = 'team',
+  PLAYER = 'player',
+  PLAYER_SEASON = 'player-season',
+}
+ 
 // NBA, ABA...
 export type League = {
   id: string;

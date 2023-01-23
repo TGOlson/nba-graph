@@ -1,5 +1,6 @@
 import * as cheerio from 'cheerio';
 import { mkdir, writeFile } from 'fs/promises';
+import { NBAType } from '../shared/nba-types';
 import { persistImage } from './storage';
 
 import { ImageUrl, LEAGUES_URL, localPath, playerIndexUrl, playerUrl, TEAMS_URL, teamUrl } from './util/bref-url';
@@ -50,7 +51,7 @@ export async function downloadPlayer(fetch: Fetch, playerId: string): Promise<vo
 //
 // TODO: update this to parse urls from downloaded files instead of relying on URL pattern
 
-export async function downloadImage(fetch: Fetch, imageUrl: ImageUrl, namespace: string, id: string): Promise<void> {
+export async function downloadImage(fetch: Fetch, imageUrl: ImageUrl, typ: NBAType, id: string): Promise<void> {
   const res = await fetch(imageUrl.url).catch((err) => {
     console.log('Error fetching url, trying fallback: ', imageUrl.url, err);
     return fetch(imageUrl.fallback);
@@ -59,5 +60,5 @@ export async function downloadImage(fetch: Fetch, imageUrl: ImageUrl, namespace:
   const body = await res.arrayBuffer();
   const img = Buffer.from(body);
 
-  return await persistImage(namespace, id, img);
+  return await persistImage(typ, id, img);
 }
