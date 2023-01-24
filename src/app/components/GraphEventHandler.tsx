@@ -5,10 +5,9 @@ import { Attributes } from 'graphology-types';
 // import { circular } from "graphology-layout";
 
 import "@react-sigma/core/lib/react-sigma.min.css";
-import Graph from 'graphology';
-import { circular } from 'graphology-layout';
-import { animateNodes } from 'sigma/utils/animate';
 // import Graph from 'graphology';
+// import { circular } from 'graphology-layout';
+// import { animateNodes } from 'sigma/utils/animate';
 
 export const GraphEvents = () => {
   const sigma = useSigma();
@@ -54,31 +53,31 @@ export const GraphEvents = () => {
         // const selectedNe = graph.neighbors(selectedNode);
 
         if (selectedNode && graph.neighbors(selectedNode).includes(node)) {
-          const neighbors = graph.neighbors(selectedNode);
+          // const neighbors = graph.neighbors(selectedNode);
 
-          const tempGraph = new Graph();
-          neighbors.forEach(n => tempGraph.addNode(n));
-          // circular.
-          const positions = circular(tempGraph, { scale: sigma.getCamera().ratio * 1000 });
-          // const 
-          const { x: baseX, y: baseY } = graph.getNodeAttributes(selectedNode);
-          const pos = positions[node];
+          // const tempGraph = new Graph();
+          // neighbors.forEach(n => tempGraph.addNode(n));
+          // // circular.
+          // const positions = circular(tempGraph, { scale: sigma.getCamera().ratio * 1000 });
+          // // const 
+          // const { x: baseX, y: baseY } = graph.getNodeAttributes(selectedNode);
+          // const pos = positions[node];
 
-          if (!pos) throw new Error('Unexpected access error');
+          // if (!pos) throw new Error('Unexpected access error');
           
-          const currX = pos.x;
-          const currY = pos.y;
+          // const currX = pos.x;
+          // const currY = pos.y;
           
-          if (currX === undefined) throw new Error('Unexpected access error');
-          if (currY === undefined) throw new Error('Unexpected access error');
+          // if (currX === undefined) throw new Error('Unexpected access error');
+          // if (currY === undefined) throw new Error('Unexpected access error');
 
-          // graph.setP
+          // // graph.setP
           
-          const newX = currX + (baseX as number);
-          const newY = currY + (baseY as number);
-          // debugger;
+          // const newX = currX + (baseX as number);
+          // const newY = currY + (baseY as number);
+          // // debugger;
 
-          animateNodes(graph, {[node]: {x: newX, y: newY}}, { duration: 100 });
+          // animateNodes(graph, {[node]: {x: newX, y: newY}}, { duration: 100 });
           // graph.updateNodeAttribute(node, 'x', () => newX);
           // graph.updateNodeAttribute(node, 'y', () => newY);
           // positions.

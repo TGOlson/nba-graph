@@ -51,7 +51,6 @@ export async function createSpriteImage(inputDir: string, imagePath: string, map
   const specs: Spec[] = [];
   let offsetY = 0;
   let offsetX = 0;
-  // let prevImg = new Jimp(1, 1);
 
   images.forEach(({img, key}, i) => {
     // Images will be rendered within circle on the resulting graph

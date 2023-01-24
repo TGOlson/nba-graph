@@ -60,6 +60,19 @@ export const buildGraph = (data: NBAData, config: GraphConfig, imgLocations: {ty
   const teamSprite = assets.img.teamSprite();
   const franchiseSprite = assets.img.franchiseSprite();
 
+  data.franchises.forEach(franchise => {
+    // const label = franchise.name;
+    const franchiseLocation = franchiseLocations?.[franchise.id];
+
+    let imgProps = {};
+
+    if (franchiseLocation) {
+      imgProps = {type: 'sprite', image: franchiseSprite, crop: franchiseLocation};
+    }
+
+    graph.addNode(franchise.id, { size: 7, label: franchise.name, color: 'yellow', ...imgProps });
+  });
+
   teams.forEach(team => {
     const label = `${team.name} (${team.year})`;
 
@@ -69,9 +82,9 @@ export const buildGraph = (data: NBAData, config: GraphConfig, imgLocations: {ty
     let imgProps = {};
 
     if (teamLocation && config.includeTeamLogos) {
-      imgProps = {type: 'image', image: teamSprite, crop: teamLocation};
-    // } else if (franchiseLocation) {
-    //   imgProps = {type: 'image', image: franchiseSprite, crop: franchiseLocation};
+      imgProps = {type: 'sprite', image: teamSprite, crop: teamLocation};
+    } else if (franchiseLocation) {
+      imgProps = {type: 'sprite', image: franchiseSprite, crop: franchiseLocation};
     }
     // TODO: should default to some generic pic if no franchise sprite is found
   
@@ -80,6 +93,10 @@ export const buildGraph = (data: NBAData, config: GraphConfig, imgLocations: {ty
 
   playerTeams.forEach(pt => {
     graph.addEdge(pt.playerId, pt.teamId);
+  });
+
+  teams.forEach(team => {
+    graph.addEdge(team.id, team.franchiseId);
   });
 
   if (config.assignLocations) {

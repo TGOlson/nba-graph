@@ -9,7 +9,9 @@ import "@react-sigma/core/lib/react-sigma.min.css";
 import { GraphData } from '../api';
 import { GraphEvents } from './GraphEventHandler';
 import makeNodeSpriteProgram from '../program/node-sprite';
-import makeNodeSpriteProgramNaive from '../program/node-sprite-naive';
+// import getNodeImageProgram from '../program/node-sprite';
+// import makeNodeSpriteProgramNaive from '../program/node-sprite-naive';
+// import getNodeImageProgram from '../program/node-sprite';
 
 type DisplayGraphProps = {
   data: GraphData,
@@ -28,8 +30,8 @@ export const NBAGraph = (props: DisplayGraphProps) => {
     labelSize: 12,
     labelWeight: 'light',
     nodeProgramClasses: {
-      // image: makeNodeSpriteProgramNaive(),
-      image: makeNodeSpriteProgram(props.image),
+      // image: getNodeImageProgram(),
+      sprite: makeNodeSpriteProgram(props.image),
       // sprite: getNodeImageProgram(props.image), // better?!?
     },
     // edgeProgramClasses: {

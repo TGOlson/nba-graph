@@ -22,7 +22,7 @@ const ATTRIBUTES = 8;
 
 // This is a really naive sprite rendering image program
 // It takes a single sprite image, assuming all nodes have locations mapped to that image
-export default function getNodeImageProgram(textureImage: ImageData) {
+export default function makeNodeSpriteProgram(textureImage: ImageData) {
   return class NodeImageProgram extends AbstractNodeProgram {
     texture: WebGLTexture;
     textureLocation: GLint;

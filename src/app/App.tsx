@@ -5,6 +5,35 @@ import { NBAGraph } from './components/NBAGraph';
 
 import "./App.css";
 
+const fetchImageData = (url: string): Promise<{url: string, img: ImageData}> => {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d', {willReadFrequently: true}) as CanvasRenderingContext2D;
+
+    img.onload = () => {
+      canvas.width = img.width;
+      canvas.height = img.height;
+
+      ctx.drawImage(img, 0, 0);
+      const image = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+      resolve({url, img: image});
+    }
+
+    img.src = url;
+
+    // TODO: error handler
+  });
+}
+
+const fetchSprites = (): Promise<{url: string, img: ImageData}[]> => {
+  return Promise.all([
+    fetchImageData('/assets/sprites/team.png'),
+    fetchImageData('/assets/sprites/team_muted.png'),
+  ]);
+};
+
 type AppProps = Record<string, never>; // empty object
 type AppState = {
   data: GraphData | null;
@@ -22,33 +51,18 @@ class App extends Component<AppProps, AppState> {
   }
 
   componentDidMount() {
-    const url = '/assets/sprites/team.png';
-    const img = new Image();
+    void fetchSprites()
+      .then(res => {
+        // TODO: need to combine sprites here and provide a mapping to the image program to know how to translate offsets
+        const first = res[0];
+        if (!first) throw new Error('Unexpected no sprite found');
 
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d', {willReadFrequently: true}) as CanvasRenderingContext2D;
+        const image = first.img;
 
-    img.onload = () => {
-      canvas.width = img.width;
-      canvas.height = img.height;
-      console.log(canvas.width, canvas.height);
-
-      ctx.drawImage(img, 0, 0);
-
-      const image = ctx.getImageData(0, 0, canvas.width, canvas.height);
-
-      console.log('done caching images!');
-
-      fetchGraphData()
-        .then(data => this.setState({ data, image }))
-        .catch(err => console.log('Err in app component initial data fetch', err));
-    };
-
-    img.src = url;
-
-
-
-    
+        return fetchGraphData()
+          .then(data => this.setState({ data, image }))
+          .catch(err => console.log('Err in app component initial data fetch', err));
+      });
   }
 
   render () {

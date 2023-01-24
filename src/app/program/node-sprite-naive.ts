@@ -53,7 +53,7 @@ const getImageKey = (url: string, crop?: Location): string => {
  * hovered nodes (to prevent some flickering, mostly), this program must be
  * 'built' for each sigma instance:
  */
-export default function getNodeImageProgram(): typeof AbstractNodeImageProgram {
+export default function makeNodeSpriteProgram(): typeof AbstractNodeImageProgram {
   /**
    * These attributes are shared between all instances of this exact class,
    * returned by this call to getNodeProgramImage:
