@@ -68,11 +68,10 @@ export const buildGraph = (data: NBAData, config: GraphConfig, imgLocations: {ty
     
     let imgProps = {};
 
-    // if (teamLocation) {
-    //   imgProps = {type: 'image', image: teamSprite, crop: teamLocation};
+    if (teamLocation && config.includeTeamLogos) {
+      imgProps = {type: 'image', image: teamSprite, crop: teamLocation};
     // } else if (franchiseLocation) {
-    if (franchiseLocation) {
-      imgProps = {type: 'image', image: franchiseSprite, crop: franchiseLocation};
+    //   imgProps = {type: 'image', image: franchiseSprite, crop: franchiseLocation};
     }
     // TODO: should default to some generic pic if no franchise sprite is found
   

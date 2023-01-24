@@ -186,8 +186,8 @@ async function main() {
 
     // *** misc commands
     case commands.misc.ConvertImages: {
-      const typ = NBAType.FRANCHISE;
-      // const typ = NBAType.TEAM;
+      // const typ = NBAType.FRANCHISE;
+      const typ = NBAType.TEAM;
       
       const imagePath = spritePath(typ);
       const imagePathMuted = spritePath(typ, true);

@@ -60,11 +60,6 @@ export default function getNodeImageProgram(): typeof AbstractNodeImageProgram {
    */
   const rebindTextureFns: (() => void)[] = [];
 
-  const canvasCache: Record<string, CanvasRenderingContext2D> = {};
-
-  // Images tracked by base url, to help track loading
-  // const baseImages: Record<string, ImageType> = {};
-
   // Images keyed w/ cropping info, to track status of each unique view
   const images: Record<string, ImageType> = {};
   let textureImage: ImageData;
