@@ -19,7 +19,7 @@ export const NBAGraph = (props: DisplayGraphProps) => {
   graph.import(props.data);
 
   const settings: Partial<Settings> = {
-    // zIndex: true,
+    zIndex: true,
     labelDensity: 0.07,
     labelGridCellSize: 60,
     labelRenderedSizeThreshold: 15,
@@ -35,7 +35,7 @@ export const NBAGraph = (props: DisplayGraphProps) => {
 
   return (
     <SigmaContainer 
-      style={{ height: "700px" }} 
+      style={{ height: "600px" }} 
       graph={graph}
       settings={settings}
     >
