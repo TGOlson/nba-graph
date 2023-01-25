@@ -90,6 +90,6 @@ export async function persistGraph(graph: Graph): Promise<void> {
   return persistJSON(GRAPH_EDGES_PATH)(edges);
 }
 
-export async function persistImage(typ: NBAType, id: string, img: Buffer): Promise<void> {
-  return writeFileInternal(imgPath(typ, id), img);
+export async function persistImage(typ: NBAType, id: string, img: Buffer, fileType: string): Promise<void> {
+  return writeFileInternal(imgPath(typ, id, fileType), img);
 }

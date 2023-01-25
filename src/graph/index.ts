@@ -8,7 +8,7 @@ import { seasonParser } from "./parsers/season";
 import { makeTeamParser } from "./parsers/team";
 import { makePlayerSeasonParser } from "./parsers/player-season";
 
-import { loadFranchises, loadNBAData, loadSpriteMapping, loadTeams, persistFranchises, persistGraph, persistLeagues, persistPlayers, persistPlayerSeasons, persistSeasons, persistTeams } from "./storage";
+import { loadFranchises, loadNBAData, loadPlayers, loadSpriteMapping, loadTeams, persistFranchises, persistGraph, persistLeagues, persistPlayers, persistPlayerSeasons, persistSeasons, persistTeams } from "./storage";
 import { imageDir, spriteMappingPath, spritePath } from "./storage/paths";
 
 import { buildGraph } from "./builder";
@@ -52,6 +52,7 @@ const commands = {
   },
   misc: {
     ConvertImages: '--convert-images',
+    Test: '--test',
   },
   graph: {
     Build: '--build-graph'
@@ -131,14 +132,25 @@ async function main() {
     }
 
     case commands.download.PlayerImages: {
-      // const players = await loadPlayers();
+      const players = await loadPlayers();
 
-      // const fns = players.slice(0,10).map(x => {
-      //     return () => downloadImage(fetch, x.image, NBAType.PLAYER, x.id)
-      //       .catch(err => console.log('Error download image for. Skipping ', x.id, err));
-      // });
+      const startAtId = arg;
+      const startAt = startAtId ? players.findIndex(x => x.id == startAtId) : 0;
 
-      // return await execSeq(fns);
+      const fns = players.slice(startAt, players.length).map((x, i) => {
+          return async () => {
+            console.log(`[${i + startAt} of ${players.length}]: Fetching image for: ${x.id}`);
+
+            if (!x.image) {
+              console.log('No image found for player, skipping...', x.id);
+              return;
+            }
+
+            return await downloadImage(fetch, x.image, NBAType.PLAYER, x.id);
+          };
+      });
+
+      return await execSeq(fns);
     }
 
     // *** extract commands
@@ -197,6 +209,24 @@ async function main() {
       
       await createSpriteImage(imageDir(typ), imagePath, mappingPath);
       return await convertToBW(imagePath, imagePathMuted);
+    }
+
+    // for testing, debugging, etc
+    case commands.misc.Test: {
+      const players = await loadPlayers();
+
+      const playersWithImage = players.filter(x => x.image);
+      const playersWithSeasons = players.filter(x => x.seasons > 2);
+      const playersWithImageAndSeasons = players.filter(x => x.seasons > 2 && x.image);
+      const playersWithAwards = players.filter(x => x.awards.length > 1);
+
+      console.log('players', players.length);
+      console.log('playersWithImage', playersWithImage.length);
+      console.log('playersWithSeasons', playersWithSeasons.length);
+      console.log('playersWithImageAndSeasons', playersWithImageAndSeasons.length);
+      console.log('playersWithAwards', playersWithAwards.length);
+
+      return;
     }
 
     default: 

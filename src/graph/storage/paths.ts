@@ -22,7 +22,7 @@ export const GRAPH_EDGES_PATH = path.resolve(GRAPH_PATH, 'edges.json');
 // images
 const IMAGE_PATH = path.resolve(ROOT_DIR, './img');
 export const imageDir = (typ: NBAType) => path.resolve(IMAGE_PATH, typ.toString());
-export const imgPath = (typ: NBAType, id: string) => path.resolve(imageDir(typ), `${id}.png`);
+export const imgPath = (typ: NBAType, id: string, fileType: string) => path.resolve(imageDir(typ), `${id}.${fileType}`);
 
 // sprites 
 const SPRITE_PATH = path.resolve(ROOT_DIR, './sprites');

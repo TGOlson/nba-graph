@@ -17,7 +17,7 @@ const BASE_URL = 'https://www.basketball-reference.com';
 export const toRelative = (str: string): string =>
     str.replace(BASE_URL, '');
 
-export const fromRelative = (str: string): string => 
+const fromRelative = (str: string): string => 
   `${BASE_URL}${str}`;
 
 export const LEAGUES_URL = fromRelative('/leagues');

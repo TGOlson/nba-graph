@@ -50,5 +50,10 @@ export async function downloadImage(fetch: Fetch, url: string, typ: NBAType, id:
   const body = await res.arrayBuffer();
   const img = Buffer.from(body);
 
-  return await persistImage(typ, id, img);
+  const fileTypePieces = url.split('.');
+  const fileType = fileTypePieces[fileTypePieces.length - 1];
+
+  if (!fileType) throw new Error(`Cannot infer file type for: ${url}`);
+
+  return await persistImage(typ, id, img, fileType);
 }
