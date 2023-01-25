@@ -70,7 +70,7 @@ export const buildGraph = (data: NBAData, config: GraphConfig, imgLocations: {ty
       imgProps = {type: 'sprite', image: franchiseSprite, crop: franchiseLocation};
     }
 
-    graph.addNode(franchise.id, { size: 7, label: franchise.name, color: 'yellow', ...imgProps });
+    graph.addNode(franchise.id, { size: 5, label: franchise.name, color: 'yellow', ...imgProps });
   });
 
   teams.forEach(team => {
@@ -88,7 +88,7 @@ export const buildGraph = (data: NBAData, config: GraphConfig, imgLocations: {ty
     }
     // TODO: should default to some generic pic if no franchise sprite is found
   
-    graph.addNode(team.id, { size: 5, label, color: 'red', ...imgProps });
+    graph.addNode(team.id, { size: 4, label, color: 'red', ...imgProps });
   });
 
   playerTeams.forEach(pt => {

@@ -1,28 +1,24 @@
 // Note: this is copied directly from https://github.com/jacomyal/sigma.js
-// Modified to support cropping base image (specifically to enable sprite images)
+// But modified heavily to support sprites, with plenty of *hacky* performance optimizations
 
-/**
- * Sigma.js WebGL Renderer Node Program
- * =====================================
- *
- * Program rendering nodes using GL_POINTS, but that draws an image on top of
- * the classic colored disc.
- * @module
- */
-import { NodeDisplayData } from 'sigma/types';
+
+import { Coordinates, NodeDisplayData } from 'sigma/types';
 import { floatColor } from 'sigma/utils';
 import { AbstractNodeProgram } from 'sigma/rendering/webgl/programs/common/node';
 import { RenderParams } from 'sigma/rendering/webgl/programs/common/program';
 import Sigma from 'sigma';
+
 import { FRAGMENT_SHADER_GLSL, VERTEX_SHADER_GLSL } from './shaders';
 import { Location } from '../../shared/sprite';
 
 const POINTS = 1;
 const ATTRIBUTES = 8;
 
-// This is a really naive sprite rendering image program
-// It takes a single sprite image, assuming all nodes have locations mapped to that image
-export default function makeNodeSpriteProgram(textureImage: ImageData) {
+export default function makeNodeSpriteProgram(sprite: {offsets: {[key: string]: Coordinates}, img: ImageData}) {
+  const textureImage = sprite.img;
+
+  console.log('Texture image array length:', textureImage.data.length, `(${textureImage.data.length / 1000000}m)`);
+
   return class NodeImageProgram extends AbstractNodeProgram {
     texture: WebGLTexture;
     textureLocation: GLint;
@@ -68,7 +64,7 @@ export default function makeNodeSpriteProgram(textureImage: ImageData) {
       gl.generateMipmap(gl.TEXTURE_2D);
     }
 
-    process(data: NodeDisplayData & { image?: string, crop?: Location }, hidden: boolean, offset: number): void {
+    process(data: NodeDisplayData & { image: string, crop: Location }, hidden: boolean, offset: number): void {
       const array = this.array;
       let i = offset * POINTS * ATTRIBUTES;
 
@@ -94,11 +90,20 @@ export default function makeNodeSpriteProgram(textureImage: ImageData) {
       const crop = data.crop;
 
       if (!crop) throw new Error(`Unexpected no crop coords for node: ${JSON.stringify(data)}`);
+      if (!data.image) throw new Error(`Unexpected no image url for node: ${JSON.stringify(data)}`);
+      
+      const spriteOffset = sprite.offsets[data.image];
+      if (!spriteOffset) throw new Error(`Unexpected no sprite offset for node: ${JSON.stringify(data)}`);
 
-      array[i++] = crop.x / width;
-      array[i++] = crop.y / height;
+      array[i++] = (crop.x + spriteOffset.x) / width;
+      array[i++] = (crop.y + spriteOffset.y) / height;
       array[i++] = crop.width / width;
       array[i++] = crop.height / height;
+
+      // debugger;
+      // textureImage.data.
+      // const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
     }
 
     render(params: RenderParams): void {

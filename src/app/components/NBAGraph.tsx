@@ -9,13 +9,14 @@ import "@react-sigma/core/lib/react-sigma.min.css";
 import { GraphData } from '../api';
 import { GraphEvents } from './GraphEventHandler';
 import makeNodeSpriteProgram from '../program/node-sprite';
+import { Coordinates } from 'sigma/types';
 // import getNodeImageProgram from '../program/node-sprite';
 // import makeNodeSpriteProgramNaive from '../program/node-sprite-naive';
 // import getNodeImageProgram from '../program/node-sprite';
 
 type DisplayGraphProps = {
   data: GraphData,
-  image: ImageData,
+  sprite: {offsets: {[key: string]: Coordinates}, img: ImageData},
 };
 
 export const NBAGraph = (props: DisplayGraphProps) => {
@@ -31,7 +32,7 @@ export const NBAGraph = (props: DisplayGraphProps) => {
     labelWeight: 'light',
     nodeProgramClasses: {
       // image: getNodeImageProgram(),
-      sprite: makeNodeSpriteProgram(props.image),
+      sprite: makeNodeSpriteProgram(props.sprite),
       // sprite: getNodeImageProgram(props.image), // better?!?
     },
     // edgeProgramClasses: {
