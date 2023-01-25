@@ -44,25 +44,22 @@ export const localPath = (url: string): {dirPath: string, filePath: string, file
   return {dirPath, filePath, fileName};
 };
 
-
-export type ImageUrl = {
-  url: string,
-  fallback: string,
-};
+// * Note for image urls:
+// 
+// This is a pretty big hack that uses an expected URL pattern this is likely to change over time
+// However, it is much easier than reparsing each file (especially in the case of players, which takes a long time)
+// This works fine for now (eg. running on Jan 5 2023), but will likely break in the future
+//
+// TODO: update this to parse urls from downloaded files instead of relying on URL pattern
 
 const BASE_LOGO_URL = 'https://cdn.ssref.net/req/202301032/tlogo/bbr/';
 const LOGO_SUFFIX = '.png';
 
-export const getFranchiseLogoUrl = (franchiseId: string): ImageUrl => {
-  return {
-    url: `${BASE_LOGO_URL}${franchiseId}${LOGO_SUFFIX}`,
-    fallback: 'TODO!'
-  };
-};
+export const getFranchiseLogoUrl = (franchiseId: string): string =>
+    `${BASE_LOGO_URL}${franchiseId}${LOGO_SUFFIX}`;
 
-export const getTeamLogoUrl = (franchiseId: string, yearAppropriateFranchiseId: string, year: number): ImageUrl => {
-  return {
-    url: `${BASE_LOGO_URL}${yearAppropriateFranchiseId}-${year}${LOGO_SUFFIX}`,
-    fallback: getFranchiseLogoUrl(franchiseId).url,
-  };
-};
+export const getTeamLogoUrl = (franchiseId: string, yearAppropriateFranchiseId: string, year: number): string =>
+  `${BASE_LOGO_URL}${yearAppropriateFranchiseId}-${year}${LOGO_SUFFIX}`;
+
+export const getPlayerImageUrl = (playerId: string): string =>
+  `https://www.basketball-reference.com/req/202106291/images/players/${playerId}.jpg`;

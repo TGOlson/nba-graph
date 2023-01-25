@@ -8,7 +8,7 @@ import { seasonParser } from "./parsers/season";
 import { makeTeamParser } from "./parsers/team";
 import { makePlayerSeasonParser } from "./parsers/player-season";
 
-import { loadNBAData, loadSpriteMapping, persistFranchises, persistGraph, persistLeagues, persistPlayers, persistPlayerSeasons, persistSeasons, persistTeams } from "./storage";
+import { loadFranchises, loadNBAData, loadSpriteMapping, loadTeams, persistFranchises, persistGraph, persistLeagues, persistPlayers, persistPlayerSeasons, persistSeasons, persistTeams } from "./storage";
 import { imageDir, spriteMappingPath, spritePath } from "./storage/paths";
 
 import { buildGraph } from "./builder";
@@ -39,16 +39,16 @@ const commands = {
     Player: '--download-player',
     PlayerGroup: '--download-player-group',
     PlayerAll: '--download-player-all',
-    FranchiseLogos: '--download-franchise-logos',
-    TeamLogos: '--download-team-logos'
+    FranchiseImages: '--download-franchise-images',
+    TeamImages: '--download-team-images',
+    PlayerImages: '--download-player-images'
   },
   parse: {
     Leagues: '--parse-leagues', // NBA, ABA...
     Seasons: '--parse-seasons', // NBA_2015, ABA_1950
     Franchises: '--parse-franchises', // LAL, MIN...
     Teams: '--parse-teams', // LAL_2015, MIN_2022
-    Players: '--parse-players', // James Harden
-    PlayerSeasons: '--parse-player-seasons' // James Harden HOU_2015, James Harden BKN_2021
+    Players: '--parse-players', // James Harden + each season
   },
   misc: {
     ConvertImages: '--convert-images',
@@ -108,23 +108,19 @@ async function main() {
       }));
     }
 
-    case commands.download.FranchiseLogos: {
-      const franchises = await runHtmlParser(franchiseParser);
+    case commands.download.FranchiseImages: {
+      const franchises = await loadFranchises();
+
       const fns = franchises.map(x => {
           return () => downloadImage(fetch, x.image, NBAType.FRANCHISE, x.id)
-            .catch(err => console.log('Error download image for. Skipping ', x.id, err));
+            .catch(err => console.log('Error downloading image... skipping... ', x.id, err));
       });
 
       return await execSeq(fns);
     }
 
-    case commands.download.TeamLogos: {
-      const franchises = await runHtmlParser(franchiseParser);
-      const franchiseIds = franchises.map(x => x.id);
-
-      const teams = await Promise.all(
-        franchiseIds.map(id => runHtmlParser(makeTeamParser(id)))
-      ).then(xs => xs.flat());
+    case commands.download.TeamImages: {
+      const teams  = await loadTeams();
 
       const fns = teams.map(x => {
           return () => downloadImage(fetch, x.image, NBAType.TEAM, x.id)
@@ -132,6 +128,17 @@ async function main() {
       });
 
       return await execSeq(fns);
+    }
+
+    case commands.download.PlayerImages: {
+      // const players = await loadPlayers();
+
+      // const fns = players.slice(0,10).map(x => {
+      //     return () => downloadImage(fetch, x.image, NBAType.PLAYER, x.id)
+      //       .catch(err => console.log('Error download image for. Skipping ', x.id, err));
+      // });
+
+      // return await execSeq(fns);
     }
 
     // *** extract commands
@@ -148,25 +155,20 @@ async function main() {
       
       return await persistTeams(teams);
     }
+
     case commands.parse.Players: {
-      const players = await Promise.all(
+      const partialPlayers = await Promise.all(
         azLowercase.map(x => runHtmlParser(makePlayerParser(x)))
       ).then(xs => xs.flat());
 
-      return await persistPlayers(players);
-    }
+      const res = await Promise.all(
+        partialPlayers.map(player => runHtmlParser(makePlayerSeasonParser(player)))
+      );
 
-    case commands.parse.PlayerSeasons: {
-      const players = await Promise.all(
-        azLowercase.map(x => runHtmlParser(makePlayerParser(x)))
-      ).then(xs => xs.flat());
+      const players = res.map(x => x.player);
+      const playerSeasons = res.map(x => x.seasons).flat();
 
-      const playerIds = players.map(x => x.id);
-
-      const playerSeasons = await Promise.all(
-        playerIds.map(id => runHtmlParser(makePlayerSeasonParser(id)))
-      ).then(xs => xs.flat());
-
+      await persistPlayers(players);
       return await persistPlayerSeasons(playerSeasons);
     }
 

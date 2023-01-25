@@ -68,6 +68,7 @@ The output graph data is stored in `./data/graph/graph.json`. The graph is built
 * ~~sprite performance optimizations~~
 * data
   * 1/ download player images + create sprite
+  * improve player parser to use players/x/xxx.html files for better info (seasons, all-stars, etc) ... probably return player + seasons)
   * improve locations
   * add other interesting nodes (MVP, champion, X time all star)
 * UI 

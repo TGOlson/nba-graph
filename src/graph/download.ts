@@ -3,7 +3,7 @@ import { mkdir, writeFile } from 'fs/promises';
 import { NBAType } from '../shared/nba-types';
 import { persistImage } from './storage';
 
-import { ImageUrl, LEAGUES_URL, localPath, playerIndexUrl, playerUrl, TEAMS_URL, teamUrl } from './util/bref-url';
+import { LEAGUES_URL, localPath, playerIndexUrl, playerUrl, TEAMS_URL, teamUrl } from './util/bref-url';
 import { Fetch } from './util/fetch';
 
 async function downloadPage(fetch: Fetch, url: string): Promise<void> {
@@ -44,18 +44,8 @@ export async function downloadPlayer(fetch: Fetch, playerId: string): Promise<vo
   return downloadPage(fetch, playerUrl(playerId));
 }
 
-// *** Note for image downloads:
-//   This is a pretty big hack that uses an expected URL pattern this is likely to change over time
-//   However, it is much easier than re-parsing each file (especially in the case of players, which takes a long time)
-//   This works fine for now (eg. running on Jan 5 2023), but will likely break in the future
-//
-// TODO: update this to parse urls from downloaded files instead of relying on URL pattern
-
-export async function downloadImage(fetch: Fetch, imageUrl: ImageUrl, typ: NBAType, id: string): Promise<void> {
-  const res = await fetch(imageUrl.url).catch((err) => {
-    console.log('Error fetching url, trying fallback: ', imageUrl.url, err);
-    return fetch(imageUrl.fallback);
-  });
+export async function downloadImage(fetch: Fetch, url: string, typ: NBAType, id: string): Promise<void> {
+  const res = await fetch(url);
 
   const body = await res.arrayBuffer();
   const img = Buffer.from(body);

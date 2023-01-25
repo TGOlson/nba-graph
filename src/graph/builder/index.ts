@@ -48,7 +48,10 @@ export const buildGraph = (data: NBAData, config: GraphConfig, imgLocations: {ty
     // kind of a hack around shitty data...
     // really need to filter in playerTeams to remove dupes
     if (!graph.hasNode(player.id)) {
-      graph.addNode(player.id, {size: 2, label: player.name, color: 'green' });
+      const size = player.seasons < 2 ? 1 : 2;
+      // const imageProps = player.image ? {type: 'image', image: player.image} : {};
+
+      graph.addNode(player.id, {size, label: player.name, color: 'green' });
     }
   });
   

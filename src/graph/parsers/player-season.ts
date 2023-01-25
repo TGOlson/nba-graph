@@ -1,13 +1,13 @@
 import * as cheerio from 'cheerio';
 
 import { localPath, playerUrl } from "../util/bref-url";
-import { PlayerSeason } from "../../shared/nba-types";
+import { Player, PartialPlayer, PlayerSeason } from "../../shared/nba-types";
 import { HtmlParser } from "./html-parser";
 
 const SELECTOR = 'table#per_game tbody tr';
 const URL_REGEX = /teams\/([A-Z]{3})\/(\d{4}).html/;
 
-const parse = (playerId: string, $: cheerio.CheerioAPI): PlayerSeason[] => {
+const parse = (basePlayer: PartialPlayer, $: cheerio.CheerioAPI): {player: Player, seasons: PlayerSeason[]} => {
   const maybePlayerSeasons = $(SELECTOR).toArray().map((el: cheerio.AnyNode) => {
     const playerLink = $('th a', el).attr('href');
     const teamLink = $('td[data-stat="team_id"] a', el).attr('href');
@@ -31,18 +31,32 @@ const parse = (playerId: string, $: cheerio.CheerioAPI): PlayerSeason[] => {
     const [_, franchiseId, year] = res;
     
     return {
-      playerId: playerId,
+      playerId: basePlayer.id,
       teamId: `${franchiseId}_${year}`,
       url: playerLink,
     };
   });
 
-  return just(maybePlayerSeasons);
+  const seasons = just(maybePlayerSeasons);
+
+
+  const image = $('#meta .media-item img').attr('src') ?? null;
+  const awards = $('#bling li a').toArray().map(el => $(el).text());
+  
+  const player: Player = {
+    ...basePlayer, 
+    image,
+    seasons: seasons.length,
+    awards,
+  };
+
+
+  return {player, seasons};
 };
 
-export const makePlayerSeasonParser = (playerId: string): HtmlParser<PlayerSeason[]> => ({
-  inputPath: localPath(playerUrl(playerId)).filePath,
-  parse: ($: cheerio.CheerioAPI) => parse(playerId, $)
+export const makePlayerSeasonParser = (player: PartialPlayer): HtmlParser<{player: Player, seasons: PlayerSeason[]}> => ({
+  inputPath: localPath(playerUrl(player.id)).filePath,
+  parse: ($: cheerio.CheerioAPI) => parse(player, $)
 });
 
 function just<T> (xs: (T | null)[]): T[] {

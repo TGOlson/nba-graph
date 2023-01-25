@@ -1,13 +1,13 @@
 import * as cheerio from 'cheerio';
 
 import { localPath, playerIndexUrl } from "../util/bref-url";
-import { Player } from "../../shared/nba-types";
+import { PartialPlayer } from "../../shared/nba-types";
 import { HtmlParser } from "./html-parser";
 
 const SELECTOR = 'table#players tbody tr';
 const URL_REGEX = /players\/[a-z]{1}\/([a-z]{2,}\d{2}).html/;
 
-const parse = (franchiseId: string, $: cheerio.CheerioAPI): Player[] => {
+const parse = (franchiseId: string, $: cheerio.CheerioAPI): PartialPlayer[] => {
   return $(SELECTOR).toArray().map((el: cheerio.AnyNode) => {
     const url = $('th[data-stat="player"] a', el).attr('href');
     const name = $('th[data-stat="player"] a[href]', el).text();
@@ -32,7 +32,7 @@ const parse = (franchiseId: string, $: cheerio.CheerioAPI): Player[] => {
   });
 };
 
-export const makePlayerParser = (firstLetterLastName: string): HtmlParser<Player[]> => ({
+export const makePlayerParser = (firstLetterLastName: string): HtmlParser<PartialPlayer[]> => ({
   inputPath: localPath(playerIndexUrl(firstLetterLastName)).filePath,
   parse: ($: cheerio.CheerioAPI) => parse(firstLetterLastName, $)
 });

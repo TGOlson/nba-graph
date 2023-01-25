@@ -2,6 +2,7 @@ import React from 'react';
 import { ControlsContainer, FullScreenControl, SearchControl, SigmaContainer, ZoomControl } from "@react-sigma/core";
 import Graph from 'graphology';
 import { Settings } from 'sigma/settings';
+import getNodeProgramImage from "sigma/rendering/webgl/programs/node.image";
 
 import "@react-sigma/core/lib/react-sigma.min.css";
 
@@ -27,7 +28,7 @@ export const NBAGraph = (props: DisplayGraphProps) => {
     labelSize: 12,
     labelWeight: 'light',
     nodeProgramClasses: {
-      // image: getNodeImageProgram(),
+      // image: getNodeProgramImage(),
       sprite: makeNodeSpriteProgram(props.sprite),
     },
     // edgeProgramClasses: {

@@ -1,5 +1,3 @@
-import { ImageUrl } from "../graph/util/bref-url";
-
 export enum NBAType {
   LEAGUE = 'league',
   SEASON = 'season',
@@ -28,7 +26,7 @@ export type Franchise = {
   id: string;
   name: string;
   active: boolean;
-  image: ImageUrl;
+  image: string;
   url: string;
 };
 
@@ -39,7 +37,7 @@ export type Team = {
   seasonId: string;
   name: string;
   year: number;
-  image: ImageUrl;
+  image: string;
   url: string;
 };
 
@@ -47,8 +45,13 @@ export type Team = {
 export type Player = {
   id: string;
   name: string;
+  image: string | null;
+  seasons: number;
+  awards: string[]; // kind of a hack for now, later awards should be keyed by season w/ unique ids
   url: string;
 };
+
+export type PartialPlayer = Pick<Player, 'id' | 'name' | 'url'>;
 
 // James Harden HOU_2015, James Harden BKN_2021...
 export type PlayerSeason = {

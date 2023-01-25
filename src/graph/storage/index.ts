@@ -22,24 +22,36 @@ import {
 
 // ** read
 
-async function readJSON<T>(p: string): Promise<T> {
-  const raw = await readFile(p, 'utf8');
-  return JSON.parse(raw) as T;
+type Read<T> = () => Promise<T>;
+
+function readJSON<T>(p: string): Read<T> {
+  return async () => {
+    const raw = await readFile(p, 'utf8');
+    return JSON.parse(raw) as T;
+  };
 }
 
+export const loadLeagues: Read<League[]> = readJSON(LEAGUE_PATH);
+export const loadFranchises: Read<Franchise[]> = readJSON(FRANCHISE_PATH);
+export const loadTeams: Read<Team[]> = readJSON(TEAM_PATH);
+export const loadSeasons: Read<Season[]> = readJSON(SEASON_PATH);
+export const loadPlayers: Read<Player[]> = readJSON(PLAYER_PATH);
+export const loadPlayerSeasons: Read<PlayerSeason[]> = readJSON(PLAYER_SEASON_PATH);
+
 export async function loadNBAData(): Promise<NBAData> {
-  const leagues: League[] = await readJSON(LEAGUE_PATH);
-  const franchises: Franchise[] = await readJSON(FRANCHISE_PATH);
-  const teams: Team[] = await readJSON(TEAM_PATH);
-  const seasons: Season[] = await readJSON(SEASON_PATH);
-  const players: Player[] = await readJSON(PLAYER_PATH);
-  const playerSeasons: PlayerSeason[] = await readJSON(PLAYER_SEASON_PATH);
+  const leagues: League[] = await loadLeagues();
+  const franchises: Franchise[] = await loadFranchises();
+  const teams: Team[] = await loadTeams();
+  const seasons: Season[] = await loadSeasons();
+  const players: Player[] = await loadPlayers();
+  const playerSeasons: PlayerSeason[] = await loadPlayerSeasons();
 
   return {leagues, franchises, teams, seasons, players, playerSeasons};
 }
 
-export async function loadSpriteMapping(typ: NBAType): Promise<SelectionMap> {
-  return readJSON(spriteMappingPath(typ));
+export function loadSpriteMapping(typ: NBAType): Promise<SelectionMap> {
+  const reader: Read<SelectionMap> = readJSON(spriteMappingPath(typ));
+  return reader();
 }
 
 // ** write
@@ -81,12 +93,3 @@ export async function persistGraph(graph: Graph): Promise<void> {
 export async function persistImage(typ: NBAType, id: string, img: Buffer): Promise<void> {
   return writeFileInternal(imgPath(typ, id), img);
 }
-
-// export async function persistSprite(typ: SpriteType, img: Buffer, mapping?: Mapping): Promise<void> {
-//   console.log(IMAGE_PATH, FRANCHISE_IMAGE_DIR ,SPRITE_PATH);
-//   if (mapping) {
-//     await persistJSON(SPRITE_PATH, spriteMappingFileName(typ))(mapping);
-//   }
-
-//   return writeFileInternal(SPRITE_PATH, spriteFileName(typ), img);
-// }
