@@ -13,11 +13,13 @@ const fetchImage = (url: string): Promise<{url: string, img: HTMLImageElement}> 
       resolve({url, img});
     };
 
-    img.src = url;
+    img.onerror = (err) => {
+      reject(err);
+    };
 
-    // TODO: error handler
+    img.src = url;
   });
-}
+};
 
 const fetchSprites = (): Promise<{[key: string]: HTMLImageElement}> => {
   return Promise.all([

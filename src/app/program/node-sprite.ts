@@ -1,6 +1,5 @@
-// Note: this is copied directly from https://github.com/jacomyal/sigma.js
+// Note: this is copied from https://github.com/jacomyal/sigma.js
 // But modified heavily to support sprites, with plenty of *hacky* performance optimizations
-
 
 import { Coordinates, NodeDisplayData } from 'sigma/types';
 import { floatColor } from 'sigma/utils';
@@ -99,11 +98,6 @@ export default function makeNodeSpriteProgram(sprite: {offsets: {[key: string]: 
       array[i++] = (crop.y + spriteOffset.y) / height;
       array[i++] = crop.width / width;
       array[i++] = crop.height / height;
-
-      // debugger;
-      // textureImage.data.
-      // const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-
     }
 
     render(params: RenderParams): void {
