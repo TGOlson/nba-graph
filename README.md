@@ -63,11 +63,16 @@ The output graph data is stored in `./data/graph/graph.json`. The graph is built
 * large graph FA2 rendering: https://codesandbox.io/s/github/jacomyal/sigma.js/tree/main/examples/large-graphs?file=/index.ts:234-307
 
 ### todo
-* ~~test rendering sprites (basic + webgl)~~ (possible w/ some array index hacks, at least for single image...)
-* download player images
-* improve locations
-* improve / fix search to move to current node
-* test animations for force layout and other movements 
-* test moving neighbors in a circle around selected node (and keeping them there... animation?)
-* add other interesting nodes (MVP, champion, X time all star)
-* filters and advanved search
+* ~~test rendering sprites (basic + webgl)~~
+* ~~render multiple sprites~~
+* ~~sprite performance optimizations~~
+* data
+  * 1/ download player images + create sprite
+  * improve locations
+  * add other interesting nodes (MVP, champion, X time all star)
+* UI 
+  * 2/ improve / fix search to move to current node
+  * filters and advanced search
+* hacks
+  * test animations for force layout and other movements 
+  * ~~test moving neighbors in a circle around selected node (and keeping them there... animation?)~~

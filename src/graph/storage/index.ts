@@ -2,7 +2,7 @@ import { mkdir, readFile, writeFile } from "fs/promises";
 import Graph from "graphology";
 import path from "path";
 import { Franchise, League, NBAData, NBAType, Player, PlayerSeason, Season, Team } from "../../shared/nba-types";
-import { LocationMapping } from "../../shared/sprite";
+import { LocationMapping } from "../../shared/types";
 import {
   LEAGUE_PATH,
   FRANCHISE_PATH,

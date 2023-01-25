@@ -3,7 +3,7 @@ import { circular } from "graphology-layout";
 import forceAtlas2 from "graphology-layout-forceatlas2";
 
 import { NBAData, NBAType, Player, PlayerSeason, Team } from "../../shared/nba-types";
-import { LocationMapping } from "../../shared/sprite";
+import { EmptyObject, LocationMapping, SpriteNodeAttributes } from "../../shared/types";
 import { assets } from "../util/assets";
 import { GraphConfig } from "./config";
 
@@ -60,18 +60,20 @@ export const buildGraph = (data: NBAData, config: GraphConfig, imgLocations: {ty
   const teamSprite = assets.img.teamSprite();
   const franchiseSprite = assets.img.franchiseSprite();
 
-  data.franchises.forEach(franchise => {
-    // const label = franchise.name;
-    const franchiseLocation = franchiseLocations?.[franchise.id];
-
-    let imgProps = {};
-
-    if (franchiseLocation) {
-      imgProps = {type: 'sprite', image: franchiseSprite, crop: franchiseLocation};
-    }
-
-    graph.addNode(franchise.id, { size: 5, label: franchise.name, color: 'yellow', ...imgProps });
-  });
+  if (config.includeFranchises) {
+    data.franchises.forEach(franchise => {
+      // const label = franchise.name;
+      const franchiseLocation = franchiseLocations?.[franchise.id];
+      
+      let imgProps: SpriteNodeAttributes | EmptyObject = {};
+      
+      if (franchiseLocation) {
+        imgProps = {type: 'sprite', image: franchiseSprite, crop: franchiseLocation};
+      }
+      
+      graph.addNode(franchise.id, { size: 5, label: franchise.name, color: 'yellow', ...imgProps });
+    });
+  }
 
   teams.forEach(team => {
     const label = `${team.name} (${team.year})`;
@@ -79,9 +81,9 @@ export const buildGraph = (data: NBAData, config: GraphConfig, imgLocations: {ty
     const teamLocation = teamLocations?.[team.id];
     const franchiseLocation = franchiseLocations?.[team.franchiseId];
     
-    let imgProps = {};
+    let imgProps: SpriteNodeAttributes | EmptyObject = {};
 
-    if (teamLocation && config.includeTeamLogos) {
+    if (teamLocation && config.useYearSpecificTeamLogos) {
       imgProps = {type: 'sprite', image: teamSprite, crop: teamLocation};
     } else if (franchiseLocation) {
       imgProps = {type: 'sprite', image: franchiseSprite, crop: franchiseLocation};
@@ -95,9 +97,11 @@ export const buildGraph = (data: NBAData, config: GraphConfig, imgLocations: {ty
     graph.addEdge(pt.playerId, pt.teamId);
   });
 
-  teams.forEach(team => {
-    graph.addEdge(team.id, team.franchiseId);
-  });
+  if (config.includeFranchises) {
+    teams.forEach(team => {
+      graph.addEdge(team.id, team.franchiseId);
+    });
+  }
 
   if (config.assignLocations) {
     console.log('Assigning locations');

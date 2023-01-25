@@ -8,7 +8,7 @@ import { RenderParams } from 'sigma/rendering/webgl/programs/common/program';
 import Sigma from 'sigma';
 
 import { FRAGMENT_SHADER_GLSL, VERTEX_SHADER_GLSL } from './shaders';
-import { Location } from '../../shared/sprite';
+import { SpriteNodeAttributes } from '../../shared/types';
 
 const POINTS = 1;
 const ATTRIBUTES = 8;
@@ -63,7 +63,7 @@ export default function makeNodeSpriteProgram(sprite: {offsets: {[key: string]: 
       gl.generateMipmap(gl.TEXTURE_2D);
     }
 
-    process(data: NodeDisplayData & { image: string, crop: Location }, hidden: boolean, offset: number): void {
+    process(data: NodeDisplayData & SpriteNodeAttributes, hidden: boolean, offset: number): void {
       const array = this.array;
       let i = offset * POINTS * ATTRIBUTES;
 

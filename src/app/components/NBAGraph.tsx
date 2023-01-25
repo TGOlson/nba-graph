@@ -1,6 +1,5 @@
 import React from 'react';
 import { ControlsContainer, FullScreenControl, SearchControl, SigmaContainer, ZoomControl } from "@react-sigma/core";
-
 import Graph from 'graphology';
 import { Settings } from 'sigma/settings';
 
@@ -9,14 +8,11 @@ import "@react-sigma/core/lib/react-sigma.min.css";
 import { GraphData } from '../api';
 import { GraphEvents } from './GraphEventHandler';
 import makeNodeSpriteProgram from '../program/node-sprite';
-import { Coordinates } from 'sigma/types';
-// import getNodeImageProgram from '../program/node-sprite';
-// import makeNodeSpriteProgramNaive from '../program/node-sprite-naive';
-// import getNodeImageProgram from '../program/node-sprite';
+import { Sprite } from '../util/image';
 
 type DisplayGraphProps = {
   data: GraphData,
-  sprite: {offsets: {[key: string]: Coordinates}, img: ImageData},
+  sprite: Sprite,
 };
 
 export const NBAGraph = (props: DisplayGraphProps) => {
@@ -33,7 +29,6 @@ export const NBAGraph = (props: DisplayGraphProps) => {
     nodeProgramClasses: {
       // image: getNodeImageProgram(),
       sprite: makeNodeSpriteProgram(props.sprite),
-      // sprite: getNodeImageProgram(props.image), // better?!?
     },
     // edgeProgramClasses: {
     //   line: EdgesFastProgram,

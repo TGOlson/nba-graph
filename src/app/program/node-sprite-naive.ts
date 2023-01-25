@@ -15,7 +15,7 @@ import { AbstractNodeProgram } from 'sigma/rendering/webgl/programs/common/node'
 import { RenderParams } from 'sigma/rendering/webgl/programs/common/program';
 import Sigma from 'sigma';
 import { FRAGMENT_SHADER_GLSL, VERTEX_SHADER_GLSL } from './shaders';
-import { Location } from '../../shared/sprite';
+import { SpriteNodeAttributes, Selection } from '../../shared/types';
 
 const POINTS = 1,
   ATTRIBUTES = 8,
@@ -27,7 +27,7 @@ const POINTS = 1,
 
 type ImageLoading = { status: 'loading' };
 type ImageError = { status: 'error' };
-type ImagePending = { status: 'pending'; image: HTMLImageElement, crop?: Location };
+type ImagePending = { status: 'pending'; image: HTMLImageElement, crop?: Selection };
 type ImageReady = { status: 'ready' } & Coordinates & Dimensions;
 type ImageType = ImageLoading | ImageError | ImagePending | ImageReady;
 
@@ -44,7 +44,7 @@ class AbstractNodeImageProgram extends AbstractNodeProgram {
   /* eslint-enable @typescript-eslint/no-empty-function, @typescript-eslint/no-unused-vars */
 }
 
-const getImageKey = (url: string, crop?: Location): string => {
+const getImageKey = (url: string, crop?: Selection): string => {
   return crop ? `${url}?x=${crop.x}&y=${crop.y}&width=${crop.width}&height=${crop.height}` : url;
 };
 
@@ -76,13 +76,13 @@ export default function makeNodeSpriteProgram(): typeof AbstractNodeImageProgram
     image: HTMLImageElement;
     id: string;
     size: number;
-    crop?: Location;
+    crop?: Selection;
   };
 
   /**
    * Helper to load an image:
    */
-  function loadImage(imageSource: string, crop?: Location): void {
+  function loadImage(imageSource: string, crop?: Selection): void {
     const imageKey = getImageKey(imageSource, crop);
 
     if (images[imageKey]) return;
@@ -287,7 +287,7 @@ export default function makeNodeSpriteProgram(): typeof AbstractNodeImageProgram
       );
     }
 
-    process(data: NodeDisplayData & { image?: string, crop?: Location }, hidden: boolean, offset: number): void {
+    process(data: NodeDisplayData & SpriteNodeAttributes, hidden: boolean, offset: number): void {
       const array = this.array;
       let i = offset * POINTS * ATTRIBUTES;
 

@@ -20,6 +20,7 @@ module.exports = {
     extensions: ['.js', '.jsx', '.ts', '.tsx'],
     fallback: {
       console: false,
+      url: require.resolve('url/')
     }
   },
   devServer: {
