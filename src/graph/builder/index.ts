@@ -3,11 +3,11 @@ import { circular } from "graphology-layout";
 import forceAtlas2 from "graphology-layout-forceatlas2";
 
 import { NBAData, NBAType, Player, PlayerSeason, Team } from "../../shared/nba-types";
-import { EmptyObject, LocationMapping, SpriteNodeAttributes } from "../../shared/types";
+import { EmptyObject, SelectionMap, SpriteNodeAttributes } from "../../shared/types";
 import { assets } from "../util/assets";
 import { GraphConfig } from "./config";
 
-export const buildGraph = (data: NBAData, config: GraphConfig, imgLocations: {typ: NBAType, map: LocationMapping}[]): Graph => {
+export const buildGraph = (data: NBAData, config: GraphConfig, imgLocations: {typ: NBAType, map: SelectionMap}[]): Graph => {
   console.log('Building graph');
   const graph = new DirectedGraph();
 
@@ -54,22 +54,20 @@ export const buildGraph = (data: NBAData, config: GraphConfig, imgLocations: {ty
   
   const teamLocations = imgLocations.find(({typ}) => typ === NBAType.TEAM)?.map;
   const franchiseLocations = imgLocations.find(({typ}) => typ === NBAType.FRANCHISE)?.map;
+  if (!teamLocations || !franchiseLocations) throw new Error('Unable to find team or franchise locations in image locations');
 
-  console.log('Unique team images', Object.keys(teamLocations ?? {}).length);
+  console.log('Unique team images', Object.keys(teamLocations).length);
 
   const teamSprite = assets.img.teamSprite();
   const franchiseSprite = assets.img.franchiseSprite();
 
   if (config.includeFranchises) {
     data.franchises.forEach(franchise => {
-      // const label = franchise.name;
-      const franchiseLocation = franchiseLocations?.[franchise.id];
+      const franchiseLocation = franchiseLocations[franchise.id];
       
-      let imgProps: SpriteNodeAttributes | EmptyObject = {};
-      
-      if (franchiseLocation) {
-        imgProps = {type: 'sprite', image: franchiseSprite, crop: franchiseLocation};
-      }
+      const imgProps: SpriteNodeAttributes | EmptyObject = franchiseLocation
+        ? {type: 'sprite', image: franchiseSprite, crop: franchiseLocation}
+        : {};
       
       graph.addNode(franchise.id, { size: 5, label: franchise.name, color: 'yellow', ...imgProps });
     });
@@ -78,8 +76,8 @@ export const buildGraph = (data: NBAData, config: GraphConfig, imgLocations: {ty
   teams.forEach(team => {
     const label = `${team.name} (${team.year})`;
 
-    const teamLocation = teamLocations?.[team.id];
-    const franchiseLocation = franchiseLocations?.[team.franchiseId];
+    const teamLocation = teamLocations[team.id];
+    const franchiseLocation = franchiseLocations[team.franchiseId];
     
     let imgProps: SpriteNodeAttributes | EmptyObject = {};
 

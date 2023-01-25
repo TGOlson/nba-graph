@@ -2,7 +2,7 @@ export type Coordinates = {x: number, y: number};
 export type Dimensions = {width: number, height: number};
 
 export type Selection = Coordinates & Dimensions;
-export type LocationMapping = {[key: string]: Selection};
+export type SelectionMap = {[key: string]: Selection};
 
 export type SpriteNodeAttributes = {type: 'sprite', image: string, crop: Selection};
 
