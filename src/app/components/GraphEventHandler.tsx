@@ -54,7 +54,7 @@ export const GraphEvents = (props: Props = defaultProps) => {
 
         const nodeIsSelected = selectedNode === node;
         const nodeIsHovered = hoveredNode === node;
-        
+
         // check neighbors...
         const graph = sigma.getGraph();
         // const selectedNe = graph.neighbors(selectedNode);

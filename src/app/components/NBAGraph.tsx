@@ -29,9 +29,11 @@ export const NBAGraph = (props: DisplayGraphProps) => {
     defaultEdgeColor: '#bbb',
     labelDensity: 0.07,
     labelGridCellSize: 60,
-    labelRenderedSizeThreshold: 15,
+    labelRenderedSizeThreshold: 10,
     labelSize: 12,
     labelWeight: 'light',
+    minCameraRatio: 0.05,
+    maxCameraRatio: 1.5,
     nodeProgramClasses: {
       sprite: makeNodeSpriteProgram(props.sprite),
     },
