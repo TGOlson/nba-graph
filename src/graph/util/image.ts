@@ -55,7 +55,8 @@ export async function createSpriteImage(inputDir: string, imagePath: string, map
   images.forEach(({img, key}, i) => {
     // Images will be rendered within circle on the resulting graph
     // Could be a little fancier here to deal with non-square images, but this works for now
-    img.resize(DEFUALT_SIZE, DEFUALT_SIZE);
+    img.resize(DEFUALT_SIZE, Jimp.AUTO);
+    img.crop(0, 0, DEFUALT_SIZE, DEFUALT_SIZE);
 
     const width = img.getWidth();
     const height = img.getHeight();

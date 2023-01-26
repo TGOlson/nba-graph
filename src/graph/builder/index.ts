@@ -7,6 +7,14 @@ import { EmptyObject, SelectionMap, SpriteNodeAttributes } from "../../shared/ty
 import { assets } from "../util/assets";
 import { GraphConfig } from "./config";
 
+const sizes = {
+  franchise: 5,
+  team: 4,
+  playerMax: 4,
+  playerDefault: 3,
+  playerMin: 2
+};
+
 export const buildGraph = (data: NBAData, config: GraphConfig, imgLocations: {typ: NBAType, map: SelectionMap}[]): Graph => {
   console.log('Building graph');
   const graph = new DirectedGraph();
@@ -42,16 +50,25 @@ export const buildGraph = (data: NBAData, config: GraphConfig, imgLocations: {ty
     return res;
   });
 
-  // console.log('players', players, 'teams', teams, 'playerTeams', playerTeams);
+  const playerSprite = assets.img.playerSprite();
+  const playerLocations = imgLocations.find(({typ}) => typ === NBAType.PLAYER)?.map;
+  if (!playerLocations) throw new Error('Unable to find player locations in image locations');
 
   players.forEach(player => {
     // kind of a hack around shitty data...
     // really need to filter in playerTeams to remove dupes
     if (!graph.hasNode(player.id)) {
-      const size = player.seasons < 2 ? 1 : 2;
-      // const imageProps = player.image ? {type: 'image', image: player.image} : {};
+      const size = player.seasons < 2 ? sizes.playerMin : sizes.playerDefault;
 
-      graph.addNode(player.id, {size, label: player.name, color: 'green' });
+      const playerLocation = playerLocations[player.id];
+      
+      let imgProps: SpriteNodeAttributes | EmptyObject = {};
+  
+      if (playerLocation) {
+        imgProps = {type: 'sprite', image: playerSprite, crop: playerLocation};
+      }
+
+      graph.addNode(player.id, {size, label: player.name, color: 'green', ...imgProps });
     }
   });
   
@@ -72,7 +89,7 @@ export const buildGraph = (data: NBAData, config: GraphConfig, imgLocations: {ty
         ? {type: 'sprite', image: franchiseSprite, crop: franchiseLocation}
         : {};
       
-      graph.addNode(franchise.id, { size: 5, label: franchise.name, color: 'yellow', ...imgProps });
+      graph.addNode(franchise.id, { size: sizes.franchise, label: franchise.name, color: 'yellow', ...imgProps });
     });
   }
 
@@ -91,7 +108,7 @@ export const buildGraph = (data: NBAData, config: GraphConfig, imgLocations: {ty
     }
     // TODO: should default to some generic pic if no franchise sprite is found
   
-    graph.addNode(team.id, { size: 4, label, color: 'red', ...imgProps });
+    graph.addNode(team.id, { size: sizes.team, label, color: 'red', ...imgProps });
   });
 
   playerTeams.forEach(pt => {

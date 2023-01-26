@@ -188,11 +188,13 @@ async function main() {
     case commands.graph.Build: {
       const nbaData = await loadNBAData();
 
-      const teamLocationMappings = await loadSpriteMapping(NBAType.TEAM);
       const franchiseLocationMappings = await loadSpriteMapping(NBAType.FRANCHISE);
+      const teamLocationMappings = await loadSpriteMapping(NBAType.TEAM);
+      const playerLocationMappings = await loadSpriteMapping(NBAType.PLAYER);
       const graph = buildGraph(nbaData, GRAPH_CONFIG, [
+        {typ: NBAType.FRANCHISE, map: franchiseLocationMappings},
         {typ: NBAType.TEAM, map: teamLocationMappings},
-        {typ: NBAType.FRANCHISE, map: franchiseLocationMappings}
+        {typ: NBAType.PLAYER, map: playerLocationMappings}
       ]);
 
       return await persistGraph(graph);
@@ -200,15 +202,20 @@ async function main() {
 
     // *** misc commands
     case commands.misc.ConvertImages: {
-      // const typ = NBAType.FRANCHISE;
-      const typ = NBAType.TEAM;
-      
-      const imagePath = spritePath(typ);
-      const imagePathMuted = spritePath(typ, true);
-      const mappingPath = spriteMappingPath(typ);
-      
-      await createSpriteImage(imageDir(typ), imagePath, mappingPath);
-      return await convertToBW(imagePath, imagePathMuted);
+      return await Promise.all([
+        NBAType.FRANCHISE,
+        NBAType.TEAM,
+        NBAType.PLAYER
+      ].map(async (typ) => {
+        const imagePath = spritePath(typ);
+        const imagePathMuted = spritePath(typ, true);
+        const mappingPath = spriteMappingPath(typ);
+        
+        console.log('building sprite for', typ);
+        await createSpriteImage(imageDir(typ), imagePath, mappingPath);
+        console.log('converting to black and white for ', typ);
+        return await convertToBW(imagePath, imagePathMuted);
+      }));
     }
 
     // for testing, debugging, etc

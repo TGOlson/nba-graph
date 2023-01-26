@@ -7,9 +7,9 @@ export type GraphConfig = {
 };
 
 export const GRAPH_CONFIG = {
-  startYear: 2022,
-  useYearSpecificTeamLogos: false,
-  includeFranchises: false,
+  startYear: 1940,
+  useYearSpecificTeamLogos: true,
+  includeFranchises: true,
   includeDefunct: true,
   assignLocations: true,
 };

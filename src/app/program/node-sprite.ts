@@ -16,7 +16,8 @@ const ATTRIBUTES = 8;
 export default function makeNodeSpriteProgram(sprite: {offsets: {[key: string]: Coordinates}, img: ImageData}) {
   const textureImage = sprite.img;
 
-  console.log('Texture image array length:', textureImage.data.length, `(${textureImage.data.length / 1000000}m)`);
+  console.log('Texture image array length:', textureImage.data.length, `(${textureImage.data.length / 1000/ 1000}M)`);
+  console.log('Texture image array size:', textureImage.data.length / 4, 'bytes', `(${(textureImage.data.length / 4 / 1024 / 1024).toFixed(1)}MB)`);
 
   return class NodeImageProgram extends AbstractNodeProgram {
     texture: WebGLTexture;
@@ -26,6 +27,12 @@ export default function makeNodeSpriteProgram(sprite: {offsets: {[key: string]: 
 
     constructor(gl: WebGLRenderingContext, _renderer: Sigma) {
       super(gl, VERTEX_SHADER_GLSL, FRAGMENT_SHADER_GLSL, POINTS, ATTRIBUTES);
+
+      // debug logging
+      const maxTextureSize = gl.getParameter(gl.MAX_TEXTURE_SIZE) as number;
+      console.log('Max texture size (max dimension)', maxTextureSize);
+      const maxTextureBytes = maxTextureSize * maxTextureSize * 4;
+      console.log('Max texture size', maxTextureBytes, 'bytes', `(${maxTextureBytes / 1024 / 1024}MB)`);
 
       // Attribute Location
       this.textureLocation = gl.getAttribLocation(this.program, 'a_texture');
@@ -38,16 +45,6 @@ export default function makeNodeSpriteProgram(sprite: {offsets: {[key: string]: 
       // Initialize WebGL texture:
       this.texture = gl.createTexture() as WebGLTexture;
       gl.bindTexture(gl.TEXTURE_2D, this.texture);
-      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([0, 0, 0, 0]));
-
-      this.bind();
-    }
-
-    bind(): void {
-      super.bind();
-
-      const gl = this.gl;
-
       gl.enableVertexAttribArray(this.textureLocation);
       gl.vertexAttribPointer(
         this.textureLocation,
@@ -58,7 +55,6 @@ export default function makeNodeSpriteProgram(sprite: {offsets: {[key: string]: 
         16,
       );
 
-      gl.bindTexture(gl.TEXTURE_2D, this.texture);
       gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, textureImage);
       gl.generateMipmap(gl.TEXTURE_2D);
     }
