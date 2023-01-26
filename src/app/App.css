@@ -1,8 +1,3 @@
-.sprite {
-  background: url('http://localhost:3000/assets/img/pokemon.gif') top right no-repeat;
-  height: 100px;
-  width: 100px;
-  background-color: green;
-  background-position: -150px -150px;
-  
-}
+/* body {
+  background-color: rgb(245, 245, 245);
+} */

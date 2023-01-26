@@ -2,14 +2,21 @@ import { useEffect, useState } from 'react';
 import { EventHandlers, useCamera } from "@react-sigma/core";
 import { useSigma, useRegisterEvents, useSetSettings } from "@react-sigma/core";
 import { Attributes } from 'graphology-types';
-// import { circular } from "graphology-layout";
+import { animateNodes } from 'sigma/utils/animate';
+import Graph from 'graphology';
+import { circular } from 'graphology-layout';
 
 import "@react-sigma/core/lib/react-sigma.min.css";
-// import Graph from 'graphology';
-// import { circular } from 'graphology-layout';
-// import { animateNodes } from 'sigma/utils/animate';
 
-export const GraphEvents = () => {
+type Props = {
+  moveNeighborsOnClick?: boolean
+};
+
+const defaultProps: Props = {
+  moveNeighborsOnClick: false,
+};
+
+export const GraphEvents = (props: Props = defaultProps) => {
   const sigma = useSigma();
   (window as any).sigma = sigma; // eslint-disable-line
 
@@ -53,51 +60,45 @@ export const GraphEvents = () => {
         // const selectedNe = graph.neighbors(selectedNode);
 
         if (selectedNode && graph.neighbors(selectedNode).includes(node)) {
-          // const neighbors = graph.neighbors(selectedNode);
+          if (props.moveNeighborsOnClick) {
+            const neighbors = graph.neighbors(selectedNode);
 
-          // const tempGraph = new Graph();
-          // neighbors.forEach(n => tempGraph.addNode(n));
-          // // circular.
-          // const positions = circular(tempGraph, { scale: sigma.getCamera().ratio * 1000 });
-          // // const 
-          // const { x: baseX, y: baseY } = graph.getNodeAttributes(selectedNode);
-          // const pos = positions[node];
+            const tempGraph = new Graph();
+            neighbors.forEach(n => tempGraph.addNode(n));
 
-          // if (!pos) throw new Error('Unexpected access error');
-          
-          // const currX = pos.x;
-          // const currY = pos.y;
-          
-          // if (currX === undefined) throw new Error('Unexpected access error');
-          // if (currY === undefined) throw new Error('Unexpected access error');
+            const positions = circular(tempGraph, { scale: sigma.getCamera().ratio * 1000 });
 
-          // // graph.setP
-          
-          // const newX = currX + (baseX as number);
-          // const newY = currY + (baseY as number);
-          // // debugger;
+            const { x: baseX, y: baseY } = graph.getNodeAttributes(selectedNode);
+            const pos = positions[node];
 
-          // animateNodes(graph, {[node]: {x: newX, y: newY}}, { duration: 100 });
-          // graph.updateNodeAttribute(node, 'x', () => newX);
-          // graph.updateNodeAttribute(node, 'y', () => newY);
-          // positions.
+            if (!pos) throw new Error('Unexpected access error');
+            
+            const currX = pos.x;
+            const currY = pos.y;
+            
+            if (currX === undefined || currY === undefined) throw new Error('Unexpected access error');
+            
+            const newX = currX + (baseX as number);
+            const newY = currY + (baseY as number);
 
+            animateNodes(graph, {[node]: {x: newX, y: newY}}, { duration: 100 });
+            graph.updateNodeAttribute(node, 'x', () => newX);
+            graph.updateNodeAttribute(node, 'y', () => newY);
+          }
 
           return { 
             ...data, 
             highlighted: true,
-            size: data.size as number + 1,
-            // x: newX,
-            // y: newY,
+            size: data.size as number + (nodeIsHovered ? 2 : 1),
           };
         }
 
-
         // if current reducer node is selected or hovered, apply styles
-        if (nodeIsSelected) return { ...data, highlighted: true, size: 8 };
-        if (nodeIsHovered) return { ...data, highlighted: true };
+        if (nodeIsSelected && nodeIsHovered) return { ...data, highlighted: true, size: 7 };
+        if (nodeIsSelected) return { ...data, highlighted: true, size: 6 };
+        if (nodeIsHovered) return { ...data, highlighted: true, size: (data.size as number) + 1 };
         
-        if (hoveredNode && graph.neighbors(hoveredNode).includes(node)) return { ...data, highlighted: true };
+        // if (hoveredNode && graph.neighbors(hoveredNode).includes(node)) return { ...data, highlighted: true };
 
         // otherwise, de-emphasize node
         let mutedImage = data.image as string | undefined;
@@ -114,9 +115,9 @@ export const GraphEvents = () => {
           ...data, 
           color: '#E2E2E2',
           image: mutedImage,
-          // type: null,
           label: null,
           highlighted: false,
+          zIndex: 0,
         };
       },
       edgeReducer: (edge: string, data: Attributes): Attributes => {
@@ -127,10 +128,10 @@ export const GraphEvents = () => {
         const graph = sigma.getGraph();
 
         const isSelectedNeighbor = selectedNode && graph.extremities(edge).includes(selectedNode);
-        const isHoveredNeighbor = hoveredNode && graph.extremities(edge).includes(hoveredNode);
+        // const isHoveredNeighbor = hoveredNode && graph.extremities(edge).includes(hoveredNode);
 
         // if it's an edge of a selected node, don't hide
-        if (isSelectedNeighbor || isHoveredNeighbor) return data;
+        if (isSelectedNeighbor) return {...data, zIndex: 100};
 
         return { ...data, hidden: true };
       }

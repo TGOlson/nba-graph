@@ -2,7 +2,6 @@ import React from 'react';
 import { ControlsContainer, FullScreenControl, SearchControl, SigmaContainer, ZoomControl } from "@react-sigma/core";
 import Graph from 'graphology';
 import { Settings } from 'sigma/settings';
-import getNodeProgramImage from "sigma/rendering/webgl/programs/node.image";
 
 import "@react-sigma/core/lib/react-sigma.min.css";
 
@@ -20,25 +19,27 @@ export const NBAGraph = (props: DisplayGraphProps) => {
   const graph = new Graph();
   graph.import(props.data);
 
+  // availble options:
+  // https://github.com/jacomyal/sigma.js/blob/154408adf4d5df12df88b8d137609327c99fada8/src/settings.ts
   const settings: Partial<Settings> = {
     zIndex: true,
+    // renderEdgeLabels: true,
+    // edgeLabelSize: 10,
+    // edgeLabelColor: { color: "#000" },
+    defaultEdgeColor: '#bbb',
     labelDensity: 0.07,
     labelGridCellSize: 60,
     labelRenderedSizeThreshold: 15,
     labelSize: 12,
     labelWeight: 'light',
     nodeProgramClasses: {
-      // image: getNodeProgramImage(),
       sprite: makeNodeSpriteProgram(props.sprite),
     },
-    // edgeProgramClasses: {
-    //   line: EdgesFastProgram,
-    // }
   };
 
   return (
     <SigmaContainer 
-      style={{ height: "600px" }} 
+      style={{ height: "700px" }} 
       graph={graph}
       settings={settings}
     >

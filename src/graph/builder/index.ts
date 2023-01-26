@@ -7,19 +7,13 @@ import { EmptyObject, SelectionMap, SpriteNodeAttributes } from "../../shared/ty
 import { assets } from "../util/assets";
 import { GraphConfig } from "./config";
 
-const sizes = {
-  franchise: 5,
-  team: 4,
-  playerMax: 4,
-  playerDefault: 3,
-  playerMin: 2
-};
-
 export const buildGraph = (data: NBAData, config: GraphConfig, imgLocations: {typ: NBAType, map: SelectionMap}[]): Graph => {
   console.log('Building graph');
   const graph = new DirectedGraph();
 
-  const teams: Team[] = data.teams.filter(team => team.year >= config.startYear);
+  const teams: Team[] = config.startYear ? data.teams.filter(team => team.year >= (config.startYear as number)) : data.teams;
+  const franchiseIdMap: {[key: string]: boolean} = teams.reduce((acc, team) => ({...acc, [team.franchiseId]: true}), {});
+  const franchises = data.franchises.filter(franchise => franchiseIdMap[franchise.id]);
 
   const playerTeamsByTeamId: Record<string, PlayerSeason[]> = data.playerSeasons.reduce((accum: Record<string, PlayerSeason[]>, pt: PlayerSeason) => {
     const prev = accum[pt.teamId] ?? [];
@@ -58,7 +52,7 @@ export const buildGraph = (data: NBAData, config: GraphConfig, imgLocations: {ty
     // kind of a hack around shitty data...
     // really need to filter in playerTeams to remove dupes
     if (!graph.hasNode(player.id)) {
-      const size = player.seasons < 2 ? sizes.playerMin : sizes.playerDefault;
+      const size = player.seasons < 2 ? config.sizes.playerMin : config.sizes.playerDefault;
 
       const playerLocation = playerLocations[player.id];
       
@@ -68,7 +62,7 @@ export const buildGraph = (data: NBAData, config: GraphConfig, imgLocations: {ty
         imgProps = {type: 'sprite', image: playerSprite, crop: playerLocation};
       }
 
-      graph.addNode(player.id, {size, label: player.name, color: 'green', ...imgProps });
+      graph.addNode(player.id, {size, label: player.name, color: config.colors.player, ...imgProps });
     }
   });
   
@@ -76,20 +70,18 @@ export const buildGraph = (data: NBAData, config: GraphConfig, imgLocations: {ty
   const franchiseLocations = imgLocations.find(({typ}) => typ === NBAType.FRANCHISE)?.map;
   if (!teamLocations || !franchiseLocations) throw new Error('Unable to find team or franchise locations in image locations');
 
-  console.log('Unique team images', Object.keys(teamLocations).length);
-
   const teamSprite = assets.img.teamSprite();
   const franchiseSprite = assets.img.franchiseSprite();
 
   if (config.includeFranchises) {
-    data.franchises.forEach(franchise => {
+    franchises.forEach(franchise => {
       const franchiseLocation = franchiseLocations[franchise.id];
       
       const imgProps: SpriteNodeAttributes | EmptyObject = franchiseLocation
         ? {type: 'sprite', image: franchiseSprite, crop: franchiseLocation}
         : {};
       
-      graph.addNode(franchise.id, { size: sizes.franchise, label: franchise.name, color: 'yellow', ...imgProps });
+      graph.addNode(franchise.id, { size: config.sizes.franchise, label: franchise.name, color: config.colors.franchise, ...imgProps });
     });
   }
 
@@ -108,16 +100,16 @@ export const buildGraph = (data: NBAData, config: GraphConfig, imgLocations: {ty
     }
     // TODO: should default to some generic pic if no franchise sprite is found
   
-    graph.addNode(team.id, { size: sizes.team, label, color: 'red', ...imgProps });
+    graph.addNode(team.id, { size: config.sizes.team, label, color: config.colors.team, ...imgProps });
   });
 
   playerTeams.forEach(pt => {
-    graph.addEdge(pt.playerId, pt.teamId);
+    graph.addEdge(pt.playerId, pt.teamId, {label: 'played_on'});
   });
 
   if (config.includeFranchises) {
     teams.forEach(team => {
-      graph.addEdge(team.id, team.franchiseId);
+      graph.addEdge(team.id, team.franchiseId, {label: 'season_of'});
     });
   }
 
@@ -126,7 +118,22 @@ export const buildGraph = (data: NBAData, config: GraphConfig, imgLocations: {ty
     circular.assign(graph);
   
     // This call takes a little while...
-    forceAtlas2.assign(graph, 50);
+    const settings = forceAtlas2.inferSettings(graph);
+    console.log('infered settings', forceAtlas2.inferSettings(graph));
+    // => 
+    // const settings = {
+    //   barnesHutOptimize: true,
+    //   strongGravityMode: true,
+    //   gravity: 0.05,
+    //   scalingRatio: 10,
+    //   slowDown: 9.031385330625534
+    // };
+
+
+    forceAtlas2.assign(graph, {
+      iterations: 100,
+      settings,
+    });
   }
 
   console.log('Done!');

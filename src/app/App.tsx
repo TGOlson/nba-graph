@@ -2,9 +2,10 @@ import React, { Component } from 'react';
 
 import { fetchGraphData, GraphData } from './api';
 import { NBAGraph } from './components/NBAGraph';
+import { combineImages, fetchImage, Sprite } from './util/image';
+import { EmptyObject } from '../shared/types';
 
 import "./App.css";
-import { combineImages, fetchImage, Sprite } from './util/image';
 
 const fetchImages = (): Promise<HTMLImageElement[]> => {
   return Promise.all([
@@ -17,7 +18,7 @@ const fetchImages = (): Promise<HTMLImageElement[]> => {
   ]);
 };
 
-type AppProps = Record<string, never>; // empty object
+type AppProps = EmptyObject;
 type AppState = {
   data: GraphData | null;
   sprite: Sprite | null,
@@ -49,9 +50,7 @@ class App extends Component<AppProps, AppState> {
 
     return (
       <div>
-        <h1> Hellooo, World! </h1>
-        {data ? <p>Found {data.nodes.length} graph nodes!</p> : <p>Loading...</p>}
-        {(data && sprite) ? <NBAGraph data={data} sprite={sprite}/> : null}
+        {(data && sprite) ? <NBAGraph data={data} sprite={sprite}/> : <p>Loading...</p>}
       </div>
     );
   }

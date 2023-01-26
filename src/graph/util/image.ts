@@ -13,8 +13,8 @@ export async function convertToBW(inputPath: string, outputPath: string): Promis
   image
     .quality(DEFAULT_QUALITY)
     .greyscale()
-    .opacity(0.5)
-    .background(0xE2E2E2)
+    .opacity(0.3)
+    .background(0xFAFAFA)
     .write(outputPath);
 }
 
