@@ -67,13 +67,16 @@ The output graph data is stored in `./data/graph/graph.json`. The graph is built
 * ~~render multiple sprites~~
 * ~~sprite performance optimizations~~
 * data
-  * 1/ download player images + create sprite
-  * improve player parser to use players/x/xxx.html files for better info (seasons, all-stars, etc) ... probably return player + seasons)
+  * ~~download player images + create sprite~~
+  * ~~improve player parser to use players/x/xxx.html files for better info (seasons, all-stars, etc)~~
   * improve locations
-  * add other interesting nodes (MVP, champion, X time all star)
+  * 2/ add other interesting nodes (MVP, champion, X time all star)
 * UI 
-  * 2/ improve / fix search to move to current node
+  * 1/ improve / fix search to move to current node
   * filters and advanced search
 * hacks
   * test animations for force layout and other movements 
   * ~~test moving neighbors in a circle around selected node (and keeping them there... animation?)~~
+* deploy
+ * setup github page
+ * deploy assets to aws/cloudflair
