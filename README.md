@@ -30,13 +30,44 @@ npm run serve:app
 
 The `graph` module is a CLI tool which downloads and parses NBA data from `www.basketball-reference.com`, and builds a graph from the output. 
 
+```
+$ node ./dist/graph.bundle.js <command>
+
+Available commands:
+ [
+  {
+    LeagueIndex: '--download-league-index',
+    TeamIndex: '--download-team-index',
+    Team: '--download-team',
+    TeamAll: '--download-team-all',
+    PlayerIndex: '--download-player-index',
+    PlayerIndexAll: '--download-player-index-all',
+    Player: '--download-player',
+    PlayerGroup: '--download-player-group',
+    PlayerAll: '--download-player-all',
+    FranchiseImages: '--download-franchise-images',
+    TeamImages: '--download-team-images',
+    PlayerImages: '--download-player-images'
+  },
+  {
+    Leagues: '--parse-leagues',
+    Seasons: '--parse-seasons',
+    Franchises: '--parse-franchises',
+    Teams: '--parse-teams',
+    Players: '--parse-players'
+  },
+  { ConvertImages: '--convert-images', Test: '--test' },
+  { Build: '--build-graph' }
+]
+```
+
 1. Downloading data
 
-Output data is stored in `./data`, first as `.html` files from the initial download, then as `.json` files after the data is parsed. To download data, the following commands can be used: 
+All output data is stored in `./data`. Initial downloads are stored as raw `.html` files (which is later parsed into `.json`).
 
-`node graph.bundle.js --download-{leagues,teams,seasons,players-index,players}`
+Some download commands have dependencies on other data before they can be run. It is suggested to run download commands in the order listed above (leadgue index -> team index -> team ...).
 
-Some download commands can be run in any order, while some require data to exist before they can be run. Suggested order for downloads is: `leagues`, `teams`, `seasons`, `players-index`, then `players`.
+`node ./dist/graph.bundle.js --download-<...>`
 
 _note: some commands may take a while to finish as basketball-reference severly rate limits requests_
 
@@ -44,13 +75,13 @@ _note: some commands may take a while to finish as basketball-reference severly 
 
 After the data is downloaded, it can then be parsed into json files. Parsing commands can be run in any order.
 
-`node graph.bundle.js --parse-{leagues,seasons,franchises,teams,players,player-seasons}`
+`node ./dist/graph.bundle.js --parse-<...>`
 
 3. Creating the graph
 
 Lastly, once all the data is downloaded and parsed, an output graph can be created.
 
-`node graph.bundle.js --build-graph`
+`node './dist/graph.bundle.js --build-graph`
 
 The output graph data is stored in `./data/graph/graph.json`. The graph is built and constructed using the `graphology` library, which is the same graph library the frontend uses to render the graph. 
 

@@ -58,7 +58,7 @@ const LOGO_SUFFIX = '.png';
 export const getFranchiseLogoUrl = (franchiseId: string): string =>
     `${BASE_LOGO_URL}${franchiseId}${LOGO_SUFFIX}`;
 
-export const getTeamLogoUrl = (franchiseId: string, yearAppropriateFranchiseId: string, year: number): string =>
+export const getTeamLogoUrl = (yearAppropriateFranchiseId: string, year: number): string =>
   `${BASE_LOGO_URL}${yearAppropriateFranchiseId}-${year}${LOGO_SUFFIX}`;
 
 export const getPlayerImageUrl = (playerId: string): string =>

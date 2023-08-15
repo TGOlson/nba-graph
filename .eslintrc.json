@@ -22,7 +22,7 @@
   ],
   "rules": {
     "@typescript-eslint/consistent-type-definitions": ["error", "type"],
-    "@typescript-eslint/no-unused-vars": ["error", { "varsIgnorePattern": "^_", "argsIgnorePattern": "^_" }],
+    "@typescript-eslint/no-unused-vars": ["warn", { "varsIgnorePattern": "^_", "argsIgnorePattern": "^_" }],
     "@typescript-eslint/non-nullable-type-assertion-style": "off",
     "semi": "off",
     "@typescript-eslint/semi": "warn",

@@ -1,16 +1,22 @@
 {
+  // "include" will be ignored during webpack build process, as we'll only typecheck bundled files
+  // but it's nice to set here anyways for editor config, or so `tsc` can be called as a standalone command
   "include": ["./src/**/*", "./webpack/*"],
   "compilerOptions": {
-    "outDir": "./dist/",
-    "strict": true,
-    "sourceMap": true,
-    "noImplicitAny": true,
+    "target": "es2016",
     "module": "es6",
-    "target": "es2015",
+    "outDir": "./dist/",
+    "sourceMap": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
     "jsx": "react",
+    "noImplicitAny": true,
     "allowJs": true,
-    "moduleResolution": "node",
-    "allowSyntheticDefaultImports": true,
+    "strictNullChecks": true,
+    // "noUnusedLocals": true, // disable, eslint will check this for us
+    "noUnusedParameters": true,
     "noUncheckedIndexedAccess": true,
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true
   }
 }
