@@ -63,25 +63,25 @@ Available commands:
 
 1. Downloading data
 
+`node ./dist/graph.bundle.js --download-<...>`
+
 All output data is stored in `./data`. Initial downloads are stored as raw `.html` files (which is later parsed into `.json`).
 
 Some download commands have dependencies on other data before they can be run. It is suggested to run download commands in the order listed above (leadgue index -> team index -> team ...).
-
-`node ./dist/graph.bundle.js --download-<...>`
 
 _note: some commands may take a while to finish as basketball-reference severly rate limits requests_
 
 2. Parsing
 
-After the data is downloaded, it can then be parsed into json files. Parsing commands can be run in any order.
-
 `node ./dist/graph.bundle.js --parse-<...>`
+
+After the data is downloaded, it can then be parsed into json files. Parsing commands can be run in any order.
 
 3. Creating the graph
 
-Lastly, once all the data is downloaded and parsed, an output graph can be created.
-
 `node './dist/graph.bundle.js --build-graph`
+
+Lastly, once all the data is downloaded and parsed, an output graph can be created.
 
 The output graph data is stored in `./data/graph/graph.json`. The graph is built and constructed using the `graphology` library, which is the same graph library the frontend uses to render the graph. 
 
