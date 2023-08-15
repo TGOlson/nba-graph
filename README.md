@@ -67,7 +67,7 @@ Available commands:
 
 All output data is stored in `./data`. Initial downloads are stored as raw `.html` files (which is later parsed into `.json`).
 
-Some download commands have dependencies on other data before they can be run. It is suggested to run download commands in the order listed above (leadgue index -> team index -> team ...).
+Some download commands have dependencies on other data before they can be run. It is suggested to run download commands in the order listed above (league index -> team index -> team ...).
 
 _note: some commands may take a while to finish as basketball-reference severly rate limits requests_
 
@@ -79,7 +79,7 @@ After the data is downloaded, it can then be parsed into json files. Parsing com
 
 3. Creating the graph
 
-`node './dist/graph.bundle.js --build-graph`
+`node ./dist/graph.bundle.js --build-graph`
 
 Lastly, once all the data is downloaded and parsed, an output graph can be created.
 
