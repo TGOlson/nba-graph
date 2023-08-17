@@ -21,7 +21,7 @@ export async function convertToBW(inputPath: string, outputPath: string): Promis
     .write(outputPath);
 }
 
-export async function createSpriteImage(inputDir: string, imagePath: string, mappingPath: string): Promise<void> {
+export async function createSpriteImage(inputDir: string, imagePath: string, mappingPath: string, dedupe?: boolean): Promise<void> {
   const fileNames: string[] = await readdir(inputDir);
   const sources: ImageSource[] = fileNames.map(f => {
     const key = f.split('.')[0];
@@ -40,7 +40,7 @@ export async function createSpriteImage(inputDir: string, imagePath: string, map
   const {image, mapping}: Sprite = await createSprite(sources, {
     fillMode: 'row',
     maxWidth: MAX_WIDTH,
-    dedupe: true,
+    dedupe: dedupe,
     transform,
   });
 

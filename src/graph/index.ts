@@ -212,7 +212,9 @@ async function main() {
         const mappingPath = spriteMappingPath(typ);
         
         console.log('building sprite for', typ);
-        await createSpriteImage(imageDir(typ), imagePath, mappingPath);
+        
+        const dedupe = typ !== NBAType.PLAYER;
+        await createSpriteImage(imageDir(typ), imagePath, mappingPath, dedupe);
         console.log('converting to black and white for ', typ);
         return await convertToBW(imagePath, imagePathMuted);
       }));
