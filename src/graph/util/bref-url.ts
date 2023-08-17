@@ -63,3 +63,4 @@ export const getTeamLogoUrl = (yearAppropriateFranchiseId: string, year: number)
 
 export const getPlayerImageUrl = (playerId: string): string =>
   `https://www.basketball-reference.com/req/202106291/images/players/${playerId}.jpg`;
+  

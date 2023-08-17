@@ -45,7 +45,7 @@ export const NBAGraph = (props: DisplayGraphProps) => {
       graph={graph}
       settings={settings}
     >
-      <GraphEvents />
+      <GraphEvents moveNeighborsOnClick />
       <ControlsContainer position={"bottom-right"}>
         <ZoomControl />
         <FullScreenControl />

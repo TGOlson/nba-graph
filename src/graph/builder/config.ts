@@ -1,5 +1,6 @@
 export type GraphConfig = {
   startYear: number | null;
+  endYear: number | null;
   useYearSpecificTeamLogos: boolean; // slower to load, if false just uses franchise logos (not year specific team logos)
   includeFranchises: boolean;
   includeDefunct: boolean;
@@ -20,6 +21,7 @@ export type GraphConfig = {
 
 export const GRAPH_CONFIG: GraphConfig = {
   startYear: null,
+  endYear: 2023,
   useYearSpecificTeamLogos: true,
   includeFranchises: true,
   includeDefunct: true,

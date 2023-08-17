@@ -32,12 +32,12 @@ const commands = {
   download: {
     LeagueIndex: '--download-league-index',
     TeamIndex: '--download-team-index',
-    Team: '--download-team',
+    Team: '--download-team', // <team-id>
     TeamAll: '--download-team-all',
-    PlayerIndex: '--download-player-index',
+    PlayerIndex: '--download-player-index', // <a-z letter>
     PlayerIndexAll: '--download-player-index-all',
-    Player: '--download-player',
-    PlayerGroup: '--download-player-group',
+    Player: '--download-player', // <player-id>
+    PlayerGroup: '--download-player-group', // <letter>
     PlayerAll: '--download-player-all',
     FranchiseImages: '--download-franchise-images',
     TeamImages: '--download-team-images',

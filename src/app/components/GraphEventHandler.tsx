@@ -66,7 +66,7 @@ export const GraphEvents = (props: Props = defaultProps) => {
             const tempGraph = new Graph();
             neighbors.forEach(n => tempGraph.addNode(n));
 
-            const positions = circular(tempGraph, { scale: sigma.getCamera().ratio * 1000 });
+            const positions = circular(tempGraph, { scale: sigma.getCamera().ratio * 2000 });
 
             const { x: baseX, y: baseY } = graph.getNodeAttributes(selectedNode);
             const pos = positions[node];
@@ -81,7 +81,7 @@ export const GraphEvents = (props: Props = defaultProps) => {
             const newX = currX + (baseX as number);
             const newY = currY + (baseY as number);
 
-            animateNodes(graph, {[node]: {x: newX, y: newY}}, { duration: 100 });
+            animateNodes(graph, {[node]: {x: newX, y: newY}}, { duration: 75 });
             graph.updateNodeAttribute(node, 'x', () => newX);
             graph.updateNodeAttribute(node, 'y', () => newY);
           }

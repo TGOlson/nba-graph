@@ -11,7 +11,9 @@ export const buildGraph = (data: NBAData, config: GraphConfig, imgLocations: {ty
   console.log('Building graph');
   const graph = new DirectedGraph();
 
-  const teams: Team[] = config.startYear ? data.teams.filter(team => team.year >= (config.startYear as number)) : data.teams;
+  let teams: Team[] = config.startYear ? data.teams.filter(team => team.year >= (config.startYear as number)) : data.teams;
+  teams = config.endYear ? teams.filter(team => team.year <= (config.endYear as number)) : teams;
+  
   const franchiseIdMap: {[key: string]: boolean} = teams.reduce((acc, team) => ({...acc, [team.franchiseId]: true}), {});
   const franchises = data.franchises.filter(franchise => franchiseIdMap[franchise.id]);
 
@@ -26,7 +28,7 @@ export const buildGraph = (data: NBAData, config: GraphConfig, imgLocations: {ty
   const playerTeams: PlayerSeason[] = teams.map(team => {
     const res: PlayerSeason[] | undefined = playerTeamsByTeamId[team.id];
 
-    if (!res) throw new Error('Unexpected access error');
+    if (!res) throw new Error(`Unexpected access error: unable to find player teams for team: ${team.id}`);
 
     return res;
   }).flat();
@@ -39,7 +41,7 @@ export const buildGraph = (data: NBAData, config: GraphConfig, imgLocations: {ty
   const players: Player[] = playerTeams.map(pt => {
     const res = playersById[pt.playerId];
 
-    if (!res) throw new Error('Unexpected access error');
+    if (!res) throw new Error(`Unexpected access error: unable to find player for player team: ${pt.playerId}`);
 
     return res;
   });
