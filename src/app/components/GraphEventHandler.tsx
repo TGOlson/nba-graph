@@ -59,7 +59,11 @@ export const GraphEvents = (props: Props = defaultProps) => {
         const graph = sigma.getGraph();
         // const selectedNe = graph.neighbors(selectedNode);
 
-        if (selectedNode && graph.neighbors(selectedNode).includes(node)) {
+        // if a neighbor of selected or hovered, emphasize node
+        // only emphasize on hover is there is no selected node
+        if ((selectedNode && graph.neighbors(selectedNode).includes(node) || (hoveredNode && !selectedNode && graph.neighbors(hoveredNode).includes(node)))) {
+          // note: after a lot of testing, moving neighbors on click is more intrusive than useful
+          // instead focus on better highlightning and canvas adjustments to bring selected+neighbors into focus
           if (props.moveNeighborsOnClick) {
             const neighbors = graph.neighbors(selectedNode);
 
@@ -128,10 +132,11 @@ export const GraphEvents = (props: Props = defaultProps) => {
         const graph = sigma.getGraph();
 
         const isSelectedNeighbor = selectedNode && graph.extremities(edge).includes(selectedNode);
-        // const isHoveredNeighbor = hoveredNode && graph.extremities(edge).includes(hoveredNode);
+        const isHoveredNeighbor = hoveredNode && !selectedNode && graph.extremities(edge).includes(hoveredNode);
 
-        // if it's an edge of a selected node, don't hide
-        if (isSelectedNeighbor) return {...data, zIndex: 100};
+        // if a neighbor of selected or hovered, draw edge node
+        // only draw edge on hover is there is no selected node
+        if (isSelectedNeighbor || isHoveredNeighbor) return {...data, zIndex: 100};
 
         return { ...data, hidden: true };
       }

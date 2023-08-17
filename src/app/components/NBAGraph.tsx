@@ -41,14 +41,13 @@ export const NBAGraph = (props: DisplayGraphProps) => {
 
   return (
     <SigmaContainer 
-      style={{ height: "700px" }} 
+      style={{ height: "100vh" }} 
       graph={graph}
       settings={settings}
     >
-      <GraphEvents moveNeighborsOnClick />
+      <GraphEvents />
       <ControlsContainer position={"bottom-right"}>
         <ZoomControl />
-        <FullScreenControl />
       </ControlsContainer>
       <ControlsContainer position={"top-right"}>
         <SearchControl style={{ width: "200px" }} />
