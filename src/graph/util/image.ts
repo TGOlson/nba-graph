@@ -1,5 +1,5 @@
 import { readdir } from 'fs/promises';
-import Jimp from 'jimp/es';
+import Jimp from 'jimp';
 import path from 'path';
 import { persistJSON } from '../storage';
 import {createSprite, ImageSource, Sprite} from 'quick-sprite';
@@ -8,7 +8,7 @@ import {createSprite, ImageSource, Sprite} from 'quick-sprite';
 // another way would be to reduce image size to maybe 75x75 for each (125x125 currently, not needed to be so big)
 const DEFAULT_QUALITY = 30;
 const MAX_WIDTH = 3072;
-const DEFUALT_SIZE = 75;
+const DEFAULT_SIZE = 75;
 
 export async function convertToBW(inputPath: string, outputPath: string): Promise<void> {
   const image = await Jimp.read(inputPath);
@@ -33,8 +33,8 @@ export async function createSpriteImage(inputDir: string, imagePath: string, map
   const transform = (_key: string, image: Jimp): Jimp => {
     // Images will be rendered within circle on the resulting graph, so resize and crop to constant dimension
     return image
-      .resize(DEFUALT_SIZE, Jimp.AUTO)
-      .crop(0, 0, DEFUALT_SIZE, DEFUALT_SIZE);
+      .resize(DEFAULT_SIZE, Jimp.AUTO)
+      .crop(0, 0, DEFAULT_SIZE, DEFAULT_SIZE);
   };
 
   const {image, mapping}: Sprite = await createSprite(sources, {
@@ -42,6 +42,7 @@ export async function createSpriteImage(inputDir: string, imagePath: string, map
     maxWidth: MAX_WIDTH,
     dedupe: dedupe,
     transform,
+    debug: true,
   });
 
   await image.writeAsync(imagePath);
