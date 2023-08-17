@@ -7,6 +7,9 @@ import { EmptyObject } from '../shared/types';
 
 import "./App.css";
 
+import Stack from '@mui/joy/Stack';
+import { ControlPanel } from './components/ControlPanel';
+
 const fetchImages = (): Promise<HTMLImageElement[]> => {
   return Promise.all([
     fetchImage('/assets/sprites/franchise_muted.png'),
@@ -25,33 +28,33 @@ type AppState = {
 };
 
 class App extends Component<AppProps, AppState> {
-  testCanvas: React.RefObject<HTMLCanvasElement>;
-
   constructor(props: AppProps) {
     super(props);
 
-    this.testCanvas = React.createRef();
     this.state = { data: null, sprite: null };
   }
 
   componentDidMount() {
-    void fetchImages()
-      .then(async (images) => {
-        const sprite = combineImages(images);
-        const data = await fetchGraphData();
+    void Promise.all([
+      fetchImages(),
+      fetchGraphData(),
+    ]).then(([images, data]) => {
+      const sprite = combineImages(images);
 
-        this.setState({ data, sprite });
-      })
-      .catch((err) => { throw err; });
+      this.setState({ data, sprite });
+    }).catch((err) => { throw err; });
   }
 
   render () {
     const { data, sprite } = this.state;
 
+    const graphLoaded = data && sprite;
+    
     return (
-      <div>
-        {(data && sprite) ? <NBAGraph data={data} sprite={sprite}/> : <p>Loading...</p>}
-      </div>
+      <Stack style={{height: '100vh'}}>
+        <ControlPanel searchableNodes={graphLoaded ? data.nodes : []}/>
+        {graphLoaded ? <NBAGraph data={data} sprite={sprite}/> : <p>Loading...</p>}
+      </Stack>
     );
   }
 }

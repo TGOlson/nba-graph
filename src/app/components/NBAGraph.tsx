@@ -1,5 +1,5 @@
 import React from 'react';
-import { ControlsContainer, FullScreenControl, SearchControl, SigmaContainer, ZoomControl } from "@react-sigma/core";
+import { ControlsContainer, SearchControl, SigmaContainer, ZoomControl } from "@react-sigma/core";
 import Graph from 'graphology';
 import { Settings } from 'sigma/settings';
 
@@ -49,7 +49,7 @@ export const NBAGraph = (props: DisplayGraphProps) => {
       <ControlsContainer position={"bottom-right"}>
         <ZoomControl />
       </ControlsContainer>
-      <ControlsContainer position={"top-right"}>
+      <ControlsContainer position={"bottom-left"}>
         <SearchControl style={{ width: "200px" }} />
       </ControlsContainer>
     </SigmaContainer>
