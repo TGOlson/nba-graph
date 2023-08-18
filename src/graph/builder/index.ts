@@ -7,6 +7,20 @@ import { EmptyObject, SelectionMap, SpriteNodeAttributes } from "../../shared/ty
 import { assets } from "../util/assets";
 import { GraphConfig } from "./config";
 
+// TODO: things that would be nice to add (that we already have the data for, but need to stitch together):
+// - years active for players
+// - leagues active for players
+// - leagues for teams (and franchises)
+
+// mainly thinking for dropdown search:
+// eg.
+// [pic] Steph Curry
+//       2013-present / NBA
+// [pic] Denver Nuggets (franchise)
+//       1976-1982 / ABA
+// [pic] Denver Nuggets (franchise)
+//       1985-present / NBA
+
 export const buildGraph = (data: NBAData, config: GraphConfig, imgLocations: {typ: NBAType, map: SelectionMap}[]): Graph => {
   console.log('Building graph');
   const graph = new DirectedGraph();
@@ -64,7 +78,15 @@ export const buildGraph = (data: NBAData, config: GraphConfig, imgLocations: {ty
         imgProps = {type: 'sprite', image: playerSprite, crop: playerLocation};
       }
 
-      graph.addNode(player.id, {size, label: player.name, color: config.colors.player, ...imgProps });
+      graph.addNode(player.id, {
+        size, 
+        label: player.name, 
+        nbaType: NBAType.PLAYER,
+        color: config.colors.player, 
+        ...imgProps, 
+      });
+    } else {
+      console.log(`Skipping duplicate player: ${player.name}, ${player.id}}`);
     }
   });
   
@@ -83,7 +105,13 @@ export const buildGraph = (data: NBAData, config: GraphConfig, imgLocations: {ty
         ? {type: 'sprite', image: franchiseSprite, crop: franchiseLocation}
         : {};
       
-      graph.addNode(franchise.id, { size: config.sizes.franchise, label: franchise.name, color: config.colors.franchise, ...imgProps });
+      graph.addNode(franchise.id, { 
+        size: config.sizes.franchise, 
+        label: franchise.name, 
+        nbaType: NBAType.FRANCHISE,
+        color: config.colors.franchise, 
+        ...imgProps, 
+      });
     });
   }
 
@@ -102,7 +130,13 @@ export const buildGraph = (data: NBAData, config: GraphConfig, imgLocations: {ty
     }
     // TODO: should default to some generic pic if no franchise sprite is found
   
-    graph.addNode(team.id, { size: config.sizes.team, label, color: config.colors.team, ...imgProps });
+    graph.addNode(team.id, { 
+      size: config.sizes.team, 
+      label, 
+      nbaType: NBAType.TEAM,
+      color: config.colors.team, 
+      ...imgProps,
+    });
   });
 
   playerTeams.forEach(pt => {

@@ -9,14 +9,14 @@ import { circular } from 'graphology-layout';
 import "@react-sigma/core/lib/react-sigma.min.css";
 
 type Props = {
-  moveNeighborsOnClick?: boolean
+  moveNeighborsOnClick?: boolean;
 };
 
-const defaultProps: Props = {
-  moveNeighborsOnClick: false,
-};
+// const defaultProps: Partial<Props> = {
+//   moveNeighborsOnClick: false,
+// };
 
-export const GraphEvents = (props: Props = defaultProps) => {
+const GraphEvents = ({moveNeighborsOnClick = false}: Props) => {
   const sigma = useSigma();
   (window as any).sigma = sigma; // eslint-disable-line
 
@@ -27,11 +27,10 @@ export const GraphEvents = (props: Props = defaultProps) => {
   const [selectedNode, setSelectedNode] = useState<string | null>(null);
   const [hoveredNode, setHoveredNode] = useState<string | null>(null);
 
-  // Set up event handlers
   useEffect(() => {
     registerEvents({
       clickNode: (event) => {
-        console.log(sigma.getGraph().getNodeAttributes(event.node));
+        console.log('click event', event, 'node', sigma.getGraph().getNodeAttributes(event.node));
         if (selectedNode === event.node) {
           setSelectedNode(null);
         } else {
@@ -64,7 +63,7 @@ export const GraphEvents = (props: Props = defaultProps) => {
         if ((selectedNode && graph.neighbors(selectedNode).includes(node) || (hoveredNode && !selectedNode && graph.neighbors(hoveredNode).includes(node)))) {
           // note: after a lot of testing, moving neighbors on click is more intrusive than useful
           // instead focus on better highlightning and canvas adjustments to bring selected+neighbors into focus
-          if (props.moveNeighborsOnClick) {
+          if (moveNeighborsOnClick) {
             const neighbors = graph.neighbors(selectedNode);
 
             const tempGraph = new Graph();
@@ -146,3 +145,5 @@ export const GraphEvents = (props: Props = defaultProps) => {
 
   return null;
 };
+
+export default GraphEvents;

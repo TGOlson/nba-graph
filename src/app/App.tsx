@@ -1,14 +1,16 @@
-import React, { Component } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { fetchGraphData, GraphData } from './api';
-import { NBAGraph } from './components/NBAGraph';
 import { combineImages, fetchImage, Sprite } from './util/image';
 import { EmptyObject } from '../shared/types';
 
 import "./App.css";
 
 import Stack from '@mui/joy/Stack';
-import { ControlPanel } from './components/ControlPanel';
+
+import NBAGraph from './components/NBAGraph';
+import ControlPanel from './components/ControlPanel';
+import { useSigma } from '@react-sigma/core';
 
 const fetchImages = (): Promise<HTMLImageElement[]> => {
   return Promise.all([
@@ -21,42 +23,26 @@ const fetchImages = (): Promise<HTMLImageElement[]> => {
   ]);
 };
 
-type AppProps = EmptyObject;
-type AppState = {
-  data: GraphData | null;
-  sprite: Sprite | null,
-};
-
-class App extends Component<AppProps, AppState> {
-  constructor(props: AppProps) {
-    super(props);
-
-    this.state = { data: null, sprite: null };
-  }
-
-  componentDidMount() {
-    void Promise.all([
-      fetchImages(),
-      fetchGraphData(),
-    ]).then(([images, data]) => {
+const App = () => {
+  const [data, setData] = useState<GraphData | null>(null);
+  const [sprite, setSprite] = useState<Sprite | null>(null);
+  
+  useEffect(() => {
+    void Promise.all([fetchImages(), fetchGraphData(),]).then(([images, data]) => {
       const sprite = combineImages(images);
-
-      this.setState({ data, sprite });
+      
+      setData(data);
+      setSprite(sprite);
     }).catch((err) => { throw err; });
-  }
+  }, []);
+  
+  const graphLoaded = data && sprite;
 
-  render () {
-    const { data, sprite } = this.state;
-
-    const graphLoaded = data && sprite;
-    
-    return (
-      <Stack style={{height: '100vh'}}>
-        <ControlPanel searchableNodes={graphLoaded ? data.nodes : []}/>
-        {graphLoaded ? <NBAGraph data={data} sprite={sprite}/> : <p>Loading...</p>}
-      </Stack>
-    );
-  }
-}
+  return (
+    <Stack style={{height: '100vh'}}>
+      {graphLoaded ? <NBAGraph data={data} sprite={sprite}/> : <p>Loading...</p>}
+    </Stack>
+  );
+};
 
 export default App;

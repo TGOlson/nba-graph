@@ -1,21 +1,23 @@
 import React from 'react';
-import { ControlsContainer, SearchControl, SigmaContainer, ZoomControl } from "@react-sigma/core";
+import { ControlsContainer, SearchControl, SigmaContainer, ZoomControl, useSigma } from "@react-sigma/core";
 import Graph from 'graphology';
 import { Settings } from 'sigma/settings';
 
 import "@react-sigma/core/lib/react-sigma.min.css";
 
 import { GraphData } from '../api';
-import { GraphEvents } from './GraphEventHandler';
 import makeNodeSpriteProgram from '../program/node-sprite';
 import { Sprite } from '../util/image';
 
+import GraphEvents from './GraphEventHandler';
+import ControlPanel from './ControlPanel';
+
 type DisplayGraphProps = {
-  data: GraphData,
-  sprite: Sprite,
+  data: GraphData;
+  sprite: Sprite;
 };
 
-export const NBAGraph = (props: DisplayGraphProps) => {
+const NBAGraph = (props: DisplayGraphProps) => {
   const graph = new Graph();
   graph.import(props.data);
 
@@ -45,13 +47,13 @@ export const NBAGraph = (props: DisplayGraphProps) => {
       graph={graph}
       settings={settings}
     >
+      <ControlPanel searchableNodes={props.data.nodes} />
       <GraphEvents />
       <ControlsContainer position={"bottom-right"}>
         <ZoomControl />
       </ControlsContainer>
-      <ControlsContainer position={"bottom-left"}>
-        <SearchControl style={{ width: "200px" }} />
-      </ControlsContainer>
     </SigmaContainer>
   );
 };
+
+export default NBAGraph;
