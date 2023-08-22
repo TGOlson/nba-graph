@@ -1,18 +1,16 @@
 import React, { useState } from 'react';
-
+import { useSigma } from '@react-sigma/core';
 import { SerializedNode } from 'graphology-types';
 
 import Box from '@mui/joy/Box';
-import Typography from '@mui/joy/Typography';
 import Autocomplete, {createFilterOptions} from '@mui/joy/Autocomplete';
 import AutocompleteOption from '@mui/joy/AutocompleteOption';
 import Avatar from '@mui/joy/Avatar';
 import ListItemContent from '@mui/joy/ListItemContent';
 import ListItemDecorator from '@mui/joy/ListItemDecorator';
-import { useSigma } from '@react-sigma/core';
 
-type ControlPanelProps = {
-  searchableNodes: SerializedNode[];
+type SearchBarProps = {
+  nodes: SerializedNode[];
 };
 
 const renderOption = (props: any, node: SerializedNode) => (
@@ -50,7 +48,7 @@ const getPosition = (node: SerializedNode): string => {
 };
 
 
-const ControlPanel = ({searchableNodes}: ControlPanelProps) => {
+const SearchBar = ({nodes}: SearchBarProps) => {
   const sigma = useSigma();
 
   const onSelect = (id: string) => {
@@ -62,28 +60,25 @@ const ControlPanel = ({searchableNodes}: ControlPanelProps) => {
   const [inputValue, setInputValue] = useState('');
 
   const sx = {
-    display: 'flex', 
-    justifyContent: 'space-between', 
-    alignItems: 'center', 
     top: 0,
+    right: 0,
     p: 1,
     pl: 2,
     pr: 2,
     position: 'absolute', 
-    width: '100vw', 
+    // width: '100vw', 
     zIndex: 1000,
   };
 
   return (
     <Box sx={sx}>
-      <Typography level="title-lg" variant='outlined' sx={{backgroundColor: 'rgba(255, 255, 255, 0.8)'}}>NBA Graph</Typography>
       <Autocomplete 
         sx={{ width: 280 }}
         placeholder="Search..."
         noOptionsText="No results found"
         clearOnEscape
         forcePopupIcon={false}
-        options={searchableNodes}
+        options={nodes}
         getOptionLabel={(node) => node.attributes?.label as string}
         renderOption={renderOption}
         // Note: this is a managed component, both for the raw input value, and the selected value
@@ -105,4 +100,4 @@ const ControlPanel = ({searchableNodes}: ControlPanelProps) => {
   );
 };
 
-export default ControlPanel;
+export default SearchBar;

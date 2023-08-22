@@ -139,6 +139,8 @@ export const buildGraph = (data: NBAData, config: GraphConfig, imgLocations: {ty
     });
   });
 
+  // TODO: edge labels not used yet
+  // maybe useful for advanced filters later, but probably should remove for now to reduce size
   playerTeams.forEach(pt => {
     graph.addEdge(pt.playerId, pt.teamId, {label: 'played_on'});
   });

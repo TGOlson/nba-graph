@@ -6,15 +6,9 @@ import { animateNodes } from 'sigma/utils/animate';
 import Graph from 'graphology';
 import { circular } from 'graphology-layout';
 
-import "@react-sigma/core/lib/react-sigma.min.css";
-
 type Props = {
   moveNeighborsOnClick?: boolean;
 };
-
-// const defaultProps: Partial<Props> = {
-//   moveNeighborsOnClick: false,
-// };
 
 const GraphEvents = ({moveNeighborsOnClick = false}: Props) => {
   const sigma = useSigma();

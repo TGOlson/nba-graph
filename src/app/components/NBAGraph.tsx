@@ -1,5 +1,5 @@
 import React from 'react';
-import { ControlsContainer, SearchControl, SigmaContainer, ZoomControl, useSigma } from "@react-sigma/core";
+import { ControlsContainer, SigmaContainer, ZoomControl } from "@react-sigma/core";
 import Graph from 'graphology';
 import { Settings } from 'sigma/settings';
 
@@ -10,7 +10,8 @@ import makeNodeSpriteProgram from '../program/node-sprite';
 import { Sprite } from '../util/image';
 
 import GraphEvents from './GraphEventHandler';
-import ControlPanel from './ControlPanel';
+import Header from './Header';
+import SearchBar from './SearchBar';
 
 type DisplayGraphProps = {
   data: GraphData;
@@ -47,7 +48,8 @@ const NBAGraph = (props: DisplayGraphProps) => {
       graph={graph}
       settings={settings}
     >
-      <ControlPanel searchableNodes={props.data.nodes} />
+      <Header />
+      <SearchBar nodes={props.data.nodes} />
       <GraphEvents />
       <ControlsContainer position={"bottom-right"}>
         <ZoomControl />
