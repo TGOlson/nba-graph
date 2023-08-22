@@ -110,6 +110,9 @@ const SearchBar = ({nodes}: SearchBarProps) => {
         inputValue={inputValue}
         onInputChange={(_event, newInputValue) => setInputValue(newInputValue)}
         onBlur={() => setValue(null)}
+        isOptionEqualToValue={(option, value) => option.key === value.key}
+        getOptionDisabled={(option) => option.key === 'more_results'}
+
         // Note: special filter options optimize search a 'lil bit
         filterOptions={(options, state) => {
           if (state.inputValue.length <= 1) return [];
