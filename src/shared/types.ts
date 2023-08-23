@@ -1,3 +1,5 @@
+import { NBAType } from "./nba-types";
+
 export type Coordinates = {x: number, y: number};
 export type Dimensions = {width: number, height: number};
 
@@ -7,3 +9,24 @@ export type SelectionMap = {[key: string]: Selection};
 export type SpriteNodeAttributes = {type: 'sprite', image: string, crop: Selection};
 
 export type EmptyObject = Record<string, never>;
+
+
+export type BaseNodeAttributes = {
+  nbaType: NBAType;
+  color: string;
+  size: number;
+  label: string;
+} & (SpriteNodeAttributes | EmptyObject);
+
+export type PlayerNodeAttributes = BaseNodeAttributes & {
+  nbaType: NBAType.PLAYER;
+  years: string;
+};
+
+export type FranchiseNodeAttributes = BaseNodeAttributes & {
+  nbaType: NBAType.FRANCHISE;
+};
+
+export type TeamNodeAttributes = BaseNodeAttributes & {
+  nbaType: NBAType.TEAM;
+};

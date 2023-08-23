@@ -3,7 +3,7 @@ import { circular } from "graphology-layout";
 import forceAtlas2 from "graphology-layout-forceatlas2";
 
 import { Franchise, NBAData, NBAType, Team } from "../../shared/nba-types";
-import { EmptyObject, SelectionMap, SpriteNodeAttributes } from "../../shared/types";
+import { EmptyObject, FranchiseNodeAttributes, PlayerNodeAttributes, SelectionMap, SpriteNodeAttributes, TeamNodeAttributes } from "../../shared/types";
 import { assets } from "../util/assets";
 import { GraphConfig } from "./config";
 
@@ -25,26 +25,6 @@ type ImageLocations = {
   [NBAType.PLAYER]: SelectionMap;
   [NBAType.TEAM]: SelectionMap;
   [NBAType.FRANCHISE]: SelectionMap;
-};
-
-type BaseNodeAttributes = {
-  nbaType: NBAType;
-  color: string;
-  size: number;
-  label: string;
-} & (SpriteNodeAttributes | EmptyObject);
-
-type PlayerNodeAttributes = BaseNodeAttributes & {
-  nbaType: NBAType.PLAYER;
-  years: string;
-};
-
-type FranchiseNodeAttributes = BaseNodeAttributes & {
-  nbaType: NBAType.FRANCHISE;
-};
-
-type TeamNodeAttributes = BaseNodeAttributes & {
-  nbaType: NBAType.TEAM;
 };
 
 export const buildGraph = (data: NBAData, config: GraphConfig, imgLocations: ImageLocations): Graph => {

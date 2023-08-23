@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useSigma } from '@react-sigma/core';
-import { SerializedNode } from 'graphology-types';
+import { Attributes, SerializedNode } from 'graphology-types';
 
 import Box from '@mui/joy/Box';
 import Autocomplete, {createFilterOptions} from '@mui/joy/Autocomplete';
@@ -9,6 +9,7 @@ import Avatar from '@mui/joy/Avatar';
 import ListItemContent from '@mui/joy/ListItemContent';
 import ListItemDecorator from '@mui/joy/ListItemDecorator';
 import { Typography } from '@mui/joy';
+import { BaseNodeAttributes } from '../../shared/types';
 
 type SearchBarProps = {
   nodes: SerializedNode[];
@@ -17,8 +18,7 @@ type SearchBarProps = {
 type Option = {
   key: string;
   label: string;
-  nbaType: 'player' | 'team' | 'franchise';
-  years?: string;
+  subLabel: string;
   image: {
     src: string;
     crop: {
@@ -69,22 +69,34 @@ const SearchBar = ({nodes}: SearchBarProps) => {
     zIndex: 1000,
   };
 
+  const getSubLabel = (node: SerializedNode): string => {
+    const typ = node.attributes?.nbaType as string;
+
+    if (typ === 'franchise') return 'Franchise';
+    if (typ === 'team') return (node.attributes?.label as string).match(/\d{4}-\d{2}/)?.[0] as string;
+    
+    // player
+    return node.attributes?.years as string;
+  };
+
   // TODO: sort by last name
-  const options = nodes.map((node) => ({
-    key: node.key,
-    label: node.attributes?.label as string,
-    nbaType: node.attributes?.nbaType as 'player' | 'team' | 'franchise',
-    years: node.attributes?.years as string,
-    image: node.attributes?.image ? {
-      src: node.attributes.image as string,
-      crop: node.attributes.crop as { x: number, y: number },
-    } : undefined,
-  }));
+  const options = nodes.map((node) => {
+    const attrs = node.attributes as BaseNodeAttributes;
+    return {
+      key: node.key,
+      label: attrs.nbaType === 'team' ? attrs.label.match(/.*(?=\s\(\d{4}-\d{2}\))/)?.[0] as string : attrs.label,
+      subLabel: getSubLabel(node),
+      image: attrs.image ? {
+        src: attrs.image,
+        crop: attrs.crop as { x: number, y: number },
+      } : undefined,
+    };
+  });
 
   return (
     <Box sx={sx}>
       <Autocomplete 
-        sx={{ width: 280 }}
+        sx={{ width: 300 }}
         placeholder="Search..."
         noOptionsText="No results found"
         clearOnEscape
@@ -100,13 +112,8 @@ const SearchBar = ({nodes}: SearchBarProps) => {
               </Box>
             </ListItemDecorator>
             <ListItemContent sx={{ fontSize: 'md', ml: 1 }}>
-              {option.nbaType === 'team' ? option.label : null}
-              {option.nbaType !== 'team' ? option.label : null}
-              <Typography level="body-xs">
-                {option.nbaType === 'team' ? <Typography level="body-xs" variant="soft">Team</Typography> : null}
-                {option.nbaType === 'franchise' ? <Typography level="body-xs" variant="soft">Franchise</Typography> : null}
-                {option.nbaType === 'player' ? <Typography level="body-xs">{option.years}</Typography> : null}
-              </Typography>
+              {option.label}
+              <Typography level="body-xs">{option.subLabel}</Typography>
             </ListItemContent>
           </AutocompleteOption>
         )}
