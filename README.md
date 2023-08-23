@@ -100,15 +100,15 @@ The output graph data is stored in `./data/graph/graph.json`. The graph is built
 * data
   * ~~download player images + create sprite~~
   * ~~improve player parser to use players/x/xxx.html files for better info (seasons, all-stars, etc)~~
-  * 2/ add other interesting nodes (MVP, champion, X time all star, YY year all-star, YY year all-nba)
+  * __add other interesting nodes (MVP, champion, X time all star, YY year all-star, YY year all-nba)__
   * improve locations (do this last after adding more node types)
 * UI 
   * ~~improve / fix search to move to current node~~
-  * add years active / type to search results
+  * ~~add years active / type to search results~~
   * filters and advanced search
   * improve node sizes
-  * placeholders for teams/players without images
-  * larger images (I think don't downside on sprite generation?)
+  * __placeholders for teams/players without images__
+  * __larger images (I think don't downside on sprite generation?)__
 * hacks
   * ~~test animations for force layout and other movements~~
   * ~~test moving neighbors in a circle around selected node (and keeping them there... animation?)~~

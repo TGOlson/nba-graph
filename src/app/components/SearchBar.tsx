@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useSigma } from '@react-sigma/core';
-import { Attributes, SerializedNode } from 'graphology-types';
+import { SerializedNode } from 'graphology-types';
 
 import Box from '@mui/joy/Box';
 import Autocomplete, {createFilterOptions} from '@mui/joy/Autocomplete';
@@ -8,7 +8,8 @@ import AutocompleteOption from '@mui/joy/AutocompleteOption';
 import Avatar from '@mui/joy/Avatar';
 import ListItemContent from '@mui/joy/ListItemContent';
 import ListItemDecorator from '@mui/joy/ListItemDecorator';
-import { Typography } from '@mui/joy';
+import Typography from '@mui/joy/Typography';
+
 import { BaseNodeAttributes } from '../../shared/types';
 
 type SearchBarProps = {
@@ -79,7 +80,10 @@ const SearchBar = ({nodes}: SearchBarProps) => {
     return node.attributes?.years as string;
   };
 
-  // TODO: sort by last name
+  // TODO: sort
+  // 1. player by name
+  // 2. franchise by name
+  // 3. team by name / year
   const options = nodes.map((node) => {
     const attrs = node.attributes as BaseNodeAttributes;
     return {
