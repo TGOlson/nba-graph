@@ -46,7 +46,6 @@ export type Player = {
   id: string;
   name: string;
   image: string | null;
-  seasons: number;
   awards: string[]; // kind of a hack for now, later awards should be keyed by season w/ unique ids
   url: string;
 };
@@ -57,6 +56,7 @@ export type PartialPlayer = Pick<Player, 'id' | 'name' | 'url'>;
 export type PlayerSeason = {
   playerId: string;
   teamId: string;
+  year: number; // can be derived, but convenient to have here
   url: string;
 };
 

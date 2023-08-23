@@ -191,11 +191,11 @@ async function main() {
       const franchiseLocationMappings = await loadSpriteMapping(NBAType.FRANCHISE);
       const teamLocationMappings = await loadSpriteMapping(NBAType.TEAM);
       const playerLocationMappings = await loadSpriteMapping(NBAType.PLAYER);
-      const graph = buildGraph(nbaData, GRAPH_CONFIG, [
-        {typ: NBAType.FRANCHISE, map: franchiseLocationMappings},
-        {typ: NBAType.TEAM, map: teamLocationMappings},
-        {typ: NBAType.PLAYER, map: playerLocationMappings}
-      ]);
+      const graph = buildGraph(nbaData, GRAPH_CONFIG, {
+        [NBAType.FRANCHISE]: franchiseLocationMappings,
+        [NBAType.TEAM]: teamLocationMappings,
+        [NBAType.PLAYER]: playerLocationMappings
+      });
 
       return await persistGraph(graph);
     }
@@ -222,18 +222,7 @@ async function main() {
 
     // for testing, debugging, etc
     case commands.misc.Test: {
-      const players = await loadPlayers();
-
-      const playersWithImage = players.filter(x => x.image);
-      const playersWithSeasons = players.filter(x => x.seasons > 2);
-      const playersWithImageAndSeasons = players.filter(x => x.seasons > 2 && x.image);
-      const playersWithAwards = players.filter(x => x.awards.length > 1);
-
-      console.log('players', players.length);
-      console.log('playersWithImage', playersWithImage.length);
-      console.log('playersWithSeasons', playersWithSeasons.length);
-      console.log('playersWithImageAndSeasons', playersWithImageAndSeasons.length);
-      console.log('playersWithAwards', playersWithAwards.length);
+     console.log('Hello, test... : )')
 
       return;
     }

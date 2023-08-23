@@ -8,6 +8,7 @@ import AutocompleteOption from '@mui/joy/AutocompleteOption';
 import Avatar from '@mui/joy/Avatar';
 import ListItemContent from '@mui/joy/ListItemContent';
 import ListItemDecorator from '@mui/joy/ListItemDecorator';
+import { Typography } from '@mui/joy';
 
 type SearchBarProps = {
   nodes: SerializedNode[];
@@ -16,6 +17,8 @@ type SearchBarProps = {
 type Option = {
   key: string;
   label: string;
+  nbaType: 'player' | 'team' | 'franchise';
+  years?: string;
   image: {
     src: string;
     crop: {
@@ -70,6 +73,8 @@ const SearchBar = ({nodes}: SearchBarProps) => {
   const options = nodes.map((node) => ({
     key: node.key,
     label: node.attributes?.label as string,
+    nbaType: node.attributes?.nbaType as 'player' | 'team' | 'franchise',
+    years: node.attributes?.years as string,
     image: node.attributes?.image ? {
       src: node.attributes.image as string,
       crop: node.attributes.crop as { x: number, y: number },
@@ -95,7 +100,13 @@ const SearchBar = ({nodes}: SearchBarProps) => {
               </Box>
             </ListItemDecorator>
             <ListItemContent sx={{ fontSize: 'md', ml: 1 }}>
-              {option.label}
+              {option.nbaType === 'team' ? option.label : null}
+              {option.nbaType !== 'team' ? option.label : null}
+              <Typography level="body-xs">
+                {option.nbaType === 'team' ? <Typography level="body-xs" variant="soft">Team</Typography> : null}
+                {option.nbaType === 'franchise' ? <Typography level="body-xs" variant="soft">Franchise</Typography> : null}
+                {option.nbaType === 'player' ? <Typography level="body-xs">{option.years}</Typography> : null}
+              </Typography>
             </ListItemContent>
           </AutocompleteOption>
         )}

@@ -2,7 +2,7 @@ import Graph, { DirectedGraph } from "graphology";
 import { circular } from "graphology-layout";
 import forceAtlas2 from "graphology-layout-forceatlas2";
 
-import { NBAData, NBAType, Player, PlayerSeason, Team } from "../../shared/nba-types";
+import { Franchise, NBAData, NBAType, Team } from "../../shared/nba-types";
 import { EmptyObject, SelectionMap, SpriteNodeAttributes } from "../../shared/types";
 import { assets } from "../util/assets";
 import { GraphConfig } from "./config";
@@ -21,112 +21,109 @@ import { GraphConfig } from "./config";
 // [pic] Denver Nuggets (franchise)
 //       1985-present / NBA
 
-export const buildGraph = (data: NBAData, config: GraphConfig, imgLocations: {typ: NBAType, map: SelectionMap}[]): Graph => {
+type ImageLocations = {
+  [NBAType.PLAYER]: SelectionMap;
+  [NBAType.TEAM]: SelectionMap;
+  [NBAType.FRANCHISE]: SelectionMap;
+};
+
+type BaseNodeAttributes = {
+  nbaType: NBAType;
+  color: string;
+  size: number;
+  label: string;
+} & (SpriteNodeAttributes | EmptyObject);
+
+type PlayerNodeAttributes = BaseNodeAttributes & {
+  nbaType: NBAType.PLAYER;
+  years: string;
+};
+
+type FranchiseNodeAttributes = BaseNodeAttributes & {
+  nbaType: NBAType.FRANCHISE;
+};
+
+type TeamNodeAttributes = BaseNodeAttributes & {
+  nbaType: NBAType.TEAM;
+};
+
+export const buildGraph = (data: NBAData, config: GraphConfig, imgLocations: ImageLocations): Graph => {
   console.log('Building graph');
   const graph = new DirectedGraph();
 
-  let teams: Team[] = config.startYear ? data.teams.filter(team => team.year >= (config.startYear as number)) : data.teams;
-  teams = config.endYear ? teams.filter(team => team.year <= (config.endYear as number)) : teams;
-  
-  const franchiseIdMap: {[key: string]: boolean} = teams.reduce((acc, team) => ({...acc, [team.franchiseId]: true}), {});
-  const franchises = data.franchises.filter(franchise => franchiseIdMap[franchise.id]);
-
-  const playerTeamsByTeamId: Record<string, PlayerSeason[]> = data.playerSeasons.reduce((accum: Record<string, PlayerSeason[]>, pt: PlayerSeason) => {
-    const prev = accum[pt.teamId] ?? [];
-    
-    accum[pt.teamId] = [...prev, pt];
-
-    return accum;
-  }, {});
-
-  const playerTeams: PlayerSeason[] = teams.map(team => {
-    const res: PlayerSeason[] | undefined = playerTeamsByTeamId[team.id];
-
-    if (!res) throw new Error(`Unexpected access error: unable to find player teams for team: ${team.id}`);
-
-    return res;
-  }).flat();
-
-  const playersById: Record<string, Player> = data.players.reduce((accum: Record<string, Player>, player: Player) => {
-    accum[player.id] = player;
-    return accum;
-  }, {});
-
-  const players: Player[] = playerTeams.map(pt => {
-    const res = playersById[pt.playerId];
-
-    if (!res) throw new Error(`Unexpected access error: unable to find player for player team: ${pt.playerId}`);
-
-    return res;
-  });
+  const startYear = config.startYear ?? 0; 
+  const endYear = config.endYear ?? Infinity;
+  const teams: Team[] = data.teams.filter(({year}) => year >= startYear && year <= endYear);
 
   const playerSprite = assets.img.playerSprite();
-  const playerLocations = imgLocations.find(({typ}) => typ === NBAType.PLAYER)?.map;
-  if (!playerLocations) throw new Error('Unable to find player locations in image locations');
-
-  players.forEach(player => {
-    // kind of a hack around shitty data...
-    // really need to filter in playerTeams to remove dupes
-    if (!graph.hasNode(player.id)) {
-      const size = player.seasons < 2 ? config.sizes.playerMin : config.sizes.playerDefault;
-
-      const playerLocation = playerLocations[player.id];
-      
-      let imgProps: SpriteNodeAttributes | EmptyObject = {};
-  
-      if (playerLocation) {
-        imgProps = {type: 'sprite', image: playerSprite, crop: playerLocation};
-      }
-
-      graph.addNode(player.id, {
-        size, 
-        label: player.name, 
-        nbaType: NBAType.PLAYER,
-        color: config.colors.player, 
-        ...imgProps, 
-      });
-    } else {
-      console.log(`Skipping duplicate player: ${player.name}, ${player.id}}`);
-    }
-  });
-  
-  const teamLocations = imgLocations.find(({typ}) => typ === NBAType.TEAM)?.map;
-  const franchiseLocations = imgLocations.find(({typ}) => typ === NBAType.FRANCHISE)?.map;
-  if (!teamLocations || !franchiseLocations) throw new Error('Unable to find team or franchise locations in image locations');
-
   const teamSprite = assets.img.teamSprite();
   const franchiseSprite = assets.img.franchiseSprite();
 
-  if (config.includeFranchises) {
-    franchises.forEach(franchise => {
-      const franchiseLocation = franchiseLocations[franchise.id];
-      
-      const imgProps: SpriteNodeAttributes | EmptyObject = franchiseLocation
-        ? {type: 'sprite', image: franchiseSprite, crop: franchiseLocation}
-        : {};
-      
-      graph.addNode(franchise.id, { 
-        size: config.sizes.franchise, 
-        label: franchise.name, 
-        nbaType: NBAType.FRANCHISE,
-        color: config.colors.franchise, 
-        ...imgProps, 
-      });
-    });
-  }
+  const playerImgLocations = imgLocations[NBAType.PLAYER];
+  const teamImgLocations = imgLocations[NBAType.TEAM];
+  const franchiseImgLocations = imgLocations[NBAType.FRANCHISE];
+
+  const playerYearsActive: {[playerId: string]: number[]} = data.playerSeasons.reduce<{[playerId: string]: number[]}>((acc, {playerId, year}) => {
+    const prev = acc[playerId] ?? [];
+
+    prev.push(year);
+    acc[playerId] = prev;
+
+    return acc;
+  }, {});
+
+  data.players.forEach(player => {
+    // TODO: more sophisticated size calculation, using seasons, awards, etc.
+    const yearsActive = playerYearsActive[player.id];
+    if (!yearsActive) throw new Error(`Unexpected error: no years active for player ${player.name}`);
+    const size = yearsActive.length < 2 ? config.sizes.playerMin : config.sizes.playerDefault;
+
+    const imgCoords = playerImgLocations[player.id];
+    
+    const imgProps: SpriteNodeAttributes | EmptyObject = imgCoords 
+      ? {type: 'sprite', image: playerSprite, crop: imgCoords}
+      : {};
+
+    graph.addNode(player.id, {
+      size, 
+      label: player.name, 
+      nbaType: NBAType.PLAYER,
+      years: `${Math.min(...yearsActive) - 1}-${Math.max(...yearsActive)}`,
+      color: config.colors.player, 
+      ...imgProps, 
+    } as PlayerNodeAttributes);
+  });
+  
+  data.franchises.forEach(franchise => {
+    const imgCoords = franchiseImgLocations[franchise.id];
+    
+    const imgProps: SpriteNodeAttributes | EmptyObject = imgCoords
+      ? {type: 'sprite', image: franchiseSprite, crop: imgCoords}
+      : {};
+    
+    graph.addNode(franchise.id, { 
+      size: config.sizes.franchise, 
+      label: franchise.name, 
+      nbaType: NBAType.FRANCHISE,
+      color: config.colors.franchise, 
+      ...imgProps, 
+    } as FranchiseNodeAttributes);
+  });
+
 
   teams.forEach(team => {
-    const label = `${team.name} (${team.year})`;
+    // 2023 => 2022-23
+    const label = `${team.name} (${team.year - 1}-${team.year.toString().slice(2)})`;
 
-    const teamLocation = teamLocations[team.id];
-    const franchiseLocation = franchiseLocations[team.franchiseId];
+    const imgCoords = teamImgLocations[team.id];
+    const fallbackImgCoords = franchiseImgLocations[team.franchiseId];
     
     let imgProps: SpriteNodeAttributes | EmptyObject = {};
 
-    if (teamLocation && config.useYearSpecificTeamLogos) {
-      imgProps = {type: 'sprite', image: teamSprite, crop: teamLocation};
-    } else if (franchiseLocation) {
-      imgProps = {type: 'sprite', image: franchiseSprite, crop: franchiseLocation};
+    if (imgCoords) {
+      imgProps = {type: 'sprite', image: teamSprite, crop: imgCoords};
+    } else if (fallbackImgCoords) {
+      imgProps = {type: 'sprite', image: franchiseSprite, crop: fallbackImgCoords};
     }
     // TODO: should default to some generic pic if no franchise sprite is found
   
@@ -136,43 +133,41 @@ export const buildGraph = (data: NBAData, config: GraphConfig, imgLocations: {ty
       nbaType: NBAType.TEAM,
       color: config.colors.team, 
       ...imgProps,
-    });
+    } as TeamNodeAttributes);
   });
 
   // TODO: edge labels not used yet
   // maybe useful for advanced filters later, but probably should remove for now to reduce size
-  playerTeams.forEach(pt => {
-    graph.addEdge(pt.playerId, pt.teamId, {label: 'played_on'});
+  data.playerSeasons.forEach(pt => {
+    // graph.addEdge(pt.playerId, pt.teamId, {label: 'played_on'});
+    graph.addEdge(pt.playerId, pt.teamId);
   });
 
-  if (config.includeFranchises) {
-    teams.forEach(team => {
-      graph.addEdge(team.id, team.franchiseId, {label: 'season_of'});
-    });
-  }
+  teams.forEach(team => {
+    // graph.addEdge(team.id, team.franchiseId, {label: 'season_of'});
+    graph.addEdge(team.id, team.franchiseId);
+  });
 
-  if (config.assignLocations) {
-    console.log('Assigning locations');
-    circular.assign(graph);
-  
-    // This call takes a little while...
-    const settings = forceAtlas2.inferSettings(graph);
-    console.log('infered settings', forceAtlas2.inferSettings(graph));
-    // => 
-    // const settings = {
-    //   barnesHutOptimize: true,
-    //   strongGravityMode: true,
-    //   gravity: 0.05,
-    //   scalingRatio: 10,
-    //   slowDown: 9.031385330625534
-    // };
+  console.log('Assigning locations');
+  circular.assign(graph);
+
+  // This call takes a little while...
+  const settings = forceAtlas2.inferSettings(graph);
+  console.log('infered settings', forceAtlas2.inferSettings(graph));
+  // => 
+  // const settings = {
+  //   barnesHutOptimize: true,
+  //   strongGravityMode: true,
+  //   gravity: 0.05,
+  //   scalingRatio: 10,
+  //   slowDown: 9.031385330625534
+  // };
 
 
-    forceAtlas2.assign(graph, {
-      iterations: 100,
-      settings,
-    });
-  }
+  forceAtlas2.assign(graph, {
+    iterations: 100,
+    settings,
+  });
 
   console.log('Done!');
   return graph;
