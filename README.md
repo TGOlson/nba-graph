@@ -114,6 +114,7 @@ The output graph data is stored in `./data/graph/graph.json`. The graph is built
   * ~~test moving neighbors in a circle around selected node (and keeping them there... animation?)~~
   * views (roster view, teammate view, something else?)
   * try to improve sprite generation, some heads are off center?
+  * compress graph json?
 * small cleanups
   * sort by last name in search bar
 * deploy
