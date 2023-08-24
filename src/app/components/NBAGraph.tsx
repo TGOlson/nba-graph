@@ -7,6 +7,7 @@ import "@react-sigma/core/lib/react-sigma.min.css";
 
 import { GraphData } from '../api';
 import makeNodeSpriteProgram from '../program/node-sprite';
+import makeNodeSpriteProgramTri from '../program/node-sprite-tri';
 import { Sprite } from '../util/image';
 
 import GraphEvents from './GraphEventHandler';
@@ -59,12 +60,13 @@ const NBAGraph = (props: DisplayGraphProps) => {
     // edgeReducer: null,
 
     // Features
-    // zIndex: true,
+    zIndex: true,
     minCameraRatio: 0.05,
     maxCameraRatio: 1.5,
     
     nodeProgramClasses: {
-      sprite: makeNodeSpriteProgram(props.sprite),
+      // sprite: makeNodeSpriteProgram(props.sprite),
+      sprite: makeNodeSpriteProgramTri(props.sprite),
     },
   };
 
