@@ -47,7 +47,7 @@ export default function makeNodeSpriteProgramTri(sprite: {offsets: {[key: string
 texture: WebGLTexture;
     textureLocation: GLint;
     atlasLocation: WebGLUniformLocation;
-    sqrtZoomRatioLocation: WebGLUniformLocation;
+    // sqrtZoomRatioLocation: WebGLUniformLocation;
     correctionRatioLocation: WebGLUniformLocation;
     angleLocation: GLint;
     borderColorLocation: GLint;
@@ -66,9 +66,9 @@ texture: WebGLTexture;
       if (atlasLocation === null) throw new Error("NodeProgramImage: error while getting atlasLocation");
       this.atlasLocation = atlasLocation;
 
-      const sqrtZoomRatioLocation = gl.getUniformLocation(this.program, "u_sqrtZoomRatio");
-      if (sqrtZoomRatioLocation === null) throw new Error("NodeProgram: error while getting sqrtZoomRatioLocation");
-      this.sqrtZoomRatioLocation = sqrtZoomRatioLocation;
+      // const sqrtZoomRatioLocation = gl.getUniformLocation(this.program, "u_sqrtZoomRatio");
+      // if (sqrtZoomRatioLocation === null) throw new Error("NodeProgram: error while getting sqrtZoomRatioLocation");
+      // this.sqrtZoomRatioLocation = sqrtZoomRatioLocation;
 
       const correctionRatioLocation = gl.getUniformLocation(this.program, "u_correctionRatio");
       if (correctionRatioLocation === null) throw new Error("NodeProgram: error while getting correctionRatioLocation");
@@ -199,7 +199,7 @@ texture: WebGLTexture;
       //gl.uniform1f(this.ratioLocation, 1 / params.ratio);
       gl.uniform1f(this.scaleLocation, params.scalingRatio);
       gl.uniform1f(this.correctionRatioLocation, params.correctionRatio);
-      gl.uniform1f(this.sqrtZoomRatioLocation, Math.sqrt(params.ratio));
+      // gl.uniform1f(this.sqrtZoomRatioLocation, Math.sqrt(params.ratio));
       gl.uniformMatrix3fv(this.matrixLocation, false, params.matrix);
       gl.uniform1i(this.atlasLocation, 0);
 
