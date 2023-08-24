@@ -44,12 +44,7 @@ export default function makeNodeSpriteProgramTri(sprite: {offsets: {[key: string
   console.log('Texture image array size:', textureImage.data.length / 4, 'bytes', `(${(textureImage.data.length / 4 / 1024 / 1024).toFixed(1)}MB)`);
 
   return class NodeImageProgram extends AbstractNodeProgram {
-    // texture: WebGLTexture;
-    // textureLocation: GLint;
-    // atlasLocation: WebGLUniformLocation;
-    // latestRenderParams?: RenderParams;
-
-    texture: WebGLTexture;
+texture: WebGLTexture;
     textureLocation: GLint;
     atlasLocation: WebGLUniformLocation;
     sqrtZoomRatioLocation: WebGLUniformLocation;
@@ -60,13 +55,6 @@ export default function makeNodeSpriteProgramTri(sprite: {offsets: {[key: string
 
     constructor(gl: WebGLRenderingContext, _renderer: Sigma) {
       super(gl, VERTEX_SHADER_GLSL, FRAGMENT_SHADER_GLSL, POINTS, ATTRIBUTES);
-
-      // rebindTextureFns.push(() => {
-      //   if (this && this.rebindTexture) this.rebindTexture();
-      //   if (renderer && renderer.refresh) renderer.refresh();
-      // });
-
-      // textureImage = new ImageData(1, 1);
 
       // Attribute Location
       this.textureLocation = gl.getAttribLocation(this.program, "a_texture");
@@ -89,13 +77,7 @@ export default function makeNodeSpriteProgramTri(sprite: {offsets: {[key: string
       // Initialize WebGL texture:
       this.texture = gl.createTexture() as WebGLTexture;
       gl.bindTexture(gl.TEXTURE_2D, this.texture);
-      // gl.bindTexture(gl.TEXTURE_2D, this.texture);
-      // gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([0, 0, 0, 0]));
       
-      // gl.generateMipmap(gl.TEXTURE_2D);
-      // use texture wrapping for debugging only
-      //gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-      //gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
       gl.enableVertexAttribArray(this.textureLocation);
       gl.enableVertexAttribArray(this.angleLocation);
       gl.enableVertexAttribArray(this.borderColorLocation);
@@ -130,44 +112,7 @@ export default function makeNodeSpriteProgramTri(sprite: {offsets: {[key: string
       gl.generateMipmap(gl.TEXTURE_2D);
     }
 
-    // bind(): void {
-    //   console.log('binding');
-    //   super.bind();
-
-    //   const gl = this.gl;
-
-    //   gl.enableVertexAttribArray(this.textureLocation);
-    //   gl.enableVertexAttribArray(this.angleLocation);
-    //   gl.enableVertexAttribArray(this.borderColorLocation);
-
-    //   gl.vertexAttribPointer(
-    //     this.textureLocation,
-    //     3,
-    //     gl.FLOAT,
-    //     false,
-    //     this.attributes * Float32Array.BYTES_PER_ELEMENT,
-    //     16,
-    //   );
-    //   gl.vertexAttribPointer(
-    //     this.angleLocation,
-    //     1,
-    //     gl.FLOAT,
-    //     false,
-    //     this.attributes * Float32Array.BYTES_PER_ELEMENT,
-    //     28,
-    //   );
-    //   gl.vertexAttribPointer(
-    //     this.borderColorLocation,
-    //     4,
-    //     gl.UNSIGNED_BYTE,
-    //     true,
-    //     this.attributes * Float32Array.BYTES_PER_ELEMENT,
-    //     32,
-    //   );
-    // }
-
     process(data: NodeDisplayData & SpriteNodeAttributes, hidden: boolean, offset: number): void {
-      // console.log('processing');
       const array = this.array;
       let i = offset * POINTS * ATTRIBUTES;
 
@@ -238,33 +183,10 @@ export default function makeNodeSpriteProgramTri(sprite: {offsets: {[key: string
       array[i++] = 1;
       array[i++] = ANGLE_3;
       array[i++] = borderColor;
-
-      // old ... //
-
-      // array[i++] = data.x;
-      // array[i++] = data.y;
-      // array[i++] = data.size;
-      // array[i++] = floatColor(data.color);
-
-      // const { width, height } = textureImage;
-      // const crop = data.crop;
-
-      // if (!crop) throw new Error(`Unexpected no crop coords for node: ${JSON.stringify(data)}`);
-      // if (!data.image) throw new Error(`Unexpected no image url for node: ${JSON.stringify(data)}`);
-      
-      // const spriteOffset = sprite.offsets[data.image];
-      // if (!spriteOffset) throw new Error(`Unexpected no sprite offset for node: ${JSON.stringify(data)}`);
-
-      // array[i++] = (crop.x + spriteOffset.x) / width;
-      // array[i++] = (crop.y + spriteOffset.y) / height;
-      // array[i++] = crop.width / width;
-      // array[i++] = crop.height / height;
     }
 
     render(params: RenderParams): void {
-      console.log('render');
       if (this.hasNothingToRender()) return;
-      console.log('render step 2');
 
       this.latestRenderParams = params;
 
@@ -283,21 +205,5 @@ export default function makeNodeSpriteProgramTri(sprite: {offsets: {[key: string
 
       gl.drawArrays(gl.TRIANGLES, 0, this.array.length / ATTRIBUTES);
     }
-
-    // rebindTexture() {
-    //   console.log('rebinding texture');
-    //   const gl = this.gl;
-
-    //   gl.bindTexture(gl.TEXTURE_2D, this.texture);
-    //   gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, textureImage);
-    //   gl.generateMipmap(gl.TEXTURE_2D);
-
-    //   if (this.latestRenderParams) {
-    //     console.log('Re-rendering', this.latestRenderParams)
-    //     this.bind();
-    //     this.bufferData();
-    //     this.render(this.latestRenderParams);
-    //   }
-    // }
   };
 }
