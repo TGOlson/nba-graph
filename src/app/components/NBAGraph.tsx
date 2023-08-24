@@ -40,7 +40,7 @@ const NBAGraph = (props: DisplayGraphProps) => {
     defaultEdgeColor: "#bbb",
     // defaultEdgeType: "line",
     // labelFont: "Arial",
-    labelSize: 14,
+    labelSize: 12,
     // labelWeight: "normal",
     // labelColor: { color: "#000" },
     // edgeLabelFont: "Arial",
@@ -59,7 +59,7 @@ const NBAGraph = (props: DisplayGraphProps) => {
     // edgeReducer: null,
 
     // Features
-    zIndex: true,
+    // zIndex: true,
     minCameraRatio: 0.05,
     maxCameraRatio: 1.5,
     

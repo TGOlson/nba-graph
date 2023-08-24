@@ -37,11 +37,11 @@ const getOptionImage = (option: Option) => {
     <Box sx={{
       p: 0,
       m: 0,
-      transform: 'scale(0.45)',
+      transform: 'scale(0.55)',
       transformOrigin: 'left top',
       borderRadius: '50%',
-      width: '90px',
-      height: '90px',
+      width: '75px',
+      height: '75px',
       background: `url(${option.image.src}) ${getPosition(option.image.crop)}`,
     }}/>
   );

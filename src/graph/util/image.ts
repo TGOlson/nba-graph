@@ -6,7 +6,7 @@ import {createSprite, ImageSource, Sprite} from 'quick-sprite';
 
 const DEFAULT_QUALITY = 30;
 const MAX_WIDTH = 3072;
-const DEFAULT_SIZE = 90;
+const DEFAULT_SIZE = 75;
 
 export async function convertToBW(inputPath: string, outputPath: string): Promise<void> {
   const image = await Jimp.read(inputPath);

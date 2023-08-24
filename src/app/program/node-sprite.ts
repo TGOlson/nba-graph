@@ -13,6 +13,11 @@ import { SpriteNodeAttributes } from '../../shared/types';
 const POINTS = 1;
 const ATTRIBUTES = 8;
 
+// NOTE: this program uses GL.POINTS to render, so the scaling is confined by gl.ALIASED_POINT_SIZE_RANGE
+// (see: https://github.com/jacomyal/sigma.js/issues/1198)
+// 
+// TODO: convert to trianges to allow for larger scaling (this will be quite a complex change)
+// => https://github.com/jacomyal/sigma.js/pull/1206/files#diff-dcd59c129b10e8a7369ea98a6d576d8a40fbf150e06ca94e5177ee4e531a4987
 export default function makeNodeSpriteProgram(sprite: {offsets: {[key: string]: Coordinates}, img: ImageData}) {
   const textureImage = sprite.img;
 
