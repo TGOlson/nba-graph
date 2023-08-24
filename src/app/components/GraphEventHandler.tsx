@@ -1,16 +1,10 @@
 import { useEffect, useState } from 'react';
+
 import { EventHandlers, useCamera } from "@react-sigma/core";
 import { useSigma, useRegisterEvents, useSetSettings } from "@react-sigma/core";
 import { Attributes } from 'graphology-types';
-import { animateNodes } from 'sigma/utils/animate';
-import Graph from 'graphology';
-import { circular } from 'graphology-layout';
 
-type Props = {
-  moveNeighborsOnClick?: boolean;
-};
-
-const GraphEvents = ({moveNeighborsOnClick = false}: Props) => {
+const GraphEvents = () => {
   const sigma = useSigma();
   (window as any).sigma = sigma; // eslint-disable-line
 
@@ -55,34 +49,6 @@ const GraphEvents = ({moveNeighborsOnClick = false}: Props) => {
         // if a neighbor of selected or hovered, emphasize node
         // only emphasize on hover is there is no selected node
         if ((selectedNode && graph.neighbors(selectedNode).includes(node) || (hoveredNode && !selectedNode && graph.neighbors(hoveredNode).includes(node)))) {
-          // note: after a lot of testing, moving neighbors on click is more intrusive than useful
-          // instead focus on better highlightning and canvas adjustments to bring selected+neighbors into focus
-          if (moveNeighborsOnClick) {
-            const neighbors = graph.neighbors(selectedNode);
-
-            const tempGraph = new Graph();
-            neighbors.forEach(n => tempGraph.addNode(n));
-
-            const positions = circular(tempGraph, { scale: sigma.getCamera().ratio * 2000 });
-
-            const { x: baseX, y: baseY } = graph.getNodeAttributes(selectedNode);
-            const pos = positions[node];
-
-            if (!pos) throw new Error('Unexpected access error');
-            
-            const currX = pos.x;
-            const currY = pos.y;
-            
-            if (currX === undefined || currY === undefined) throw new Error('Unexpected access error');
-            
-            const newX = currX + (baseX as number);
-            const newY = currY + (baseY as number);
-
-            animateNodes(graph, {[node]: {x: newX, y: newY}}, { duration: 75 });
-            graph.updateNodeAttribute(node, 'x', () => newX);
-            graph.updateNodeAttribute(node, 'y', () => newY);
-          }
-
           return { 
             ...data, 
             highlighted: true,
@@ -91,9 +57,9 @@ const GraphEvents = ({moveNeighborsOnClick = false}: Props) => {
         }
 
         // if current reducer node is selected or hovered, apply styles
-        if (nodeIsSelected && nodeIsHovered) return { ...data, highlighted: true, size: 7 };
-        if (nodeIsSelected) return { ...data, highlighted: true, size: 6 };
-        if (nodeIsHovered) return { ...data, highlighted: true, size: (data.size as number) + 1 };
+        if (nodeIsSelected && nodeIsHovered) return { ...data, highlighted: true, size: data.size as number + 2};
+        if (nodeIsSelected) return { ...data, highlighted: true, size: data.size as number + 1};
+        if (nodeIsHovered) return { ...data, highlighted: true, size: data.size as number + 1};
         
         // if (hoveredNode && graph.neighbors(hoveredNode).includes(node)) return { ...data, highlighted: true };
 

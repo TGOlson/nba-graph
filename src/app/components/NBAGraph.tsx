@@ -25,18 +25,44 @@ const NBAGraph = (props: DisplayGraphProps) => {
   // availble options:
   // https://github.com/jacomyal/sigma.js/blob/154408adf4d5df12df88b8d137609327c99fada8/src/settings.ts
   const settings: Partial<Settings> = {
-    zIndex: true,
-    // renderEdgeLabels: true,
-    // edgeLabelSize: 10,
-    // edgeLabelColor: { color: "#000" },
-    defaultEdgeColor: '#bbb',
-    labelDensity: 0.07,
-    labelGridCellSize: 60,
+    // Performance
+    // hideEdgesOnMove: false,
+    // hideLabelsOnMove: false,
+    // renderLabels: true,
+    // renderEdgeLabels: false,
+    // enableEdgeClickEvents: false,
+    // enableEdgeWheelEvents: false,
+    // enableEdgeHoverEvents: false,
+
+    // Component rendering
+    // defaultNodeColor: "#999",
+    // defaultNodeType: "circle",
+    defaultEdgeColor: "#bbb",
+    // defaultEdgeType: "line",
+    // labelFont: "Arial",
+    labelSize: 14,
+    // labelWeight: "normal",
+    // labelColor: { color: "#000" },
+    // edgeLabelFont: "Arial",
+    // edgeLabelSize: 14,
+    // edgeLabelWeight: "normal",
+    // edgeLabelColor: { attribute: "color" },
+    // stagePadding: 30,
+
+    // Labels
+    labelDensity: 0.08,
+    labelGridCellSize: 200,
     labelRenderedSizeThreshold: 10,
-    labelSize: 12,
-    labelWeight: 'light',
+
+    // Reducers
+    // nodeReducer: null,
+    // edgeReducer: null,
+
+    // Features
+    zIndex: true,
     minCameraRatio: 0.05,
     maxCameraRatio: 1.5,
+    
     nodeProgramClasses: {
       sprite: makeNodeSpriteProgram(props.sprite),
     },
