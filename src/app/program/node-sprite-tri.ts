@@ -136,7 +136,7 @@ texture: WebGLTexture;
       }
 
       const color = floatColor(data.color);
-      const borderColor = floatColor(data.color);
+      const borderColor = floatColor('#fff');
       const { width, height } = textureImage;
 
       const crop = data.crop;

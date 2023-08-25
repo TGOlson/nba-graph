@@ -23,16 +23,17 @@ type DisplayGraphProps = {
 
 const NBAGraph = (props: DisplayGraphProps) => {
   const graph = new Graph();
+  graph.import(props.data);
 
-  const nodes = props.data.nodes.map((node) => {
-    node.attributes = node.attributes || {};
-    node.attributes.type = 'image';
-    node.attributes.image = 'http://localhost:3000/assets/img/player/curryst01.jpg';
+  // const nodes = props.data.nodes.map((node) => {
+  //   node.attributes = node.attributes || {};
+  //   node.attributes.type = 'image';
+  //   node.attributes.image = 'http://localhost:3000/assets/img/player/curryst01.jpg';
 
-    return node;
-  });
+  //   return node;
+  // });
 
-  graph.import({nodes});
+  // graph.import({nodes});
 
   // availble options:
   // https://github.com/jacomyal/sigma.js/blob/154408adf4d5df12df88b8d137609327c99fada8/src/settings.ts
@@ -51,9 +52,9 @@ const NBAGraph = (props: DisplayGraphProps) => {
     defaultNodeType: "sprite",
     defaultEdgeColor: "#bbb",
     // defaultEdgeType: "line",
-    // labelFont: "Arial",
-    labelSize: 12,
-    labelFont: "DIN Next ",
+    labelFont: "Arial",
+    labelSize: 14,
+    // labelFont: "DIN Next ",
     // labelWeight: "normal",
     // labelColor: { color: "#000" },
     // edgeLabelFont: "Arial",
@@ -81,8 +82,8 @@ const NBAGraph = (props: DisplayGraphProps) => {
     
     nodeProgramClasses: {
       // sprite: makeNodeSpriteProgram(props.sprite),
-      // sprite: makeNodeSpriteProgramTri(props.sprite),
-      image: getNodeImageProgram(),
+      sprite: makeNodeSpriteProgramTri(props.sprite),
+      // image: getNodeImageProgram(),
     },
     // labelRenderer: drawLabel,
   };
@@ -103,7 +104,7 @@ const NBAGraph = (props: DisplayGraphProps) => {
 
   return (
     <SigmaContainer 
-      style={{ height: "100vh" }} 
+      style={{ height: "100vh", backgroundColor: "#f8f8f9" }} 
       graph={graph}
       settings={settings}
     >
