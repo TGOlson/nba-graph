@@ -24,15 +24,15 @@ type DisplayGraphProps = {
 const NBAGraph = (props: DisplayGraphProps) => {
   const graph = new Graph();
 
-  const nodes = props.data.nodes.map((node) => {
-    node.attributes = node.attributes || {};
-    node.attributes.type = 'image';
-    node.attributes.image = 'http://localhost:3000/assets/img/player/curryst01.jpg';
+  // const nodes = props.data.nodes.map((node) => {
+  //   node.attributes = node.attributes || {};
+  //   node.attributes.type = 'image';
+  //   node.attributes.image = 'http://localhost:3000/assets/img/player/curryst01.jpg';
 
-    return node;
-  });
+  //   return node;
+  // });
 
-  graph.import({nodes});
+  graph.import(props.data);
 
   // availble options:
   // https://github.com/jacomyal/sigma.js/blob/154408adf4d5df12df88b8d137609327c99fada8/src/settings.ts
@@ -82,7 +82,7 @@ const NBAGraph = (props: DisplayGraphProps) => {
     nodeProgramClasses: {
       // sprite: makeNodeSpriteProgram(props.sprite),
       sprite: makeNodeSpriteProgramTri(props.sprite),
-      image: getNodeImageProgram(),
+      // image: getNodeImageProgram(),
     },
     // labelRenderer: drawLabel,
   };
