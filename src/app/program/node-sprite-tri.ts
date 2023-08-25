@@ -47,7 +47,7 @@ export default function makeNodeSpriteProgramTri(sprite: {offsets: {[key: string
 texture: WebGLTexture;
     textureLocation: GLint;
     atlasLocation: WebGLUniformLocation;
-    // sqrtZoomRatioLocation: WebGLUniformLocation;
+    sqrtZoomRatioLocation: WebGLUniformLocation;
     correctionRatioLocation: WebGLUniformLocation;
     angleLocation: GLint;
     borderColorLocation: GLint;
@@ -66,9 +66,9 @@ texture: WebGLTexture;
       if (atlasLocation === null) throw new Error("NodeProgramImage: error while getting atlasLocation");
       this.atlasLocation = atlasLocation;
 
-      // const sqrtZoomRatioLocation = gl.getUniformLocation(this.program, "u_sqrtZoomRatio");
-      // if (sqrtZoomRatioLocation === null) throw new Error("NodeProgram: error while getting sqrtZoomRatioLocation");
-      // this.sqrtZoomRatioLocation = sqrtZoomRatioLocation;
+      const sqrtZoomRatioLocation = gl.getUniformLocation(this.program, "u_sqrtZoomRatio");
+      if (sqrtZoomRatioLocation === null) throw new Error("NodeProgram: error while getting sqrtZoomRatioLocation");
+      this.sqrtZoomRatioLocation = sqrtZoomRatioLocation;
 
       const correctionRatioLocation = gl.getUniformLocation(this.program, "u_correctionRatio");
       if (correctionRatioLocation === null) throw new Error("NodeProgram: error while getting correctionRatioLocation");
@@ -78,6 +78,8 @@ texture: WebGLTexture;
       this.texture = gl.createTexture() as WebGLTexture;
       gl.bindTexture(gl.TEXTURE_2D, this.texture);
       
+      // super.bind();
+
       gl.enableVertexAttribArray(this.textureLocation);
       gl.enableVertexAttribArray(this.angleLocation);
       gl.enableVertexAttribArray(this.borderColorLocation);
@@ -138,11 +140,16 @@ texture: WebGLTexture;
       const { width, height } = textureImage;
 
       const crop = data.crop;
-      if (!crop) throw new Error(`Unexpected no crop coords for node: ${JSON.stringify(data)}`);
-      if (!data.image) throw new Error(`Unexpected no image url for node: ${JSON.stringify(data)}`);
+      // if (!crop) throw new Error(`Unexpected no crop coords for node: ${JSON.stringify(data)}`);
+
+      const spriteOffset = () => {
+        if (!data.image) throw new Error(`Unexpected no image url for node: ${JSON.stringify(data)}`);
       
-      const spriteOffset = sprite.offsets[data.image];
-      if (!spriteOffset) throw new Error(`Unexpected no sprite offset for node: ${JSON.stringify(data)}`);
+        const spriteOffset = sprite.offsets[data.image];
+        if (!spriteOffset) throw new Error(`Unexpected no sprite offset for node: ${JSON.stringify(data)}`);
+
+        return spriteOffset;
+      };
 
       // POINT 1
       array[i++] = data.x;
@@ -152,9 +159,9 @@ texture: WebGLTexture;
       // ANGLE_1: center right UV coordinates
       // inscribing circle at (x,y): r=2/3*h, texture (0,0) is top-left
       // texture width is scaled by 2/3 from full triangle width -> uv *1.5
-      array[i++] = (crop.x + spriteOffset.x) / width + (1.5 * crop.width) / width;
-      array[i++] = (crop.y + spriteOffset.y) / height + (0.5 * crop.height) / height;
-      array[i++] = 1;
+      array[i++] = crop ? (crop.x + spriteOffset().x) / width + (1.5 * crop.width) / width : 0;
+      array[i++] = crop ? (crop.y + spriteOffset().y) / height + (0.5 * crop.height) / height: 0;
+      array[i++] = crop ? 1 : 0;
       array[i++] = ANGLE_1;
       array[i++] = borderColor;
 
@@ -166,9 +173,9 @@ texture: WebGLTexture;
       array[i++] = data.size;
       array[i++] = color;
       // ANGLE_2: top left UV coordinates
-      array[i++] = (crop.x + spriteOffset.x) / width;
-      array[i++] = (crop.y + spriteOffset.y) / height - (r * crop.height) / height;
-      array[i++] = 1;
+      array[i++] = crop ? (crop.x + spriteOffset().x) / width : 0;
+      array[i++] = crop ? (crop.y + spriteOffset().y) / height - (r * crop.height) / height : 0;
+      array[i++] = crop ? 1 : 0;
       array[i++] = ANGLE_2;
       array[i++] = borderColor;
 
@@ -178,9 +185,9 @@ texture: WebGLTexture;
       array[i++] = data.size;
       array[i++] = color;
       // ANGLE_3: bottom left UV coordinates
-      array[i++] = (crop.x + spriteOffset.x) / width;
-      array[i++] = (crop.y + spriteOffset.y) / height + (1 + r) * (crop.height / height);
-      array[i++] = 1;
+      array[i++] = crop ? (crop.x + spriteOffset().x) / width : 0;
+      array[i++] = crop ? (crop.y + spriteOffset().y) / height + (1 + r) * (crop.height / height) : 0;
+      array[i++] = crop ? 1 : 0;
       array[i++] = ANGLE_3;
       array[i++] = borderColor;
     }
@@ -195,11 +202,22 @@ texture: WebGLTexture;
       const program = this.program;
       gl.useProgram(program);
 
+      // console.log('params', params);
+      console.log('size', gl.getAttribLocation(program, "a_size"));
+      console.log('params.ratio (u_ratio)', params.ratio);
+      console.log('params.scalingRatio (u_scale)', params.scalingRatio);
+      console.log('params.correctionRatio', params.correctionRatio);
+      console.log('float size', gl.getAttribLocation(program, "a_size") * params.correctionRatio * (1.0 / params.ratio*params.ratio ) * 4.0);
+
+      console.log('gl_PointSize = u_correctionRatio * u_sqrtZoomRatio', params.correctionRatio * Math.sqrt(params.ratio));
+      console.log('gl_PointSize = a_size * u_ratio * u_scale * 2.0;', params.ratio * params.scalingRatio * 2.0);
+
+
       gl.uniform1f(this.ratioLocation, 1 / Math.sqrt(params.ratio));
       //gl.uniform1f(this.ratioLocation, 1 / params.ratio);
       gl.uniform1f(this.scaleLocation, params.scalingRatio);
       gl.uniform1f(this.correctionRatioLocation, params.correctionRatio);
-      // gl.uniform1f(this.sqrtZoomRatioLocation, Math.sqrt(params.ratio));
+      gl.uniform1f(this.sqrtZoomRatioLocation, Math.sqrt(params.ratio));
       gl.uniformMatrix3fv(this.matrixLocation, false, params.matrix);
       gl.uniform1i(this.atlasLocation, 0);
 

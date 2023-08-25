@@ -12,6 +12,7 @@ attribute vec4 a_borderColor;
 uniform float u_ratio;
 uniform float u_scale;
 uniform mat3 u_matrix;
+uniform float u_sqrtZoomRatio;
 uniform float u_correctionRatio;
 
 varying vec4 v_color;
@@ -29,7 +30,7 @@ const float border_width_factor = 1.105;
 const float border_soft_factor = 0.0005;
 
 void main() {
-  float size = a_size * u_correctionRatio * (1. / u_ratio*u_ratio ) * 4.0 * border_factor;
+  float size = a_size * u_correctionRatio * (1. / u_sqrtZoomRatio*u_sqrtZoomRatio ) * 4.0 * border_factor;
   // workaround to keep u_scale and u_ratio
   gl_PointSize = u_ratio * u_scale * 2.0;
 
