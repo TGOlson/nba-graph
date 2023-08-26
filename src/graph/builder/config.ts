@@ -19,9 +19,9 @@ export const GRAPH_CONFIG: GraphConfig = {
   startYear: null,
   endYear: 2023,
   sizes: {
-    franchise: 5,
-    team: 4,
-    playerMax: 4,
+    franchise: 8,
+    team: 5,
+    playerMax: 6,
     playerDefault: 3,
     playerMin: 2
   },

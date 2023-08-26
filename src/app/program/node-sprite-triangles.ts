@@ -1,5 +1,6 @@
 // Note: this is copied from https://github.com/jacomyal/sigma.js
-// But modified heavily to support sprites, with plenty of *hacky* performance optimizations
+// specifically a modified version of the node program to render using triangles for better resolution
+// => https://github.com/jacomyal/sigma.js/pull/1206/files#diff-dcd59c129b10e8a7369ea98a6d576d8a40fbf150e06ca94e5177ee4e531a4987
 
 import { Coordinates, NodeDisplayData } from 'sigma/types';
 import { floatColor } from 'sigma/utils';
@@ -7,37 +8,24 @@ import { AbstractNodeProgram } from 'sigma/rendering/webgl/programs/common/node'
 import { RenderParams } from 'sigma/rendering/webgl/programs/common/program';
 import Sigma from 'sigma';
 
-import { FRAGMENT_SHADER_GLSL, VERTEX_SHADER_GLSL } from './shaders-tri';
-import { SpriteNodeAttributes } from '../../shared/types';
+import { FRAGMENT_SHADER_GLSL, VERTEX_SHADER_GLSL } from './shaders-triangles';
+import { EmptyObject, SpriteNodeAttributes } from '../../shared/types';
 
-const POINTS = 3,
-  /*
-     atttributes sizing in floats:
-      - position (xy: 2xfloat)
-      - size (1xfloat)
-      - color (4xbyte => 1xfloat)
-      - uvw (3xfloat) - only pass width for square texture
-      - angle (1xfloat)
-      - borderColor (4xbyte = 1xfloat)
-   */
-  ATTRIBUTES = 9;
-  // maximum size of single texture in atlas
-  // MAX_TEXTURE_SIZE = 192,
-  // maximum width of atlas texture (limited by browser)
-  // low setting of 2048 works on iPads
-  // MAX_CANVAS_WIDTH = 2048;
+const POINTS = 3;
+  //  atttributes sizing in floats:
+  //   - position (xy: 2xfloat)
+  //   - size (1xfloat)
+  //   - color (4xbyte => 1xfloat)
+  //   - uvw (3xfloat) - only pass width for square texture
+  //   - angle (1xfloat)
+  //   - borderColor (4xbyte = 1xfloat)
+const ATTRIBUTES = 9;
 
-const ANGLE_1 = 0.0,
-  ANGLE_2 = (2 * Math.PI) / 3,
-  ANGLE_3 = (4 * Math.PI) / 3;
+const ANGLE_1 = 0.0;
+const ANGLE_2 = (2 * Math.PI) / 3;
+const ANGLE_3 = (4 * Math.PI) / 3;
 
-
-// NOTE: this program uses GL.POINTS to render, so the scaling is confined by gl.ALIASED_POINT_SIZE_RANGE
-// (see: https://github.com/jacomyal/sigma.js/issues/1198)
-// 
-// TODO: convert to trianges to allow for larger scaling (this will be quite a complex change)
-// => https://github.com/jacomyal/sigma.js/pull/1206/files#diff-dcd59c129b10e8a7369ea98a6d576d8a40fbf150e06ca94e5177ee4e531a4987
-export default function makeNodeSpriteProgramTri(sprite: {offsets: {[key: string]: Coordinates}, img: ImageData}) {
+export default function makeNodeSpriteProgramTriangles(sprite: {offsets: {[key: string]: Coordinates}, img: ImageData}) {
   const textureImage = sprite.img;
 
   console.log('Texture image array length:', textureImage.data.length, `(${textureImage.data.length / 1000/ 1000}M)`);
@@ -77,9 +65,6 @@ texture: WebGLTexture;
       // Initialize WebGL texture:
       this.texture = gl.createTexture() as WebGLTexture;
       gl.bindTexture(gl.TEXTURE_2D, this.texture);
-      
-      // super.bind();
-
       gl.enableVertexAttribArray(this.textureLocation);
       gl.enableVertexAttribArray(this.angleLocation);
       gl.enableVertexAttribArray(this.borderColorLocation);
@@ -109,12 +94,11 @@ texture: WebGLTexture;
         32,
       );
 
-
       gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, textureImage);
       gl.generateMipmap(gl.TEXTURE_2D);
     }
 
-    process(data: NodeDisplayData & SpriteNodeAttributes, hidden: boolean, offset: number): void {
+    process(data: NodeDisplayData & (SpriteNodeAttributes | EmptyObject), hidden: boolean, offset: number): void {
       const array = this.array;
       let i = offset * POINTS * ATTRIBUTES;
 
@@ -140,7 +124,6 @@ texture: WebGLTexture;
       const { width, height } = textureImage;
 
       const crop = data.crop;
-      // if (!crop) throw new Error(`Unexpected no crop coords for node: ${JSON.stringify(data)}`);
 
       const spriteOffset = () => {
         if (!data.image) throw new Error(`Unexpected no image url for node: ${JSON.stringify(data)}`);
@@ -202,19 +185,7 @@ texture: WebGLTexture;
       const program = this.program;
       gl.useProgram(program);
 
-      // console.log('params', params);
-      console.log('size', gl.getAttribLocation(program, "a_size"));
-      console.log('params.ratio (u_ratio)', params.ratio);
-      console.log('params.scalingRatio (u_scale)', params.scalingRatio);
-      console.log('params.correctionRatio', params.correctionRatio);
-      console.log('float size', gl.getAttribLocation(program, "a_size") * params.correctionRatio * (1.0 / params.ratio*params.ratio ) * 4.0);
-
-      console.log('gl_PointSize = u_correctionRatio * u_sqrtZoomRatio', params.correctionRatio * Math.sqrt(params.ratio));
-      console.log('gl_PointSize = a_size * u_ratio * u_scale * 2.0;', params.ratio * params.scalingRatio * 2.0);
-
-
       gl.uniform1f(this.ratioLocation, 1 / Math.sqrt(params.ratio));
-      //gl.uniform1f(this.ratioLocation, 1 / params.ratio);
       gl.uniform1f(this.scaleLocation, params.scalingRatio);
       gl.uniform1f(this.correctionRatioLocation, params.correctionRatio);
       gl.uniform1f(this.sqrtZoomRatioLocation, Math.sqrt(params.ratio));
