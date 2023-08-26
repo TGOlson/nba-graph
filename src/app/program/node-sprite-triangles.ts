@@ -166,7 +166,6 @@ texture: WebGLTexture;
       array[i++] = BORDER_COLOR;
       array[i++] = data.muted ? 1 : 0;
 
-
       // POINT 2
       array[i++] = data.x;
       array[i++] = data.y;

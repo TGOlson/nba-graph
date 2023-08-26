@@ -26,5 +26,5 @@ export const imgPath = (typ: NBAType, id: string, fileType: string) => path.reso
 
 // sprites 
 const SPRITE_PATH = path.resolve(ROOT_DIR, './sprites');
-export const spritePath = (typ: NBAType, muted = false) => path.resolve(SPRITE_PATH, `${typ.toString()}${muted ? '_muted' : ''}.png`);
+export const spritePath = (typ: NBAType) => path.resolve(SPRITE_PATH, `${typ.toString()}.png`);
 export const spriteMappingPath = (typ: NBAType) => path.resolve(SPRITE_PATH, `${typ.toString()}.mapping.json`);

@@ -13,12 +13,9 @@ import "./App.css";
 
 const fetchImages = (): Promise<HTMLImageElement[]> => {
   return Promise.all([
-    fetchImage('/assets/sprites/franchise_muted.png'),
     fetchImage('/assets/sprites/franchise.png'),
     fetchImage('/assets/sprites/team.png'),
-    fetchImage('/assets/sprites/team_muted.png'),
     fetchImage('/assets/sprites/player.png'),
-    fetchImage('/assets/sprites/player_muted.png'),
   ]);
 };
 

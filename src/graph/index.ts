@@ -16,8 +16,10 @@ import { GRAPH_CONFIG } from "./builder/config";
 
 import { makeDelayedFetch, makeFetch } from "./util/fetch";
 import { execSeq } from "./util/promise";
-import { convertToBW, createSpriteImage } from "./util/image";
+import { createSpriteImage, playerTransform, teamTransform } from "./util/image";
 import { NBAType } from "../shared/nba-types";
+
+import Jimp from "jimp";
 
 const VERBOSE_FETCH = true;
 const FETCH_DELAY_MS = 6000; // basketball-reference seems to get mad at >~30 req/m
@@ -202,30 +204,34 @@ async function main() {
 
     // *** misc commands
     case commands.misc.ConvertImages: {
-      const run = async (typ: NBAType) => {
-        const imagePath = spritePath(typ);
-        const imagePathMuted = spritePath(typ, true);
-        const mappingPath = spriteMappingPath(typ);
-        
-        console.log('building sprite for', typ);
-        
-        const dedupe = typ !== NBAType.PLAYER;
-        await createSpriteImage(imageDir(typ), imagePath, mappingPath, dedupe);
-        console.log('converting to black and white for ', typ);
-        return await convertToBW(imagePath, imagePathMuted);
-      };
-
-      return execSeq([
-        () => run(NBAType.FRANCHISE),
-        () => run(NBAType.TEAM),
-        // () => run(NBAType.PLAYER)
-      ]);
+      return await execSeq([
+        {typ: NBAType.FRANCHISE, transform: teamTransform},
+        {typ: NBAType.TEAM, transform: teamTransform},
+        {typ: NBAType.PLAYER, transform: playerTransform}
+      ].map(({typ, transform}) => 
+        () => {
+          console.log('Building sprite for: ', typ);
+          return createSpriteImage(imageDir(typ), spritePath(typ), spriteMappingPath(typ), transform);
+        }
+      ));
     }
 
     // for testing, debugging, etc
     case commands.misc.Test: {
-     console.log('Hello, test... : )');
+      const mn1 = await Jimp.read('data/img/team/MIN_1995.png');
+      const mn2 = await Jimp.read('data/img/team/MIN_1996.png');
 
+      const mn1Transform = teamTransform('MIN1', mn1);
+      const mn2Transform = teamTransform('MIN2', mn2);
+
+      // console.log('MN hash', mn.pHash());
+      // console.log('DEN hash', den.pHash());
+      // console.log(mn.pHash() === den.pHash());
+      // console.log('MN transform hash', mnTransform.pHash());
+      // console.log('DEN transform hash', denTransform.pHash());
+      // console.log(mnTransform.pHash() === denTransform.pHash());
+
+      console.log(Jimp.diff(mn1Transform, mn2Transform).percent);
       return;
     }
 

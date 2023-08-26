@@ -4,22 +4,37 @@ import path from 'path';
 import { persistJSON } from '../storage';
 import {createSprite, ImageSource, Sprite} from 'quick-sprite';
 
-const DEFAULT_QUALITY = 30;
 const MAX_WIDTH = 3072;
-const DEFAULT_SIZE = 180;
+const TEAM_IMAGE_SIZE = 180;
+const TEAM_PADDING = 60; // default size / 3
+const PLAYER_IMAGE_SIZE = 100;
 
-export async function convertToBW(inputPath: string, outputPath: string): Promise<void> {
-  const image = await Jimp.read(inputPath);
+// Note ***
+// Team and franchise photos are 120x120 squares.
+// Since they will be rendered within a circle, add extra padding so that none of the base image is clipped
+export const teamTransform = (_key: string, image: Jimp): Jimp => {
+  // Images will be rendered within circle on the resulting graph, so resize and crop to constant dimension
+  // make a new larger image with white background
+  const newImage = new Jimp(TEAM_IMAGE_SIZE, TEAM_IMAGE_SIZE, '#ffffff');
 
-  image
-    .quality(DEFAULT_QUALITY)
-    .greyscale()
-    .opacity(0.3)
-    .background(0xFAFAFA)
-    .write(outputPath);
-}
+  const croppedImage = image
+    .resize(TEAM_IMAGE_SIZE - TEAM_PADDING, Jimp.AUTO)
+    .crop(0, 0, TEAM_IMAGE_SIZE - TEAM_PADDING, TEAM_IMAGE_SIZE - TEAM_PADDING);
 
-export async function createSpriteImage(inputDir: string, imagePath: string, mappingPath: string, dedupe?: boolean): Promise<void> {
+  return newImage.composite(croppedImage, TEAM_PADDING / 2, TEAM_PADDING / 2);
+};
+
+// Note ***
+// Player images are 120x180 rectangles
+// Resize to 100px wide, then crop top 100x100 square
+// TODO: should try to any whitespace from top of image to better center faces
+export const playerTransform = (_key: string, image: Jimp): Jimp => {
+  return image
+  .resize(PLAYER_IMAGE_SIZE, Jimp.AUTO)
+  .crop(0, 0, PLAYER_IMAGE_SIZE, PLAYER_IMAGE_SIZE);
+};
+
+export async function createSpriteImage(inputDir: string, imagePath: string, mappingPath: string, transform?: (_key: string, image: Jimp) => Jimp): Promise<void> {
   const fileNames: string[] = await readdir(inputDir);
   const sources: ImageSource[] = fileNames.map(f => {
     const key = f.split('.')[0];
@@ -28,23 +43,10 @@ export async function createSpriteImage(inputDir: string, imagePath: string, map
     return {key, path: path.resolve(inputDir, f)};
   });
 
-  const transform = (_key: string, image: Jimp): Jimp => {
-    // Images will be rendered within circle on the resulting graph, so resize and crop to constant dimension
-
-    // make a new 90x90 image with white background
-    const newImage = new Jimp(DEFAULT_SIZE, DEFAULT_SIZE, '#ffffff');
-
-    const croppedImage = image
-      .resize(DEFAULT_SIZE - 60, Jimp.AUTO)
-      .crop(0, 0, DEFAULT_SIZE - 60, DEFAULT_SIZE - 60);
-
-    return newImage.composite(croppedImage, 30, 30);
-  };
-
   const {image, mapping}: Sprite = await createSprite(sources, {
     fillMode: 'row',
     maxWidth: MAX_WIDTH,
-    dedupe: dedupe,
+    dedupe: {diffPercent: 0.01},
     transform,
     debug: true,
   });

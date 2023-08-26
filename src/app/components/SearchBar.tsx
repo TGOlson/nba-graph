@@ -10,7 +10,7 @@ import ListItemContent from '@mui/joy/ListItemContent';
 import ListItemDecorator from '@mui/joy/ListItemDecorator';
 import Typography from '@mui/joy/Typography';
 
-import { BaseNodeAttributes } from '../../shared/types';
+import { BaseNodeAttributes, Selection } from '../../shared/types';
 
 type SearchBarProps = {
   nodes: SerializedNode[];
@@ -22,10 +22,7 @@ type Option = {
   subLabel: string;
   image: {
     src: string;
-    crop: {
-      x: number;
-      y: number;
-    };
+    crop: Selection;
   } | false | undefined;
 };
 
@@ -37,11 +34,11 @@ const getOptionImage = (option: Option) => {
     <Box sx={{
       p: 0,
       m: 0,
-      transform: 'scale(0.45)',
+      transform: `scale(${40 / option.image.crop.width})`,
       transformOrigin: 'left top',
       borderRadius: '50%',
-      width: '90px',
-      height: '90px',
+      width: `${option.image.crop.width}px`,
+      height: `${option.image.crop.height}px`,
       background: `url(${option.image.src}) ${getPosition(option.image.crop)}`,
     }}/>
   );
@@ -92,7 +89,7 @@ const SearchBar = ({nodes}: SearchBarProps) => {
       subLabel: getSubLabel(node),
       image: attrs.image ? {
         src: attrs.image,
-        crop: attrs.crop as { x: number, y: number },
+        crop: attrs.crop,
       } : undefined,
     };
   });
