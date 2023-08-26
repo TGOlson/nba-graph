@@ -96,7 +96,8 @@ void main(void) {
       // greyscale w/ alpha
       
       float gray = 0.21 * texel.r + 0.71 * texel.g + 0.07 * texel.b;
-      vec4 grayTexel = vec4(texel.rgb * 0.0 + gray, 0.7);
+      float opacity = 0.5;
+      vec4 grayTexel = vec4(texel.rgb * 0.0 + gray, opacity);
       color = vec4(mix(v_color, grayTexel, grayTexel.a).rgb, max(texel.a, v_color.a));
     } else {
       // normal

@@ -51,7 +51,7 @@
     "graphology-types": "^0.24.5",
     "jimp": "^0.22.10",
     "node-fetch": "^3.3.0",
-    "quick-sprite": "^0.0.8",
+    "quick-sprite": "^0.0.9",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "sigma": "^2.4.0",

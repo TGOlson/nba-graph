@@ -106,9 +106,9 @@ The output graph data is stored in `./data/graph/graph.json`. The graph is built
   * ~~improve / fix search to move to current node~~
   * ~~add years active / type to search results~~
   * ~~larger images (I think don't downside on sprite generation?)~~
+  * ~~improve node sizes~~
   * __placeholders for teams/players without images__
   * filters and advanced search
-  * improve node sizes
 * hacks
   * ~~test animations for force layout and other movements~~
   * ~~test moving neighbors in a circle around selected node (and keeping them there... animation?)~~
@@ -117,6 +117,8 @@ The output graph data is stored in `./data/graph/graph.json`. The graph is built
   * compress graph json?
 * small cleanups
   * sort by last name in search bar
+  * adjust player node size for awards
+  * search is a little laggy?
 * deploy
  * setup github page (TODO: where to store data?)
  * deploy assets to aws/cloudflair

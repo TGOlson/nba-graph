@@ -52,13 +52,13 @@ const GraphEvents = () => {
           return { 
             ...data, 
             highlighted: true,
-            size: data.size as number + (nodeIsHovered ? 2 : 1),
+            size: data.size as number + (nodeIsHovered ? 3 : 2),
           };
         }
 
         // if current reducer node is selected or hovered, apply styles
-        if (nodeIsSelected && nodeIsHovered) return { ...data, highlighted: true, size: data.size as number + 2};
-        if (nodeIsSelected) return { ...data, highlighted: true, size: data.size as number + 1};
+        if (nodeIsSelected && nodeIsHovered) return { ...data, highlighted: true, size: data.size as number + 5};
+        if (nodeIsSelected) return { ...data, highlighted: true, size: data.size as number + 4};
         if (nodeIsHovered) return { ...data, highlighted: true, size: data.size as number + 1};
 
         return {
