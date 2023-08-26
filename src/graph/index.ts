@@ -218,20 +218,42 @@ async function main() {
 
     // for testing, debugging, etc
     case commands.misc.Test: {
-      const mn1 = await Jimp.read('data/img/team/MIN_1995.png');
-      const mn2 = await Jimp.read('data/img/team/MIN_1996.png');
+      const white = {r: 255, g: 255, b: 255, a: 255};
+      const autocropWhiteTop = (img: Jimp): Jimp => {
+        const {width, height} = img.bitmap;
 
-      const mn1Transform = teamTransform('MIN1', mn1);
-      const mn2Transform = teamTransform('MIN2', mn2);
+        for (let y = 0; y < height; y++) {
+          for (let x = 0; x < width; x++) {
+            const pixel = Jimp.intToRGBA(img.getPixelColor(x, y));
+          
+            if (Jimp.colorDiff(pixel, white) > 0.001) {
+              const cropTop = y === 0 ? y : y - 1;
 
-      // console.log('MN hash', mn.pHash());
-      // console.log('DEN hash', den.pHash());
-      // console.log(mn.pHash() === den.pHash());
-      // console.log('MN transform hash', mnTransform.pHash());
-      // console.log('DEN transform hash', denTransform.pHash());
-      // console.log(mnTransform.pHash() === denTransform.pHash());
+              return img.crop(0, cropTop, width, height - cropTop);
+            }
+          }
+        }
 
-      console.log(Jimp.diff(mn1Transform, mn2Transform).percent);
+        return img;
+      };
+
+      const p = await Jimp.read('data/img/player/curryed01.jpg');
+
+
+      // await autocropWhiteTop(p).writeAsync('./curryed01-transformed.jpg');
+      // const res = playerTransform('p', p);
+      await p.autocrop({
+        cropOnlyFrames: false,
+        tolerance: 0.001,
+        leaveBorder: 5,
+        ignoreSides: {
+          north: false,
+          south: true,
+          east: true,
+          west: true,
+        }
+      }).writeAsync('./curryed01-transformed.jpg');
+      
       return;
     }
 

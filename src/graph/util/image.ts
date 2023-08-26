@@ -27,11 +27,20 @@ export const teamTransform = (_key: string, image: Jimp): Jimp => {
 // Note ***
 // Player images are 120x180 rectangles
 // Resize to 100px wide, then crop top 100x100 square
-// TODO: should try to any whitespace from top of image to better center faces
+// We could leave these larger, but player pictures don't need that much resolution, and this saves space
 export const playerTransform = (_key: string, image: Jimp): Jimp => {
-  return image
-  .resize(PLAYER_IMAGE_SIZE, Jimp.AUTO)
-  .crop(0, 0, PLAYER_IMAGE_SIZE, PLAYER_IMAGE_SIZE);
+  return image.autocrop({
+    cropOnlyFrames: false,
+    tolerance: 0.001,
+    leaveBorder: 5,
+    ignoreSides: {
+      north: false,
+      south: true,
+      east: true,
+      west: true,
+    }
+  }).resize(PLAYER_IMAGE_SIZE, Jimp.AUTO)
+    .crop(0, 0, PLAYER_IMAGE_SIZE, PLAYER_IMAGE_SIZE);
 };
 
 export async function createSpriteImage(inputDir: string, imagePath: string, mappingPath: string, transform?: (_key: string, image: Jimp) => Jimp): Promise<void> {
