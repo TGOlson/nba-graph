@@ -6,7 +6,7 @@ import {createSprite, ImageSource, Sprite} from 'quick-sprite';
 
 const DEFAULT_QUALITY = 30;
 const MAX_WIDTH = 3072;
-const DEFAULT_SIZE = 75;
+const DEFAULT_SIZE = 180;
 
 export async function convertToBW(inputPath: string, outputPath: string): Promise<void> {
   const image = await Jimp.read(inputPath);
@@ -30,9 +30,15 @@ export async function createSpriteImage(inputDir: string, imagePath: string, map
 
   const transform = (_key: string, image: Jimp): Jimp => {
     // Images will be rendered within circle on the resulting graph, so resize and crop to constant dimension
-    return image
-      .resize(DEFAULT_SIZE, Jimp.AUTO)
-      .crop(0, 0, DEFAULT_SIZE, DEFAULT_SIZE);
+
+    // make a new 90x90 image with white background
+    const newImage = new Jimp(DEFAULT_SIZE, DEFAULT_SIZE, '#ffffff');
+
+    const croppedImage = image
+      .resize(DEFAULT_SIZE - 60, Jimp.AUTO)
+      .crop(0, 0, DEFAULT_SIZE - 60, DEFAULT_SIZE - 60);
+
+    return newImage.composite(croppedImage, 30, 30);
   };
 
   const {image, mapping}: Sprite = await createSprite(sources, {

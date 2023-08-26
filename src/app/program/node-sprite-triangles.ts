@@ -9,7 +9,7 @@ import { RenderParams } from 'sigma/rendering/webgl/programs/common/program';
 import Sigma from 'sigma';
 
 import { FRAGMENT_SHADER_GLSL, VERTEX_SHADER_GLSL } from './shaders-triangles';
-import { EmptyObject, SpriteNodeAttributes } from '../../shared/types';
+import { CustomNodeAttributes, EmptyObject, SpriteNodeAttributes } from '../../shared/types';
 
 const POINTS = 3;
   //  atttributes sizing in floats:
@@ -19,11 +19,17 @@ const POINTS = 3;
   //   - uvw (3xfloat) - only pass width for square texture
   //   - angle (1xfloat)
   //   - borderColor (4xbyte = 1xfloat)
-const ATTRIBUTES = 9;
+  //   - mutedImage (1xfloat)
+const ATTRIBUTES = 10;
 
 const ANGLE_1 = 0.0;
 const ANGLE_2 = (2 * Math.PI) / 3;
 const ANGLE_3 = (4 * Math.PI) / 3;
+
+const MUTED_COLOR = floatColor('#E2E2E2');
+const BORDER_COLOR = floatColor('#FFFFFF');
+
+const R_CONST = (8 / 3) * (1 - Math.sin((2 * Math.PI) / 3));
 
 export default function makeNodeSpriteProgramTriangles(sprite: {offsets: {[key: string]: Coordinates}, img: ImageData}) {
   const textureImage = sprite.img;
@@ -39,6 +45,7 @@ texture: WebGLTexture;
     correctionRatioLocation: WebGLUniformLocation;
     angleLocation: GLint;
     borderColorLocation: GLint;
+    mutedImageLocation: GLint;
     latestRenderParams?: RenderParams;
 
     constructor(gl: WebGLRenderingContext, _renderer: Sigma) {
@@ -48,6 +55,7 @@ texture: WebGLTexture;
       this.textureLocation = gl.getAttribLocation(this.program, "a_texture");
       this.angleLocation = gl.getAttribLocation(this.program, "a_angle");
       this.borderColorLocation = gl.getAttribLocation(this.program, "a_borderColor");
+      this.mutedImageLocation = gl.getAttribLocation(this.program, "a_mutedImage");
 
       // Uniform Location
       const atlasLocation = gl.getUniformLocation(this.program, "u_atlas");
@@ -68,6 +76,7 @@ texture: WebGLTexture;
       gl.enableVertexAttribArray(this.textureLocation);
       gl.enableVertexAttribArray(this.angleLocation);
       gl.enableVertexAttribArray(this.borderColorLocation);
+      gl.enableVertexAttribArray(this.mutedImageLocation);
 
       gl.vertexAttribPointer(
         this.textureLocation,
@@ -93,12 +102,20 @@ texture: WebGLTexture;
         this.attributes * Float32Array.BYTES_PER_ELEMENT,
         32,
       );
+      gl.vertexAttribPointer(
+        this.mutedImageLocation,
+        1,
+        gl.FLOAT,
+        false,
+        this.attributes * Float32Array.BYTES_PER_ELEMENT,
+        36,
+      );
 
       gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, textureImage);
       gl.generateMipmap(gl.TEXTURE_2D);
     }
 
-    process(data: NodeDisplayData & (SpriteNodeAttributes | EmptyObject), hidden: boolean, offset: number): void {
+    process(data: NodeDisplayData & CustomNodeAttributes, hidden: boolean, offset: number): void {
       const array = this.array;
       let i = offset * POINTS * ATTRIBUTES;
 
@@ -116,23 +133,23 @@ texture: WebGLTexture;
         array[i++] = 0;
         // Border Color:
         array[i++] = 0;
+        // Muted Image:
+        array[i++] = 0;
         return;
       }
 
-      const color = floatColor(data.color);
-      const borderColor = floatColor('#fff');
       const { width, height } = textureImage;
 
+      const color = data.muted ? MUTED_COLOR : floatColor(data.color);
       const crop = data.crop;
 
-      const spriteOffset = () => {
-        if (!data.image) throw new Error(`Unexpected no image url for node: ${JSON.stringify(data)}`);
-      
-        const spriteOffset = sprite.offsets[data.image];
-        if (!spriteOffset) throw new Error(`Unexpected no sprite offset for node: ${JSON.stringify(data)}`);
+      // let spr
+      const spriteOffset = sprite.offsets[data.image];
 
-        return spriteOffset;
-      };
+      if (crop && !data.image) throw new Error(`Unexpected no image url for node: ${JSON.stringify(data)}`);
+      if (crop && !spriteOffset) throw new Error(`Unexpected no sprite offset for node: ${JSON.stringify(data)}`);
+      
+      const hasImage = crop && spriteOffset;
 
       // POINT 1
       array[i++] = data.x;
@@ -142,25 +159,26 @@ texture: WebGLTexture;
       // ANGLE_1: center right UV coordinates
       // inscribing circle at (x,y): r=2/3*h, texture (0,0) is top-left
       // texture width is scaled by 2/3 from full triangle width -> uv *1.5
-      array[i++] = crop ? (crop.x + spriteOffset().x) / width + (1.5 * crop.width) / width : 0;
-      array[i++] = crop ? (crop.y + spriteOffset().y) / height + (0.5 * crop.height) / height: 0;
-      array[i++] = crop ? 1 : 0;
+      array[i++] = hasImage ? (crop.x + spriteOffset.x) / width + (1.5 * crop.width) / width : 0;
+      array[i++] = hasImage ? (crop.y + spriteOffset.y) / height + (0.5 * crop.height) / height: 0;
+      array[i++] = hasImage ? 1 : 0;
       array[i++] = ANGLE_1;
-      array[i++] = borderColor;
+      array[i++] = BORDER_COLOR;
+      array[i++] = data.muted ? 1 : 0;
+
 
       // POINT 2
-      const r = (8 / 3) * (1 - Math.sin((2 * Math.PI) / 3));
-
       array[i++] = data.x;
       array[i++] = data.y;
       array[i++] = data.size;
       array[i++] = color;
       // ANGLE_2: top left UV coordinates
-      array[i++] = crop ? (crop.x + spriteOffset().x) / width : 0;
-      array[i++] = crop ? (crop.y + spriteOffset().y) / height - (r * crop.height) / height : 0;
-      array[i++] = crop ? 1 : 0;
+      array[i++] = hasImage ? (crop.x + spriteOffset.x) / width : 0;
+      array[i++] = hasImage ? (crop.y + spriteOffset.y) / height - (R_CONST * crop.height) / height : 0;
+      array[i++] = hasImage ? 1 : 0;
       array[i++] = ANGLE_2;
-      array[i++] = borderColor;
+      array[i++] = BORDER_COLOR;
+      array[i++] = data.muted ? 1 : 0;
 
       // POINT 3
       array[i++] = data.x;
@@ -168,11 +186,12 @@ texture: WebGLTexture;
       array[i++] = data.size;
       array[i++] = color;
       // ANGLE_3: bottom left UV coordinates
-      array[i++] = crop ? (crop.x + spriteOffset().x) / width : 0;
-      array[i++] = crop ? (crop.y + spriteOffset().y) / height + (1 + r) * (crop.height / height) : 0;
-      array[i++] = crop ? 1 : 0;
+      array[i++] = hasImage ? (crop.x + spriteOffset.x) / width : 0;
+      array[i++] = hasImage ? (crop.y + spriteOffset.y) / height + (1 + R_CONST) * (crop.height / height) : 0;
+      array[i++] = hasImage ? 1 : 0;
       array[i++] = ANGLE_3;
-      array[i++] = borderColor;
+      array[i++] = BORDER_COLOR;
+      array[i++] = data.muted ? 1 : 0;
     }
 
     render(params: RenderParams): void {

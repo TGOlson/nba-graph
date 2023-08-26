@@ -6,6 +6,7 @@ export type Dimensions = {width: number, height: number};
 export type Selection = Coordinates & Dimensions;
 export type SelectionMap = {[key: string]: Selection};
 
+export type CustomNodeAttributes = {muted?: boolean} & (SpriteNodeAttributes | EmptyObject);
 export type SpriteNodeAttributes = {type: 'sprite', image: string, crop: Selection};
 
 export type EmptyObject = Record<string, never>;

@@ -202,11 +202,7 @@ async function main() {
 
     // *** misc commands
     case commands.misc.ConvertImages: {
-      return await Promise.all([
-        NBAType.FRANCHISE,
-        NBAType.TEAM,
-        NBAType.PLAYER
-      ].map(async (typ) => {
+      const run = async (typ: NBAType) => {
         const imagePath = spritePath(typ);
         const imagePathMuted = spritePath(typ, true);
         const mappingPath = spriteMappingPath(typ);
@@ -217,12 +213,18 @@ async function main() {
         await createSpriteImage(imageDir(typ), imagePath, mappingPath, dedupe);
         console.log('converting to black and white for ', typ);
         return await convertToBW(imagePath, imagePathMuted);
-      }));
+      };
+
+      return execSeq([
+        () => run(NBAType.FRANCHISE),
+        () => run(NBAType.TEAM),
+        // () => run(NBAType.PLAYER)
+      ]);
     }
 
     // for testing, debugging, etc
     case commands.misc.Test: {
-     console.log('Hello, test... : )')
+     console.log('Hello, test... : )');
 
       return;
     }

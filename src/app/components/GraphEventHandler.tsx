@@ -60,24 +60,10 @@ const GraphEvents = () => {
         if (nodeIsSelected && nodeIsHovered) return { ...data, highlighted: true, size: data.size as number + 2};
         if (nodeIsSelected) return { ...data, highlighted: true, size: data.size as number + 1};
         if (nodeIsHovered) return { ...data, highlighted: true, size: data.size as number + 1};
-        
-        // if (hoveredNode && graph.neighbors(hoveredNode).includes(node)) return { ...data, highlighted: true };
-
-        // otherwise, de-emphasize node
-        let mutedImage = data.image as string | undefined;
-
-        // pretty hacky! clean up later when improving image handling : )
-        if (mutedImage) {
-          const i = mutedImage.split('.');
-          const first = i[0] as string;
-
-          mutedImage = `${first}_muted.png`;
-        }
 
         return {
           ...data, 
-          color: '#E2E2E2',
-          image: mutedImage,
+          muted: true,
           label: null,
           highlighted: false,
           zIndex: 0,

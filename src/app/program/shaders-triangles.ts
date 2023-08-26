@@ -8,6 +8,7 @@ attribute vec4 a_color;
 attribute vec4 a_texture;
 attribute float a_angle;
 attribute vec4 a_borderColor;
+attribute float a_mutedImage;
 
 uniform float u_ratio;
 uniform float u_scale;
@@ -22,6 +23,7 @@ varying float v_border;
 varying vec4 v_texture;
 varying vec2 v_diffVector;
 varying float v_radius;
+varying float v_mutedImage;
 
 const float bias = 255.0 / 254.0;
 const float marginRatio = 1.05;
@@ -52,6 +54,7 @@ void main() {
   v_texture = a_texture;
   v_borderColor = a_borderColor;
   v_borderColor.a *= bias;
+  v_mutedImage = a_mutedImage;
 }
 `;
 
@@ -67,6 +70,7 @@ varying vec2 v_diffVector;
 varying float v_radius;
 varying float v_angle;
 varying vec2 v_position;
+varying float v_mutedImage;
 
 
 
@@ -85,8 +89,19 @@ void main(void) {
   vec4 color;
 
   if (v_texture.z > 0.0) {
+    // texture
     vec4 texel = texture2D(u_atlas, v_texture.xy, -1.0);
-    color = vec4(mix(v_color, texel, texel.a).rgb, max(texel.a, v_color.a));
+    
+    if (v_mutedImage > 0.5) {
+      // greyscale w/ alpha
+      
+      float gray = 0.21 * texel.r + 0.71 * texel.g + 0.07 * texel.b;
+      vec4 grayTexel = vec4(texel.rgb * 0.0 + gray, 0.7);
+      color = vec4(mix(v_color, grayTexel, grayTexel.a).rgb, max(texel.a, v_color.a));
+    } else {
+      // normal
+      color = vec4(mix(v_color, texel, texel.a).rgb, max(texel.a, v_color.a));
+    }
   } else {
     color = v_color;
   }
