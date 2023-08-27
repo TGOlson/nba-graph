@@ -6,41 +6,38 @@ import {createSprite, ImageSource, Sprite} from 'quick-sprite';
 
 const MAX_WIDTH = 3072;
 const TEAM_IMAGE_SIZE = 180;
-const TEAM_PADDING = 60; // default size / 3
-const PLAYER_IMAGE_SIZE = 100;
+const TEAM_IMAGE_PADDING = 60; // TEAM_IMAGE_SIZE / 3;
+const PLAYER_IMAGE_SIZE = 120;
+const PLAYER_IMAGE_TOP_PADDING = 5;
 
-// Note ***
-// Team and franchise photos are 120x120 squares.
+// Note: team and franchise photos are downlaoaded as 125x125 squares
 // Since they will be rendered within a circle, add extra padding so that none of the base image is clipped
 export const teamTransform = (_key: string, image: Jimp): Jimp => {
-  // Images will be rendered within circle on the resulting graph, so resize and crop to constant dimension
-  // make a new larger image with white background
-  const newImage = new Jimp(TEAM_IMAGE_SIZE, TEAM_IMAGE_SIZE, '#ffffff');
+  const base = new Jimp(TEAM_IMAGE_SIZE, TEAM_IMAGE_SIZE, '#ffffff');
+  const resized = image.resize(TEAM_IMAGE_SIZE - TEAM_IMAGE_PADDING, Jimp.AUTO);
 
-  const croppedImage = image
-    .resize(TEAM_IMAGE_SIZE - TEAM_PADDING, Jimp.AUTO)
-    .crop(0, 0, TEAM_IMAGE_SIZE - TEAM_PADDING, TEAM_IMAGE_SIZE - TEAM_PADDING);
-
-  return newImage.composite(croppedImage, TEAM_PADDING / 2, TEAM_PADDING / 2);
+  return base.composite(resized, TEAM_IMAGE_PADDING / 2, TEAM_IMAGE_PADDING / 2);
 };
 
-// Note ***
-// Player images are 120x180 rectangles
-// Resize to 100px wide, then crop top 100x100 square
+// Note: player images are 120x180 rectangles
+// Resize to 90px wide, then add 15px padding to the left and right
 // We could leave these larger, but player pictures don't need that much resolution, and this saves space
 export const playerTransform = (_key: string, image: Jimp): Jimp => {
-  return image.autocrop({
+  const base = new Jimp(PLAYER_IMAGE_SIZE, PLAYER_IMAGE_SIZE, '#ffffff');
+
+  const resized = image.autocrop({
     cropOnlyFrames: false,
     tolerance: 0.001,
-    leaveBorder: 5,
+    leaveBorder: PLAYER_IMAGE_TOP_PADDING,
     ignoreSides: {
       north: false,
       south: true,
       east: true,
       west: true,
     }
-  }).resize(PLAYER_IMAGE_SIZE, Jimp.AUTO)
-    .crop(0, 0, PLAYER_IMAGE_SIZE, PLAYER_IMAGE_SIZE);
+  }).resize(Jimp.AUTO, PLAYER_IMAGE_SIZE);
+
+  return base.composite(resized, (PLAYER_IMAGE_SIZE - resized.getWidth()) / 2, PLAYER_IMAGE_TOP_PADDING);
 };
 
 export async function createSpriteImage(inputDir: string, imagePath: string, mappingPath: string, transform?: (_key: string, image: Jimp) => Jimp): Promise<void> {

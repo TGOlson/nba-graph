@@ -218,41 +218,41 @@ async function main() {
 
     // for testing, debugging, etc
     case commands.misc.Test: {
-      const white = {r: 255, g: 255, b: 255, a: 255};
-      const autocropWhiteTop = (img: Jimp): Jimp => {
-        const {width, height} = img.bitmap;
+      // const white = {r: 255, g: 255, b: 255, a: 255};
+      // const autocropWhiteTop = (img: Jimp): Jimp => {
+      //   const {width, height} = img.bitmap;
 
-        for (let y = 0; y < height; y++) {
-          for (let x = 0; x < width; x++) {
-            const pixel = Jimp.intToRGBA(img.getPixelColor(x, y));
+      //   for (let y = 0; y < height; y++) {
+      //     for (let x = 0; x < width; x++) {
+      //       const pixel = Jimp.intToRGBA(img.getPixelColor(x, y));
           
-            if (Jimp.colorDiff(pixel, white) > 0.001) {
-              const cropTop = y === 0 ? y : y - 1;
+      //       if (Jimp.colorDiff(pixel, white) > 0.001) {
+      //         const cropTop = y === 0 ? y : y - 1;
 
-              return img.crop(0, cropTop, width, height - cropTop);
-            }
-          }
-        }
+      //         return img.crop(0, cropTop, width, height - cropTop);
+      //       }
+      //     }
+      //   }
 
-        return img;
-      };
+      //   return img;
+      // };
 
-      const p = await Jimp.read('data/img/player/curryed01.jpg');
+      const p = await Jimp.read('data/img/player/curryst01.jpg');
 
 
       // await autocropWhiteTop(p).writeAsync('./curryed01-transformed.jpg');
-      // const res = playerTransform('p', p);
-      await p.autocrop({
-        cropOnlyFrames: false,
-        tolerance: 0.001,
-        leaveBorder: 5,
-        ignoreSides: {
-          north: false,
-          south: true,
-          east: true,
-          west: true,
-        }
-      }).writeAsync('./curryed01-transformed.jpg');
+      const res = playerTransform('p', p).writeAsync('./test.jpg');
+      // await p.autocrop({
+      //   cropOnlyFrames: false,
+      //   tolerance: 0.001,
+      //   leaveBorder: 5,
+      //   ignoreSides: {
+      //     north: false,
+      //     south: true,
+      //     east: true,
+      //     west: true,
+      //   }
+      // }).writeAsync('./curryed01-transformed.jpg');
       
       return;
     }
