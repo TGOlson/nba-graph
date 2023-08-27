@@ -120,6 +120,7 @@ The output graph data is stored in `./data/graph/graph.json`. The graph is built
   * search is a little laggy?
   * compress graph json?
   * more fun edge colors (based on team primary?)
+  * some edge colors are funky (check spurs 1981/1982)
 * deploy
  * setup github page (TODO: where to store data?)
  * deploy assets to aws/cloudflair
