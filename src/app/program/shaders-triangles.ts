@@ -27,13 +27,14 @@ varying float v_mutedImage;
 
 const float bias = 255.0 / 254.0;
 const float marginRatio = 1.05;
+
 const float border_factor = 1.0;
 const float border_width_factor = 1.105;
-const float border_soft_factor = 0.0005;
 
 void main() {
   float size = a_size * u_correctionRatio * u_sqrtZoomRatio * 4.0;
   // float size = a_size * u_correctionRatio * (1. / u_sqrtZoomRatio*u_sqrtZoomRatio ) * 4.0 * border_factor;
+
   // workaround to keep u_scale and u_ratio
   gl_PointSize = u_ratio * u_scale * 2.0;
 
@@ -46,14 +47,19 @@ void main() {
   );
 
   v_diffVector = diffVector;
+  v_softborder = 0.0001 / u_ratio;
   v_radius = size / 2.0 / marginRatio;
-  v_border = v_radius * border_width_factor;
-  v_softborder = border_soft_factor / u_ratio;
+  
+  // Test?
+  v_border = v_radius * 1.075;
+
+  // Previous value, but this seems to clip some pictures on the top
+  // v_border = v_radius * 1.105;
+
   v_color = a_color;
   v_color.a *= bias;
   v_texture = a_texture;
   v_borderColor = a_borderColor;
-  v_borderColor.a *= bias;
   v_mutedImage = a_mutedImage;
 }
 `;
@@ -72,20 +78,12 @@ varying float v_angle;
 varying vec2 v_position;
 varying float v_mutedImage;
 
-
-
 uniform sampler2D u_atlas;
 
 const float radius = 0.5;
 const vec4 transparent = vec4(0.0, 0.0, 0.0, 0.0);
 
-mat2 rotate2d(float _angle){
-    return mat2(cos(_angle),-sin(_angle),
-                sin(_angle),cos(_angle));
-}
-
 void main(void) {
-  vec4 transparent = vec4(0.0, 0.0, 0.0, 0.0);
   vec4 color;
 
   if (v_texture.z > 0.0) {
@@ -118,7 +116,8 @@ void main(void) {
     gl_FragColor = mix(border_color, transparent, dist / v_softborder);
   else if (dist > v_radius - v_border + v_softborder)
     // inner border
-    gl_FragColor = mix(color, border_color, border_color.a);
+    // gl_FragColor = mix(color, border_color, border_color.a);
+    gl_FragColor = border_color;
   else if (dist > v_radius - v_border)
     // inner border antialias
     gl_FragColor = mix(color, border_color, (dist - v_radius + v_border) / v_softborder);

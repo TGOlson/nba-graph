@@ -9,7 +9,7 @@ import { RenderParams } from 'sigma/rendering/webgl/programs/common/program';
 import Sigma from 'sigma';
 
 import { FRAGMENT_SHADER_GLSL, VERTEX_SHADER_GLSL } from './shaders-triangles';
-import { CustomNodeAttributes, EmptyObject, SpriteNodeAttributes } from '../../shared/types';
+import { CustomNodeAttributes } from '../../shared/types';
 
 const POINTS = 3;
   //  atttributes sizing in floats:
