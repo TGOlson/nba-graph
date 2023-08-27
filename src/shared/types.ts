@@ -6,7 +6,9 @@ export type Dimensions = {width: number, height: number};
 export type Selection = Coordinates & Dimensions;
 export type SelectionMap = {[key: string]: Selection};
 
-export type CustomNodeAttributes = {muted?: boolean} & (SpriteNodeAttributes | EmptyObject);
+export type Palette = {primary: string, light: string, dark: string};
+
+export type CustomNodeAttributes = {muted?: boolean, borderColor: string} & (SpriteNodeAttributes | EmptyObject);
 export type SpriteNodeAttributes = {type: 'sprite', image: string, crop: Selection};
 
 export type EmptyObject = Record<string, never>;
@@ -15,6 +17,7 @@ export type EmptyObject = Record<string, never>;
 export type BaseNodeAttributes = {
   nbaType: NBAType;
   color: string;
+  borderColor: string;
   size: number;
   label: string;
 } & (SpriteNodeAttributes | EmptyObject);

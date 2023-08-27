@@ -8,8 +8,8 @@ import { seasonParser } from "./parsers/season";
 import { makeTeamParser } from "./parsers/team";
 import { makePlayerSeasonParser } from "./parsers/player-season";
 
-import { loadFranchises, loadNBAData, loadPlayers, loadSpriteMapping, loadTeams, persistFranchises, persistGraph, persistLeagues, persistPlayers, persistPlayerSeasons, persistSeasons, persistTeams } from "./storage";
-import { imageDir, spriteMappingPath, spritePath } from "./storage/paths";
+import { loadFranchises, loadNBAData, loadPlayers, loadSpriteMapping, loadTeams, persistFranchises, persistGraph, persistJSON, persistLeagues, persistPlayers, persistPlayerSeasons, persistSeasons, persistTeams } from "./storage";
+import { imageDir, spriteColorsPath, spriteMappingPath, spritePath } from "./storage/paths";
 
 import { buildGraph } from "./builder";
 import { GRAPH_CONFIG } from "./builder/config";
@@ -20,6 +20,9 @@ import { createSpriteImage, playerTransform, teamTransform } from "./util/image"
 import { NBAType } from "../shared/nba-types";
 
 import Jimp from "jimp";
+import Vibrant from 'node-vibrant';
+import { Palette } from "../shared/types";
+
 
 const VERBOSE_FETCH = true;
 const FETCH_DELAY_MS = 6000; // basketball-reference seems to get mad at >~30 req/m
@@ -54,6 +57,7 @@ const commands = {
   },
   misc: {
     ConvertImages: '--convert-images',
+    ParsePrimaryColors: '--parse-primary-colors',
     Test: '--test',
   },
   graph: {
@@ -190,14 +194,7 @@ async function main() {
     case commands.graph.Build: {
       const nbaData = await loadNBAData();
 
-      const franchiseLocationMappings = await loadSpriteMapping(NBAType.FRANCHISE);
-      const teamLocationMappings = await loadSpriteMapping(NBAType.TEAM);
-      const playerLocationMappings = await loadSpriteMapping(NBAType.PLAYER);
-      const graph = buildGraph(nbaData, GRAPH_CONFIG, {
-        [NBAType.FRANCHISE]: franchiseLocationMappings,
-        [NBAType.TEAM]: teamLocationMappings,
-        [NBAType.PLAYER]: playerLocationMappings
-      });
+      const graph = await buildGraph(nbaData, GRAPH_CONFIG);
 
       return await persistGraph(graph);
     }
@@ -216,43 +213,52 @@ async function main() {
       ));
     }
 
+    case commands.misc.ParsePrimaryColors: {
+      // TODO: move most of this to a separate file?
+      const run = async (typ: NBAType): Promise<{[key: string]: Palette}> => {
+        const franchiseSprite = await Jimp.read(spritePath(typ));
+        const franchiseSpriteMapping = await loadSpriteMapping(typ);
+        const res: {[key: string]: Palette} = {};
+
+        for (const [key, coords] of Object.entries(franchiseSpriteMapping)) {
+          const img = franchiseSprite.clone().crop(coords.x, coords.y, coords.width, coords.height);
+          const buffer = await img.getBufferAsync(Jimp.MIME_PNG);
+
+          const palette = await Vibrant.from(buffer).quality(5).getPalette();
+
+          const error = () => { throw new Error(`Unexpected partial palette for: ${key}`); };
+
+          res[key] = {
+            primary: palette.Vibrant?.hex ?? error(),
+            light: palette.LightVibrant?.hex ?? error(),
+            dark: palette.DarkVibrant?.hex ?? error(),
+          };
+        }
+
+        return res;
+      };
+
+      const franchiseColors = await run(NBAType.FRANCHISE);
+      const teamColors = await run(NBAType.TEAM);
+
+      await persistJSON(spriteColorsPath(NBAType.FRANCHISE))(franchiseColors);
+      await persistJSON(spriteColorsPath(NBAType.TEAM))(teamColors);
+
+    }
+
     // for testing, debugging, etc
     case commands.misc.Test: {
-      // const white = {r: 255, g: 255, b: 255, a: 255};
-      // const autocropWhiteTop = (img: Jimp): Jimp => {
-      //   const {width, height} = img.bitmap;
+      const franchiseSprite = await Jimp.read(spritePath(NBAType.FRANCHISE));
+      const franchiseSpriteMapping = await loadSpriteMapping(NBAType.FRANCHISE);
 
-      //   for (let y = 0; y < height; y++) {
-      //     for (let x = 0; x < width; x++) {
-      //       const pixel = Jimp.intToRGBA(img.getPixelColor(x, y));
-          
-      //       if (Jimp.colorDiff(pixel, white) > 0.001) {
-      //         const cropTop = y === 0 ? y : y - 1;
+      for (const [key, coords] of Object.entries(franchiseSpriteMapping)) {
+        const img = franchiseSprite.clone().crop(coords.x, coords.y, coords.width, coords.height);
+        const buffer = await img.getBufferAsync(Jimp.MIME_PNG);
 
-      //         return img.crop(0, cropTop, width, height - cropTop);
-      //       }
-      //     }
-      //   }
+        const palette = await Vibrant.from(buffer).quality(5).getPalette();
 
-      //   return img;
-      // };
-
-      const p = await Jimp.read('data/img/player/curryst01.jpg');
-
-
-      // await autocropWhiteTop(p).writeAsync('./curryed01-transformed.jpg');
-      const res = playerTransform('p', p).writeAsync('./test.jpg');
-      // await p.autocrop({
-      //   cropOnlyFrames: false,
-      //   tolerance: 0.001,
-      //   leaveBorder: 5,
-      //   ignoreSides: {
-      //     north: false,
-      //     south: true,
-      //     east: true,
-      //     west: true,
-      //   }
-      // }).writeAsync('./curryed01-transformed.jpg');
+        console.log(key, palette);
+      }
       
       return;
     }

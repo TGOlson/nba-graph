@@ -13,6 +13,12 @@ export type GraphConfig = {
     team: string;
     player: string;
   };
+  defaultBorderColors: {
+    franchise: string;
+    team: string;
+    player: string;
+  };
+  defaultEdgeColor: string;
 };
 
 export const GRAPH_CONFIG: GraphConfig = {
@@ -30,4 +36,10 @@ export const GRAPH_CONFIG: GraphConfig = {
     team: 'purple',
     player: '#d1d4e7'
   },
+  defaultBorderColors: {
+    franchise: '#CCCCCC',
+    team: '#CCCCCC',
+    player: '#FFFFFF'
+  },
+  defaultEdgeColor: '#CCCCCC',
 };

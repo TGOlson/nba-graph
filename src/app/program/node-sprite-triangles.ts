@@ -27,7 +27,6 @@ const ANGLE_2 = (2 * Math.PI) / 3;
 const ANGLE_3 = (4 * Math.PI) / 3;
 
 const MUTED_COLOR = floatColor('#E2E2E2');
-const BORDER_COLOR = floatColor('#FFFFFF');
 
 const R_CONST = (8 / 3) * (1 - Math.sin((2 * Math.PI) / 3));
 
@@ -141,6 +140,7 @@ texture: WebGLTexture;
       const { width, height } = textureImage;
 
       const color = data.muted ? MUTED_COLOR : floatColor(data.color);
+      const borderColor = data.muted ? MUTED_COLOR : floatColor(data.borderColor);
       const crop = data.crop;
 
       // let spr
@@ -163,7 +163,7 @@ texture: WebGLTexture;
       array[i++] = hasImage ? (crop.y + spriteOffset.y) / height + (0.5 * crop.height) / height: 0;
       array[i++] = hasImage ? 1 : 0;
       array[i++] = ANGLE_1;
-      array[i++] = BORDER_COLOR;
+      array[i++] = borderColor;
       array[i++] = data.muted ? 1 : 0;
 
       // POINT 2
@@ -176,7 +176,7 @@ texture: WebGLTexture;
       array[i++] = hasImage ? (crop.y + spriteOffset.y) / height - (R_CONST * crop.height) / height : 0;
       array[i++] = hasImage ? 1 : 0;
       array[i++] = ANGLE_2;
-      array[i++] = BORDER_COLOR;
+      array[i++] = borderColor;
       array[i++] = data.muted ? 1 : 0;
 
       // POINT 3
@@ -189,7 +189,7 @@ texture: WebGLTexture;
       array[i++] = hasImage ? (crop.y + spriteOffset.y) / height + (1 + R_CONST) * (crop.height / height) : 0;
       array[i++] = hasImage ? 1 : 0;
       array[i++] = ANGLE_3;
-      array[i++] = BORDER_COLOR;
+      array[i++] = borderColor;
       array[i++] = data.muted ? 1 : 0;
     }
 

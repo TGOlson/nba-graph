@@ -81,7 +81,7 @@ const GraphEvents = () => {
 
         // if a neighbor of selected or hovered, draw edge node
         // only draw edge on hover is there is no selected node
-        if (isSelectedNeighbor || isHoveredNeighbor) return {...data, zIndex: 100};
+        if (isSelectedNeighbor || isHoveredNeighbor) return {...data, size: 1.2, zIndex: 100};
 
         return { ...data, hidden: true };
       }

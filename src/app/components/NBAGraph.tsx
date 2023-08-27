@@ -37,7 +37,7 @@ const NBAGraph = (props: DisplayGraphProps) => {
     // Component rendering
     // defaultNodeColor: "#999",
     defaultNodeType: "sprite",
-    defaultEdgeColor: "#aaa",
+    // defaultEdgeColor: "#aaa",
     // defaultEdgeType: "line",
     labelFont: "Arial",
     labelSize: 14,

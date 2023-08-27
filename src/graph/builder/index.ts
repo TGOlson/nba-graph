@@ -2,10 +2,11 @@ import Graph, { DirectedGraph } from "graphology";
 import { circular } from "graphology-layout";
 import forceAtlas2 from "graphology-layout-forceatlas2";
 
-import { Franchise, NBAData, NBAType, Team } from "../../shared/nba-types";
-import { EmptyObject, FranchiseNodeAttributes, PlayerNodeAttributes, SelectionMap, SpriteNodeAttributes, TeamNodeAttributes } from "../../shared/types";
+import { NBAData, NBAType, Team } from "../../shared/nba-types";
+import { EmptyObject, FranchiseNodeAttributes, PlayerNodeAttributes, SpriteNodeAttributes, TeamNodeAttributes } from "../../shared/types";
 import { assets } from "../util/assets";
 import { GraphConfig } from "./config";
+import { loadSpriteColors, loadSpriteMapping } from "../storage";
 
 // TODO: things that would be nice to add (that we already have the data for, but need to stitch together):
 // - years active for players
@@ -21,13 +22,7 @@ import { GraphConfig } from "./config";
 // [pic] Denver Nuggets (franchise)
 //       1985-present / NBA
 
-type ImageLocations = {
-  [NBAType.PLAYER]: SelectionMap;
-  [NBAType.TEAM]: SelectionMap;
-  [NBAType.FRANCHISE]: SelectionMap;
-};
-
-export const buildGraph = (data: NBAData, config: GraphConfig, imgLocations: ImageLocations): Graph => {
+export const buildGraph = async (data: NBAData, config: GraphConfig): Promise<Graph> => {
   console.log('Building graph');
   const graph = new DirectedGraph();
 
@@ -39,9 +34,12 @@ export const buildGraph = (data: NBAData, config: GraphConfig, imgLocations: Ima
   const teamSprite = assets.img.teamSprite();
   const franchiseSprite = assets.img.franchiseSprite();
 
-  const playerImgLocations = imgLocations[NBAType.PLAYER];
-  const teamImgLocations = imgLocations[NBAType.TEAM];
-  const franchiseImgLocations = imgLocations[NBAType.FRANCHISE];
+  const playerImgLocations = await loadSpriteMapping(NBAType.PLAYER);
+  const teamImgLocations = await loadSpriteMapping(NBAType.TEAM);
+  const franchiseImgLocations = await loadSpriteMapping(NBAType.FRANCHISE);
+
+  const teamColors = await loadSpriteColors(NBAType.TEAM);
+  const franchiseColors = await loadSpriteColors(NBAType.FRANCHISE);
 
   const playerYearsActive: {[playerId: string]: number[]} = data.playerSeasons.reduce<{[playerId: string]: number[]}>((acc, {playerId, year}) => {
     const prev = acc[playerId] ?? [];
@@ -70,6 +68,7 @@ export const buildGraph = (data: NBAData, config: GraphConfig, imgLocations: Ima
       nbaType: NBAType.PLAYER,
       years: `${Math.min(...yearsActive) - 1}-${Math.max(...yearsActive)}`,
       color: config.colors.player, 
+      borderColor: config.defaultBorderColors.player,
       ...imgProps, 
     } as PlayerNodeAttributes);
   });
@@ -80,12 +79,15 @@ export const buildGraph = (data: NBAData, config: GraphConfig, imgLocations: Ima
     const imgProps: SpriteNodeAttributes | EmptyObject = imgCoords
       ? {type: 'sprite', image: franchiseSprite, crop: imgCoords}
       : {};
+
+    const borderColor = franchiseColors[franchise.id]?.primary ?? config.defaultBorderColors.franchise;
     
     graph.addNode(franchise.id, { 
       size: config.sizes.franchise, 
       label: franchise.name, 
       nbaType: NBAType.FRANCHISE,
       color: config.colors.franchise, 
+      borderColor,
       ...imgProps, 
     } as FranchiseNodeAttributes);
   });
@@ -107,25 +109,29 @@ export const buildGraph = (data: NBAData, config: GraphConfig, imgLocations: Ima
     }
     // TODO: should default to some generic pic if no franchise sprite is found
   
+    const borderColor = teamColors[team.id]?.primary ?? config.defaultBorderColors.team;
+
     graph.addNode(team.id, { 
       size: config.sizes.team, 
       label, 
       nbaType: NBAType.TEAM,
       color: config.colors.team, 
+      borderColor,
       ...imgProps,
     } as TeamNodeAttributes);
   });
 
-  // TODO: edge labels not used yet
-  // maybe useful for advanced filters later, but probably should remove for now to reduce size
+  // TODO: it might be nice to slightly mute the edge colors
   data.playerSeasons.forEach(pt => {
     // graph.addEdge(pt.playerId, pt.teamId, {label: 'played_on'});
-    graph.addEdge(pt.playerId, pt.teamId);
+    const color = teamColors[pt.teamId]?.primary ?? config.defaultEdgeColor;
+    graph.addEdge(pt.playerId, pt.teamId, {color});
   });
 
   teams.forEach(team => {
     // graph.addEdge(team.id, team.franchiseId, {label: 'season_of'});
-    graph.addEdge(team.id, team.franchiseId);
+    const color = franchiseColors[team.franchiseId]?.primary ?? config.defaultEdgeColor;
+    graph.addEdge(team.id, team.franchiseId, {color});
   });
 
   console.log('Assigning locations');

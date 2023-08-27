@@ -3,7 +3,7 @@ import Graph from "graphology";
 import path from "path";
 
 import { Franchise, League, NBAData, NBAType, Player, PlayerSeason, Season, Team } from "../../shared/nba-types";
-import { SelectionMap } from "../../shared/types";
+import { Palette, SelectionMap } from "../../shared/types";
 
 import {
   LEAGUE_PATH,
@@ -18,6 +18,7 @@ import {
   GRAPH_EDGES_PATH,
   spriteMappingPath,
   imgPath,
+  spriteColorsPath,
 } from './paths';
 
 // ** read
@@ -51,6 +52,11 @@ export async function loadNBAData(): Promise<NBAData> {
 
 export function loadSpriteMapping(typ: NBAType): Promise<SelectionMap> {
   const reader: Read<SelectionMap> = readJSON(spriteMappingPath(typ));
+  return reader();
+}
+
+export function loadSpriteColors(typ: NBAType): Promise<{[key: string]: Palette}> {
+  const reader: Read<{[key: string]: Palette}> = readJSON(spriteColorsPath(typ));
   return reader();
 }
 
