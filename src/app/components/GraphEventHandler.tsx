@@ -3,6 +3,8 @@ import { useEffect, useState } from 'react';
 import { EventHandlers, useCamera } from "@react-sigma/core";
 import { useSigma, useRegisterEvents, useSetSettings } from "@react-sigma/core";
 import { Attributes } from 'graphology-types';
+import { NodeDisplayData } from 'sigma/types';
+import { BaseNodeAttributes, CustomNodeAttributes } from '../../shared/types';
 
 const GraphEvents = () => {
   const sigma = useSigma();
@@ -35,7 +37,7 @@ const GraphEvents = () => {
   useEffect(() => {
     setSettings({
       // TODO: think about intented UI here, kind of messy interactions right now
-      nodeReducer: (node: string, data: Attributes): Attributes => {
+      nodeReducer: (node: string, data: Attributes): Partial<NodeDisplayData & CustomNodeAttributes> => {
         // if nothing selected or hovered, quick return default
         if (!hoveredNode && !selectedNode) return data;
 
@@ -46,20 +48,23 @@ const GraphEvents = () => {
         const graph = sigma.getGraph();
         // const selectedNe = graph.neighbors(selectedNode);
 
+        // console.log(data);
         // if a neighbor of selected or hovered, emphasize node
         // only emphasize on hover is there is no selected node
+        const activeBorderColor = data.nbaType === 'player' ? '#ffffff' : data.borderColor as string;
         if ((selectedNode && graph.neighbors(selectedNode).includes(node) || (hoveredNode && !selectedNode && graph.neighbors(hoveredNode).includes(node)))) {
           return { 
             ...data, 
-            highlighted: true,
-            size: data.size as number + (nodeIsHovered ? 3 : 2),
+            highlighted: true, 
+            borderColor: activeBorderColor,
+            size: data.size as number + (nodeIsHovered ? 2 : 1),
           };
         }
 
         // if current reducer node is selected or hovered, apply styles
-        if (nodeIsSelected && nodeIsHovered) return { ...data, highlighted: true, size: data.size as number + 5};
-        if (nodeIsSelected) return { ...data, highlighted: true, size: data.size as number + 4};
-        if (nodeIsHovered) return { ...data, highlighted: true, size: data.size as number + 1};
+        if (nodeIsSelected && nodeIsHovered) return { ...data, highlighted: true, borderColor: activeBorderColor, size: data.size as number + 4};
+        if (nodeIsSelected) return { ...data, highlighted: true, borderColor: activeBorderColor, size: data.size as number + 3};
+        if (nodeIsHovered) return { ...data, highlighted: true, borderColor: activeBorderColor, size: data.size as number + 1};
 
         return {
           ...data, 

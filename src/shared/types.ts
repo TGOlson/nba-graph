@@ -9,10 +9,7 @@ export type SelectionMap = {[key: string]: Selection};
 export type Palette = {primary: string, light: string, dark: string};
 
 export type CustomNodeAttributes = {muted?: boolean, borderColor: string} & SpriteNodeAttributes;
-
-export type SpriteNodeAttributes 
-  = {type: 'sprite', image: string, crop: Selection} 
-  | {type: undefined, image: undefined, crop: undefined};
+export type SpriteNodeAttributes = {type: 'sprite', image: string, crop: Selection};
 
 export type EmptyObject = Record<string, never>;
 

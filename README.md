@@ -107,10 +107,8 @@ The output graph data is stored in `./data/graph/graph.json`. The graph is built
   * ~~add years active / type to search results~~
   * ~~larger images (I think don't downside on sprite generation?)~~
   * ~~improve node sizes~~
-  * __placeholders for teams/players without images__
-    * add to team/player/franchise sprite
-    * player -> grey outline
-    * team -> grey bball
+  * ~~placeholders for teams/players without images~~
+  * ~~more fun edge colors (based on team primary?)~~
   * filters and advanced search
 * hacks
   * ~~test animations for force layout and other movements~~
@@ -122,7 +120,6 @@ The output graph data is stored in `./data/graph/graph.json`. The graph is built
   * adjust player node size for awards
   * search is a little laggy?
   * compress graph json?
-  * more fun edge colors (based on team primary?)
   * some edge colors are funky (check spurs 1981/1982)
   * darken circle around teams (right now it's just primary color)
 * deploy

@@ -38,7 +38,7 @@ export const GRAPH_CONFIG: GraphConfig = {
   defaultBorderColors: {
     franchise: '#FFFFFF',
     team: '#FFFFFF',
-    player: '#FFFFFF'
+    player: '#C6C3BD'
   },
   defaultEdgeColor: '#CCCCCC',
 };

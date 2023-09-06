@@ -78,7 +78,7 @@ export const buildGraph = async (data: NBAData, config: GraphConfig): Promise<Gr
     
     const imgProps: SpriteNodeAttributes = imgCoords
       ? {type: 'sprite', image: assets.img.franchiseSprite, crop: imgCoords}
-      : {type: undefined, image: undefined, crop: undefined};
+      : {type: 'sprite', image: assets.img.teamDefault, crop: DEFAULT_CROP};
 
     const borderColor = franchiseColors[franchise.id]?.primary ?? config.defaultBorderColors.franchise;
     
@@ -102,12 +102,14 @@ export const buildGraph = async (data: NBAData, config: GraphConfig): Promise<Gr
     const imgCoords = teamImgLocations[team.id];
     const fallbackImgCoords = franchiseImgLocations[team.franchiseId];
     
-    let imgProps: SpriteNodeAttributes = {type: undefined, image: undefined, crop: undefined};
+    let imgProps: SpriteNodeAttributes | null = null;
 
     if (imgCoords) {
       imgProps = {type: 'sprite', image: assets.img.teamSprite, crop: imgCoords};
     } else if (fallbackImgCoords) {
       imgProps = {type: 'sprite', image: assets.img.franchiseSprite, crop: fallbackImgCoords};
+    } else {
+      imgProps = {type: 'sprite', image: assets.img.teamDefault, crop: DEFAULT_CROP};
     }
   
     const borderColor = teamColors[team.id]?.primary ?? config.defaultBorderColors.team;
