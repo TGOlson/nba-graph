@@ -1,4 +1,5 @@
 import path from "path";
+import { Season } from "../../shared/nba-types";
 
 const BASE_URL = 'https://www.basketball-reference.com';
 
@@ -23,6 +24,36 @@ const fromRelative = (str: string): string =>
 export const LEAGUES_URL = fromRelative('/leagues');
 export const TEAMS_URL = fromRelative('/teams');
 export const PLAYERS_URL = fromRelative('/players');
+
+export const awards = {
+  MVP_AWARD_URL: fromRelative('/awards/mvp.html'),
+  DPOY_AWARD_URL: fromRelative('/awards/dpoy.html'),
+  ROY_AWARD_URL: fromRelative('/awards/roy.html'),
+  SMOY_AWARD_URL: fromRelative('/awards/smoy.html'),
+  MIP_AWARD_URL: fromRelative('/awards/mip.html'),
+  TMOY_AWARD_URL: fromRelative('/awards/tmoy.html'),
+  CITIZEN_AWARD_URL: fromRelative('/awards/citizenship.html'),
+  ASMVP_AWARD_URL: fromRelative('/awards/all_star_mvp.html'),
+  FMVP_AWARD_URL: fromRelative('/awards/finals_mvp.html'),
+  ALLNBA_AWARD_URL: fromRelative('/awards/all_league.html'),
+  ALLROOK_AWARD_URL: fromRelative('/awards/all_rookie.html'),
+  ALLDEF_AWARD_URL: fromRelative('/awards/all_defense.html'),
+  HOF_AWARD_URL: fromRelative('/awards/hof.html'),
+  ANNI75_AWARD_URL: fromRelative('/awards/nba_75th_anniversary.html'),
+  ANNI50_AWARD_URL: fromRelative('/awards/nba_50_greatest.html'),
+  BSHOF_AWARD_URL: fromRelative('/awards/simmons_pyramid.html'),
+  ABAALLTIME_AWARD_URL: fromRelative('/awards/aba_all_time_team.html '),
+};
+
+const ALL_STAR_URL = fromRelative('/allstar');
+
+export const validAllStarSeasons = (seasons: Season[]): Season[] => seasons.filter(({leagueId, year}) => {
+  return (leagueId === 'NBA' && year >= 1951 && year <= 2023 && year !== 1999) || 
+    (leagueId === 'ABA' && year >= 1968 && year <= 1976);
+});
+
+export const allStarUrl = (seasonId: string): string => `${ALL_STAR_URL}/${seasonId}.html`;
+export const LEAGUE_CHAMP_URL = fromRelative('/playoffs');
 
 export const teamUrl = (franchiseId: string): string => `${TEAMS_URL}/${franchiseId}`;
 export const playerIndexUrl = (firstLetterLastName: string): string => `${PLAYERS_URL}/${firstLetterLastName}`;

@@ -1,4 +1,4 @@
-import { downloadLeagueIndex, downloadPlayer, downloadPlayerIndex, downloadTeam, downloadImage, downloadTeamIndex } from "./download";
+import { downloadLeagueIndex, downloadPlayer, downloadPlayerIndex, downloadTeam, downloadImage, downloadTeamIndex, downloadPage } from "./download";
 
 import { runHtmlParser } from "./parsers/html-parser";
 import { franchiseParser } from "./parsers/franchise";
@@ -8,7 +8,7 @@ import { seasonParser } from "./parsers/season";
 import { makeTeamParser } from "./parsers/team";
 import { makePlayerSeasonParser } from "./parsers/player-season";
 
-import { loadFranchises, loadNBAData, loadPlayers, loadTeams, persistFranchises, persistGraph, persistJSON, persistLeagues, persistPlayers, persistPlayerSeasons, persistSeasons, persistTeams } from "./storage";
+import { loadFranchises, loadNBAData, loadPlayers, loadSeasons, loadTeams, persistFranchises, persistGraph, persistJSON, persistLeagues, persistPlayers, persistPlayerSeasons, persistSeasons, persistTeams } from "./storage";
 import { imageDir, spriteColorsPath, spriteMappingPath, spritePath } from "./storage/paths";
 
 import { buildGraph } from "./builder";
@@ -16,10 +16,9 @@ import { GRAPH_CONFIG } from "./builder/config";
 
 import { makeDelayedFetch, makeFetch } from "./util/fetch";
 import { execSeq } from "./util/promise";
-import { createSpriteImage, parseColorPalette, parseSpriteColorPallette, playerTransform, teamTransform } from "./util/image";
+import { createSpriteImage, parseSpriteColorPallette, playerTransform, teamTransform } from "./util/image";
 import { NBAType } from "../shared/nba-types";
-
-import Jimp from "jimp";
+import { allStarUrl, awards, LEAGUE_CHAMP_URL, validAllStarSeasons } from "./util/bref-url";
 
 
 const VERBOSE_FETCH = true;
@@ -44,7 +43,9 @@ const commands = {
     PlayerAll: '--download-player-all',
     FranchiseImages: '--download-franchise-images',
     TeamImages: '--download-team-images',
-    PlayerImages: '--download-player-images'
+    PlayerImages: '--download-player-images',
+    Awards: '--download-awards',
+    AllStar: '--download-allstar',
   },
   parse: {
     Leagues: '--parse-leagues', // NBA, ABA...
@@ -157,6 +158,30 @@ async function main() {
       return await execSeq(fns);
     }
 
+    case commands.download.Awards: {
+      const awardUrls = Object.values(awards);
+
+      const urls = [
+        ...awardUrls,
+        LEAGUE_CHAMP_URL,
+      ];
+      
+      // TODO: do we need a new nbatype == award?
+      return await execSeq(urls.map(url => {
+        return () => downloadPage(delayedFetch, url);
+      }));
+    }
+
+    case commands.download.AllStar: {
+      const seasons = await loadSeasons();
+      const allStarUrls = validAllStarSeasons(seasons).map(x => x.id).map(allStarUrl);
+
+      // TODO: do we need a new nbatype == award?
+      return await execSeq(allStarUrls.map(url => {
+        return () => downloadPage(delayedFetch, url);
+      }));
+    }
+
     // *** extract commands
     case commands.parse.Leagues: return await runHtmlParser(leagueParser).then(persistLeagues);
     case commands.parse.Seasons: return await runHtmlParser(seasonParser).then(persistSeasons);
@@ -221,21 +246,12 @@ async function main() {
 
     // for testing, debugging, etc
     case commands.misc.Test: {
-      const img = await Jimp.read('SAS_1981_test.png');
-      const palette = await parseColorPalette(img);
-
-      // const franchiseSprite = await Jimp.read(spritePath(NBAType.TEAM));
-      // const franchiseSpriteMapping = await loadSpriteMapping(NBAType.TEAM);
-
-      // const coords = franchiseSpriteMapping.SAS_1981;
-
-      // if (!coords) throw new Error('No coords found for SAS_1981');
-
-      // const img = franchiseSprite.clone().crop(coords.x, coords.y, coords.width, coords.height);
-      // await img.writeAsync('SAS_1981_test.png');
-      // const palette = await parseColorPalette(img);
-
-      console.log('Palette: ', palette);
+      const seasons = await loadSeasons();
+      const validAllStarSeasons = seasons.filter(({leagueId, year}) => {
+        return (leagueId === 'NBA' && year >= 1951 && year <= 2023) || 
+          (leagueId === 'ABA' && year >= 1968 && year <= 1976);
+      });
+      console.log(seasons);
       return;
     }
 

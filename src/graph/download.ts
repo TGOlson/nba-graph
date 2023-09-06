@@ -6,7 +6,7 @@ import { persistImage } from './storage';
 import { LEAGUES_URL, localPath, playerIndexUrl, playerUrl, TEAMS_URL, teamUrl } from './util/bref-url';
 import { Fetch } from './util/fetch';
 
-async function downloadPage(fetch: Fetch, url: string): Promise<void> {
+export async function downloadPage(fetch: Fetch, url: string): Promise<void> {
   console.log('Downloading url: ', url);
   const response = await fetch(url);
   const body = await response.text();
