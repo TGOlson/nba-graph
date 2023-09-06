@@ -1,15 +1,17 @@
-type AssetPathBuilder = {
+type AssetPath = {
   img: {
-    franchiseSprite: () => string,
-    teamSprite: () => string,
-    playerSprite: () => string,
+    franchiseSprite: string,
+    teamSprite: string,
+    playerSprite: string,
+    playerDefault: string,
   }
 };
 
-export const assets: AssetPathBuilder = {
+export const assets: AssetPath = {
   img: {
-    franchiseSprite: (): string => `/assets/sprites/franchise.png`,
-    teamSprite: (): string => `/assets/sprites/team.png`,
-    playerSprite: (): string => `/assets/sprites/player.png`,
+    franchiseSprite: `/assets/sprites/franchise.png`,
+    teamSprite: `/assets/sprites/team.png`,
+    playerSprite: `/assets/sprites/player.png`,
+    playerDefault: `/assets/img/player_default.png`,
   }
 };

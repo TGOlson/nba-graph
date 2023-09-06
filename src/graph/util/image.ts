@@ -21,7 +21,7 @@ export const teamTransform = (_key: string, image: Jimp): Jimp => {
 
 // Note: player images are 120x180 rectangles
 // Resize to 90px wide, then add 15px padding to the left and right
-// We could leave these larger, but player pictures don't need that much resolution, and this saves space
+// We could keep at higher res, but player pictures don't need that much detail, and this saves space
 export const playerTransform = (_key: string, image: Jimp): Jimp => {
   const base = new Jimp(PLAYER_IMAGE_SIZE, PLAYER_IMAGE_SIZE, '#ffffff');
 

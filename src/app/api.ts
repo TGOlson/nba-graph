@@ -1,9 +1,12 @@
 import { Attributes, GraphOptions, SerializedEdge, SerializedNode } from 'graphology-types';
+import { FranchiseNodeAttributes, PlayerNodeAttributes, TeamNodeAttributes } from '../shared/types';
+
+type NBANode = SerializedNode & {attributes: PlayerNodeAttributes | TeamNodeAttributes | FranchiseNodeAttributes};
 
 export type GraphData = {
   attributes: Attributes;
   options: GraphOptions;
-  nodes: SerializedNode[];
+  nodes: NBANode[];
   edges: SerializedEdge[];
 };
 
@@ -15,7 +18,7 @@ export async function fetchGraphData(): Promise<GraphData> {
   return Promise.all([
     fetchJSON<Attributes>('/assets/data/graph/attributes.json'), 
     fetchJSON<GraphOptions>('/assets/data/graph/options.json'),
-    fetchJSON<SerializedNode[]>('/assets/data/graph/nodes.json'),
+    fetchJSON<NBANode[]>('/assets/data/graph/nodes.json'),
     fetchJSON<SerializedEdge[]>('/assets/data/graph/edges.json'),
   ])
     .then(([

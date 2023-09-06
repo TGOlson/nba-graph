@@ -108,6 +108,9 @@ The output graph data is stored in `./data/graph/graph.json`. The graph is built
   * ~~larger images (I think don't downside on sprite generation?)~~
   * ~~improve node sizes~~
   * __placeholders for teams/players without images__
+    * add to team/player/franchise sprite
+    * player -> grey outline
+    * team -> grey bball
   * filters and advanced search
 * hacks
   * ~~test animations for force layout and other movements~~
@@ -121,6 +124,7 @@ The output graph data is stored in `./data/graph/graph.json`. The graph is built
   * compress graph json?
   * more fun edge colors (based on team primary?)
   * some edge colors are funky (check spurs 1981/1982)
+  * darken circle around teams (right now it's just primary color)
 * deploy
  * setup github page (TODO: where to store data?)
  * deploy assets to aws/cloudflair

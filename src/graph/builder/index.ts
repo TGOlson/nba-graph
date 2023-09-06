@@ -3,7 +3,7 @@ import { circular } from "graphology-layout";
 import forceAtlas2 from "graphology-layout-forceatlas2";
 
 import { NBAData, NBAType, Team } from "../../shared/nba-types";
-import { EmptyObject, FranchiseNodeAttributes, PlayerNodeAttributes, SpriteNodeAttributes, TeamNodeAttributes } from "../../shared/types";
+import { FranchiseNodeAttributes, PlayerNodeAttributes, SpriteNodeAttributes, TeamNodeAttributes } from "../../shared/types";
 import { assets } from "../util/assets";
 import { GraphConfig } from "./config";
 import { loadSpriteColors, loadSpriteMapping } from "../storage";
@@ -22,6 +22,8 @@ import { loadSpriteColors, loadSpriteMapping } from "../storage";
 // [pic] Denver Nuggets (franchise)
 //       1985-present / NBA
 
+const DEFAULT_CROP = {x: 0, y: 0, width: 512, height: 512};
+
 export const buildGraph = async (data: NBAData, config: GraphConfig): Promise<Graph> => {
   console.log('Building graph');
   const graph = new DirectedGraph();
@@ -29,10 +31,6 @@ export const buildGraph = async (data: NBAData, config: GraphConfig): Promise<Gr
   const startYear = config.startYear ?? 0; 
   const endYear = config.endYear ?? Infinity;
   const teams: Team[] = data.teams.filter(({year}) => year >= startYear && year <= endYear);
-
-  const playerSprite = assets.img.playerSprite();
-  const teamSprite = assets.img.teamSprite();
-  const franchiseSprite = assets.img.franchiseSprite();
 
   const playerImgLocations = await loadSpriteMapping(NBAType.PLAYER);
   const teamImgLocations = await loadSpriteMapping(NBAType.TEAM);
@@ -58,38 +56,42 @@ export const buildGraph = async (data: NBAData, config: GraphConfig): Promise<Gr
 
     const imgCoords = playerImgLocations[player.id];
     
-    const imgProps: SpriteNodeAttributes | EmptyObject = imgCoords 
-      ? {type: 'sprite', image: playerSprite, crop: imgCoords}
-      : {};
+    const imgProps: SpriteNodeAttributes = imgCoords 
+      ? {type: 'sprite', image: assets.img.playerSprite, crop: imgCoords}
+      : {type: 'sprite', image: assets.img.playerDefault, crop: DEFAULT_CROP};
 
-    graph.addNode(player.id, {
+    const attrs: PlayerNodeAttributes = {
       size, 
       label: player.name, 
       nbaType: NBAType.PLAYER,
       years: `${Math.min(...yearsActive) - 1}-${Math.max(...yearsActive)}`,
-      color: config.colors.player, 
+      color: config.defaultNodeColor, 
       borderColor: config.defaultBorderColors.player,
       ...imgProps, 
-    } as PlayerNodeAttributes);
+    };
+
+    graph.addNode(player.id, attrs);
   });
   
   data.franchises.forEach(franchise => {
     const imgCoords = franchiseImgLocations[franchise.id];
     
-    const imgProps: SpriteNodeAttributes | EmptyObject = imgCoords
-      ? {type: 'sprite', image: franchiseSprite, crop: imgCoords}
-      : {};
+    const imgProps: SpriteNodeAttributes = imgCoords
+      ? {type: 'sprite', image: assets.img.franchiseSprite, crop: imgCoords}
+      : {type: undefined, image: undefined, crop: undefined};
 
     const borderColor = franchiseColors[franchise.id]?.primary ?? config.defaultBorderColors.franchise;
     
-    graph.addNode(franchise.id, { 
+    const attrs: FranchiseNodeAttributes = { 
       size: config.sizes.franchise, 
       label: franchise.name, 
       nbaType: NBAType.FRANCHISE,
-      color: config.colors.franchise, 
+      color: config.defaultNodeColor, 
       borderColor,
       ...imgProps, 
-    } as FranchiseNodeAttributes);
+    };
+
+    graph.addNode(franchise.id, attrs);
   });
 
 
@@ -100,25 +102,26 @@ export const buildGraph = async (data: NBAData, config: GraphConfig): Promise<Gr
     const imgCoords = teamImgLocations[team.id];
     const fallbackImgCoords = franchiseImgLocations[team.franchiseId];
     
-    let imgProps: SpriteNodeAttributes | EmptyObject = {};
+    let imgProps: SpriteNodeAttributes = {type: undefined, image: undefined, crop: undefined};
 
     if (imgCoords) {
-      imgProps = {type: 'sprite', image: teamSprite, crop: imgCoords};
+      imgProps = {type: 'sprite', image: assets.img.teamSprite, crop: imgCoords};
     } else if (fallbackImgCoords) {
-      imgProps = {type: 'sprite', image: franchiseSprite, crop: fallbackImgCoords};
+      imgProps = {type: 'sprite', image: assets.img.franchiseSprite, crop: fallbackImgCoords};
     }
-    // TODO: should default to some generic pic if no franchise sprite is found
   
     const borderColor = teamColors[team.id]?.primary ?? config.defaultBorderColors.team;
 
-    graph.addNode(team.id, { 
+    const attrs: TeamNodeAttributes = { 
       size: config.sizes.team, 
       label, 
       nbaType: NBAType.TEAM,
-      color: config.colors.team, 
+      color: config.defaultNodeColor, 
       borderColor,
       ...imgProps,
-    } as TeamNodeAttributes);
+    };
+
+    graph.addNode(team.id, attrs);
   });
 
   // TODO: it might be nice to slightly mute the edge colors

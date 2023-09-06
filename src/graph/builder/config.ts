@@ -8,16 +8,12 @@ export type GraphConfig = {
     playerDefault: number;
     playerMin: number;
   };
-  colors: {
-    franchise: string;
-    team: string;
-    player: string;
-  };
   defaultBorderColors: {
     franchise: string;
     team: string;
     player: string;
   };
+  defaultNodeColor: string;
   defaultEdgeColor: string;
 };
 
@@ -31,14 +27,17 @@ export const GRAPH_CONFIG: GraphConfig = {
     playerDefault: 3,
     playerMin: 2
   },
-  colors: {
-    franchise: 'green',
-    team: 'purple',
-    player: '#d1d4e7'
-  },
+  // Note: these colors are only used when a image is not defined for a node
+  // This should never happen for player nodes, but may happen for franchise and team nodes
+  // colors: {
+  //   franchise: '#C6C3BD',
+  //   team: '#C6C3BD',
+  //   player: '#C6C3BD'
+  // },
+  defaultNodeColor: '#C6C3BD',
   defaultBorderColors: {
-    franchise: '#CCCCCC',
-    team: '#CCCCCC',
+    franchise: '#FFFFFF',
+    team: '#FFFFFF',
     player: '#FFFFFF'
   },
   defaultEdgeColor: '#CCCCCC',
