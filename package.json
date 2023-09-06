@@ -20,6 +20,7 @@
   },
   "homepage": "https://github.com/TGOlson/nba-graph#readme",
   "devDependencies": {
+    "@types/color": "^3.0.4",
     "@typescript-eslint/eslint-plugin": "^5.47.0",
     "css-loader": "^6.7.3",
     "eslint": "^8.30.0",
@@ -45,6 +46,7 @@
     "@types/react": "^18.0.26",
     "@types/react-dom": "^18.0.9",
     "cheerio": "^1.0.0-rc.12",
+    "color": "^4.2.3",
     "graphology": "^0.25.1",
     "graphology-layout": "^0.6.1",
     "graphology-layout-forceatlas2": "^0.10.1",

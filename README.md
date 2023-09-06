@@ -116,12 +116,12 @@ The output graph data is stored in `./data/graph/graph.json`. The graph is built
   * ~~try to improve sprite generation, some heads are off center?~~
   * views (roster view, teammate view, something else?)
 * small cleanups
+  * ~~some edge colors are funky (check spurs 1981/1982)~~
+  * ~~darken circle around teams (right now it's just primary color)~~
   * sort by last name in search bar
   * adjust player node size for awards
   * search is a little laggy?
   * compress graph json?
-  * some edge colors are funky (check spurs 1981/1982)
-  * darken circle around teams (right now it's just primary color)
 * deploy
  * setup github page (TODO: where to store data?)
  * deploy assets to aws/cloudflair

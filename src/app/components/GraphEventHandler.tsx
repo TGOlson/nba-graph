@@ -55,6 +55,7 @@ const GraphEvents = () => {
         if ((selectedNode && graph.neighbors(selectedNode).includes(node) || (hoveredNode && !selectedNode && graph.neighbors(hoveredNode).includes(node)))) {
           return { 
             ...data, 
+            zIndex: 700,
             highlighted: true, 
             borderColor: activeBorderColor,
             size: data.size as number + (nodeIsHovered ? 2 : 1),
@@ -62,9 +63,9 @@ const GraphEvents = () => {
         }
 
         // if current reducer node is selected or hovered, apply styles
-        if (nodeIsSelected && nodeIsHovered) return { ...data, highlighted: true, borderColor: activeBorderColor, size: data.size as number + 4};
-        if (nodeIsSelected) return { ...data, highlighted: true, borderColor: activeBorderColor, size: data.size as number + 3};
-        if (nodeIsHovered) return { ...data, highlighted: true, borderColor: activeBorderColor, size: data.size as number + 1};
+        if (nodeIsSelected && nodeIsHovered) return { ...data, zIndex: 1000, highlighted: true, borderColor: activeBorderColor, size: data.size as number + 4};
+        if (nodeIsSelected) return { ...data, zIndex: 900, highlighted: true, borderColor: activeBorderColor, size: data.size as number + 3};
+        if (nodeIsHovered) return { ...data, zIndex: 800, highlighted: true, borderColor: activeBorderColor, size: data.size as number + 1};
 
         return {
           ...data, 

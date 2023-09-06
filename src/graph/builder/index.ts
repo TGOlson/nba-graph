@@ -1,6 +1,7 @@
 import Graph, { DirectedGraph } from "graphology";
 import { circular } from "graphology-layout";
 import forceAtlas2 from "graphology-layout-forceatlas2";
+import Color from "color";
 
 import { NBAData, NBAType, Team } from "../../shared/nba-types";
 import { FranchiseNodeAttributes, PlayerNodeAttributes, SpriteNodeAttributes, TeamNodeAttributes } from "../../shared/types";
@@ -126,16 +127,27 @@ export const buildGraph = async (data: NBAData, config: GraphConfig): Promise<Gr
     graph.addNode(team.id, attrs);
   });
 
-  // TODO: it might be nice to slightly mute the edge colors
   data.playerSeasons.forEach(pt => {
     // graph.addEdge(pt.playerId, pt.teamId, {label: 'played_on'});
-    const color = teamColors[pt.teamId]?.primary ?? config.defaultEdgeColor;
+
+    const teamPalette = teamColors[pt.teamId];
+  
+    const color = teamPalette
+      ? Color(teamPalette.primary).lighten(0.3).hex()
+      : config.defaultEdgeColor;
+
     graph.addEdge(pt.playerId, pt.teamId, {color});
   });
 
   teams.forEach(team => {
     // graph.addEdge(team.id, team.franchiseId, {label: 'season_of'});
-    const color = franchiseColors[team.franchiseId]?.primary ?? config.defaultEdgeColor;
+  
+    const teamPalette = teamColors[team.id];
+  
+    const color = teamPalette
+      ? Color(teamPalette.primary).lighten(0.3).hex()
+      : config.defaultEdgeColor;
+
     graph.addEdge(team.id, team.franchiseId, {color});
   });
 

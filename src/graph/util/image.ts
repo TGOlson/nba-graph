@@ -1,8 +1,13 @@
 import { readdir } from 'fs/promises';
 import Jimp from 'jimp';
 import path from 'path';
-import { persistJSON } from '../storage';
+import Vibrant from 'node-vibrant';
+
+import { loadSpriteMapping, persistJSON } from '../storage';
 import {createSprite, ImageSource, Sprite} from 'quick-sprite';
+import { NBAType } from '../../shared/nba-types';
+import { Palette } from '../../shared/types';
+import { spritePath } from '../storage/paths';
 
 const MAX_WIDTH = 3072;
 const TEAM_IMAGE_SIZE = 180;
@@ -61,3 +66,38 @@ export async function createSpriteImage(inputDir: string, imagePath: string, map
 
   await persistJSON(mappingPath)(mapping);
 }
+
+export async function parseColorPalette(img: Jimp): Promise<Partial<Palette>> {
+  const buffer = await img.getBufferAsync(Jimp.MIME_PNG);
+  const palette = await Vibrant.from(buffer).quality(3).getPalette();
+
+  return {
+    primary: palette.Vibrant?.hex,
+    light: palette.LightVibrant?.hex,
+    dark: palette.DarkVibrant?.hex,
+  };
+}
+
+export async function parseSpriteColorPallette(typ: NBAType): Promise<{[key: string]: Palette}> {
+  const franchiseSprite = await Jimp.read(spritePath(typ));
+  const franchiseSpriteMapping = await loadSpriteMapping(typ);
+  const res: {[key: string]: Palette} = {};
+
+  for (const [key, coords] of Object.entries(franchiseSpriteMapping)) {
+    const img = franchiseSprite.clone().crop(coords.x, coords.y, coords.width, coords.height);
+
+    const palette = await parseColorPalette(img);
+
+    if (!isFullPallette(palette)) {
+      throw new Error(`Unexpected partial palette for: ${key}`);
+    }
+
+    res[key] = palette;
+  }
+
+  return res;
+}
+
+const isFullPallette = (palette: Partial<Palette>): palette is Palette => {
+  return !!palette.primary && !!palette.light && !!palette.dark;
+};
