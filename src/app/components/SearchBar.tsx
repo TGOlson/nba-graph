@@ -23,12 +23,11 @@ type Option = {
   image: {
     src: string;
     crop: Selection;
-  } | false | undefined;
+  } | false;
 };
 
 const getOptionImage = (option: Option) => {
   if (option.image === false) return null;
-  if (option.image === undefined) return <Avatar />;
 
   return (
     <Box sx={{
@@ -87,10 +86,10 @@ const SearchBar = ({nodes}: SearchBarProps) => {
       key: node.key,
       label: attrs.nbaType === 'team' ? attrs.label.match(/.*(?=\s\(\d{4}-\d{2}\))/)?.[0] as string : attrs.label,
       subLabel: getSubLabel(node),
-      image: attrs.image ? {
+      image: {
         src: attrs.image,
         crop: attrs.crop,
-      } : undefined,
+      },
     };
   });
 
