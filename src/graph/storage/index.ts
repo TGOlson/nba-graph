@@ -41,6 +41,9 @@ export const loadTeams: Read<Team[]> = readJSON(TEAM_PATH);
 export const loadSeasons: Read<Season[]> = readJSON(SEASON_PATH);
 export const loadPlayers: Read<Player[]> = readJSON(PLAYER_PATH);
 export const loadPlayerSeasons: Read<PlayerSeason[]> = readJSON(PLAYER_SEASON_PATH);
+export const loadAwards: Read<Award[]> = readJSON(AWARD_PATH);
+export const loadSeasonAwards: Read<SeasonAward[]> = readJSON(SEASON_AWARD_PATH);
+export const loadAwardRecipients: Read<AwardRecipient[]> = readJSON(AWARD_RECIPIENT_PATH);
 
 export async function loadNBAData(): Promise<NBAData> {
   const leagues: League[] = await loadLeagues();
@@ -49,8 +52,21 @@ export async function loadNBAData(): Promise<NBAData> {
   const seasons: Season[] = await loadSeasons();
   const players: Player[] = await loadPlayers();
   const playerSeasons: PlayerSeason[] = await loadPlayerSeasons();
+  const awards: Award[] = await loadAwards();
+  const seasonAwards: SeasonAward[] = await loadSeasonAwards();
+  const awardRecipients: AwardRecipient[] = await loadAwardRecipients();
 
-  return {leagues, franchises, teams, seasons, players, playerSeasons};
+  return {
+    leagues, 
+    franchises, 
+    teams, 
+    seasons, 
+    players, 
+    playerSeasons, 
+    awards, 
+    seasonAwards, 
+    awardRecipients
+  };
 }
 
 export function loadSpriteMapping(typ: NBAType): Promise<SelectionMap> {

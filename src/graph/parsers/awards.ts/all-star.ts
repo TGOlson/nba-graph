@@ -12,13 +12,13 @@ const URL_REGEX = /players\/[a-z]{1}\/([a-z]{2,}\d{2}).html/;
 export const ALL_STAR_AWARDS: Award[] = [
   {
     id: 'ALL_STAR_NBA',
-    name: 'All-Star',
+    name: 'NBA All-Star Team',
     leagueId: 'NBA',
     url: LEAGUES_URL,
   },
   {
     id: 'ALL_STAR_ABA',
-    name: 'All-Star',
+    name: 'ABA All-Star Team',
     leagueId: 'ABA',
     url: LEAGUES_URL,
   }
@@ -29,26 +29,28 @@ type AllStarParseResult = {
   awardRecipients: AwardRecipient[],
 };
 
-const nbaYears = Array.from({length: 73}, (_, i) => 1951 + i).filter(y => y !== 1999).map(x => `NBA_${x}`);
-const abaYears = Array.from({length: 9}, (_, i) => 1968 + i).map(x => `ABA_${x}`);
+const nbaYears = Array.from({length: 73}, (_, i) => 1951 + i).filter(y => y !== 1999).map(x => `NBA_${x}`).reverse();
+const abaYears = Array.from({length: 9}, (_, i) => 1968 + i).map(x => `ABA_${x}`).reverse();
 
 export const validAllStarSeasons: string[] = [...nbaYears, ...abaYears];
 
 const parse = ($: cheerio.CheerioAPI, seasonId: string): AllStarParseResult => {
 
-  const [leagueId, year] = seasonId.split('_');
+  const [leagueId, yearStr] = seasonId.split('_');
 
-  if (!leagueId || !year) throw new Error(`Invalid seasonId: ${seasonId}`);
+  if (!leagueId || !yearStr) throw new Error(`Invalid seasonId: ${seasonId}`);
 
   const urlPieces = allStarUrl(seasonId).split('/');
   const url = '/' + urlPieces.slice(urlPieces.length - 2).join('/');
   
+  const year = parseInt(yearStr);
+
   const seasonAward: SeasonAward = {
     id: `ALL_STAR_${seasonId}`,
-    name: 'ALL-STAR',
+    name: `${leagueId} All-Star Team (${year})`,
     awardId: `ALL_STAR_${leagueId}`,
     leagueId,
-    year: parseInt(year),
+    year,
     url,
   };
 
@@ -68,16 +70,26 @@ const parse = ($: cheerio.CheerioAPI, seasonId: string): AllStarParseResult => {
     const [_, playerId] = res;
 
     return {
+      type: 'season',
       seasonAwardId: seasonAward.id,
       recipient: {type: 'player', id: playerId},
-      year: parseInt(year),
+      year,
       url,
     };
   });
 
+  const dedupedRecipients: AwardRecipient[] = awardRecipients.reduce((acc: AwardRecipient[], curr: AwardRecipient) => {
+    const existing = acc.find(x => x.recipient.id === curr.recipient.id);
+    if (!existing) {
+      return [...acc, curr];
+    } else {
+      return acc;
+    }
+  }, []);
+
   return {
     seasonAward,
-    awardRecipients,
+    awardRecipients: dedupedRecipients,
   };
 };
 

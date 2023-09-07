@@ -28,7 +28,7 @@ const parse = ($: cheerio.CheerioAPI): AwardParseResult => {
 
     awards[awardId] = {
       id: awardId,
-      name: 'League Champion',
+      name: `${leagueId} League Champion`,
       leagueId,
       url,
     };
@@ -45,6 +45,7 @@ const parse = ($: cheerio.CheerioAPI): AwardParseResult => {
     const teamId = `${yearAppropriateFranchiseId}_${year}`;
 
     const awardRecipient: AwardRecipient = {
+      type: 'lifetime',
       awardId,
       recipient: {type: 'team', id: teamId},
       url

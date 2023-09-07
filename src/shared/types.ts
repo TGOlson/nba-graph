@@ -33,3 +33,7 @@ export type FranchiseNodeAttributes = BaseNodeAttributes & {
 export type TeamNodeAttributes = BaseNodeAttributes & {
   nbaType: 'team';
 };
+
+export type AwardNodeAttributes = BaseNodeAttributes & {
+  nbaType: 'award';
+};

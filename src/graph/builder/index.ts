@@ -3,8 +3,8 @@ import { circular } from "graphology-layout";
 import forceAtlas2 from "graphology-layout-forceatlas2";
 import Color from "color";
 
-import { NBAData, NBAType, Team } from "../../shared/nba-types";
-import { FranchiseNodeAttributes, PlayerNodeAttributes, SpriteNodeAttributes, TeamNodeAttributes } from "../../shared/types";
+import { Award, NBAData, NBAType, Team } from "../../shared/nba-types";
+import { AwardNodeAttributes, FranchiseNodeAttributes, PlayerNodeAttributes, SpriteNodeAttributes, TeamNodeAttributes } from "../../shared/types";
 import { assets } from "../util/assets";
 import { GraphConfig } from "./config";
 import { loadSpriteColors, loadSpriteMapping } from "../storage";
@@ -48,6 +48,10 @@ export const buildGraph = async (data: NBAData, config: GraphConfig): Promise<Gr
 
     return acc;
   }, {});
+
+  // *************
+  // *** NODES ***
+  // *************
 
   data.players.forEach(player => {
     // TODO: more sophisticated size calculation, using seasons, awards, etc.
@@ -127,6 +131,40 @@ export const buildGraph = async (data: NBAData, config: GraphConfig): Promise<Gr
     graph.addNode(team.id, attrs);
   });
 
+  data.awards.forEach(award => {
+    const imgProps: SpriteNodeAttributes = {type: 'sprite', image: assets.img.teamDefault, crop: DEFAULT_CROP};
+
+    const attrs: AwardNodeAttributes = {
+      label: award.name,
+      nbaType: 'award',
+      color: '#ffffff',
+      borderColor: '#000000',
+      size: 3,
+      ...imgProps,
+    };
+
+    graph.addNode(award.id, attrs);
+  });
+
+  data.seasonAwards.forEach(seasonAward => {
+    const imgProps: SpriteNodeAttributes = {type: 'sprite', image: assets.img.teamDefault, crop: DEFAULT_CROP};
+
+    const attrs: AwardNodeAttributes = {
+      label: seasonAward.name,
+      nbaType: 'award',
+      color: '#ffffff',
+      borderColor: '#000000',
+      size: 3,
+      ...imgProps,
+    };
+
+    graph.addNode(seasonAward.id, attrs);
+  });
+
+  // *************
+  // *** EDGES ***
+  // *************
+
   data.playerSeasons.forEach(pt => {
     // graph.addEdge(pt.playerId, pt.teamId, {label: 'played_on'});
 
@@ -149,6 +187,16 @@ export const buildGraph = async (data: NBAData, config: GraphConfig): Promise<Gr
       : config.defaultEdgeColor;
 
     graph.addEdge(team.id, team.franchiseId, {color});
+  });
+
+  data.seasonAwards.forEach(seasonAward => {
+    graph.addEdge(seasonAward.awardId, seasonAward.id, {color: config.defaultEdgeColor});
+  });
+
+  data.awardRecipients.forEach(recipient => {
+    const awardId = recipient.type === 'lifetime' ? recipient.awardId : recipient.seasonAwardId;
+
+    graph.addEdge(recipient.recipient.id, awardId, {color: config.defaultEdgeColor});
   });
 
   console.log('Assigning locations');

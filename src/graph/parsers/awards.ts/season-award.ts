@@ -5,7 +5,7 @@ import { Award, SeasonAward, AwardRecipient } from "../../../shared/nba-types";
 import { HtmlParser } from "../html-parser";
 
 type AwardConfig = {
-  name: string,
+  makeName: (leagueId: string) => string,
   baseAwardId: string,
   tableSelector: string,
   url: string,
@@ -20,84 +20,84 @@ const mutliWinnerPlayerSelector = (num: number): string => Array.from({length: n
 
 const AWARD_CONFIG: AwardConfig[] = [
   {
-    name: 'Most Valuable Player',
+    makeName: (leagueId: string) => `${leagueId} Most Valuable Player`,
     baseAwardId: 'MVP_',
     tableSelector: singleWinnerTableSelector('mvp_'),
     url: awardUrls.mvp,
     playerSelector: SINGLE_WINNER_PLAYER_SELECTOR,
   },
   {
-    name: 'Defensive Player of the Year',
+    makeName: (leagueId: string) => `${leagueId} Defensive Player of the Year`,
     baseAwardId: 'DPOY_',
     tableSelector: singleWinnerTableSelector('dpoy_'),
     url: awardUrls.dpoy,
     playerSelector: SINGLE_WINNER_PLAYER_SELECTOR,
   },
   {
-    name: 'Rookie of the Year',
+    makeName: (leagueId: string) => `${leagueId} Rookie of the Year`,
     baseAwardId: 'ROY_',
     tableSelector: singleWinnerTableSelector('roy_'),
     url: awardUrls.roy,
     playerSelector: SINGLE_WINNER_PLAYER_SELECTOR,
   },
   {
-    name: 'Sixth Man of the Year',
+    makeName: (leagueId: string) => `${leagueId} Sixth Man of the Year`,
     baseAwardId: 'SMOY_',
     tableSelector: singleWinnerTableSelector('smoy_'),
     url: awardUrls.smoy,
     playerSelector: SINGLE_WINNER_PLAYER_SELECTOR,
   },
   {
-    name: 'Most Improved Player',
+    makeName: (leagueId: string) => `${leagueId} Most Improved Player`,
     baseAwardId: 'MIP_',
     tableSelector: singleWinnerTableSelector('mip_'),
     url: awardUrls.mip,
     playerSelector: SINGLE_WINNER_PLAYER_SELECTOR,
   },
   {
-    name: 'Teammate of the Year',
+    makeName: (leagueId: string) => `${leagueId} Teammate of the Year`,
     baseAwardId: 'TMOY_',
     tableSelector: singleWinnerTableSelector('tmoy_'),
     url: awardUrls.tmoy,
     playerSelector: SINGLE_WINNER_PLAYER_SELECTOR,
   },
   {
-    name: 'Citizenship Award',
+    makeName: (leagueId: string) => `${leagueId} Citizenship Award`,
     baseAwardId: 'CITIZENSHIP_',
     tableSelector: singleWinnerTableSelector('citizenship_'),
     url: awardUrls.citizenship,
     playerSelector: SINGLE_WINNER_PLAYER_SELECTOR,
   },
   {
-    name: 'All-Star MVP',
+    makeName: (leagueId: string) => `${leagueId} All-Star MVP`,
     baseAwardId: 'ALL_STAR_MVP_',
     tableSelector: singleWinnerTableSelector('all_star_mvp_'),
     url: awardUrls.all_star_mvp,
     playerSelector: SINGLE_WINNER_PLAYER_SELECTOR,
   },
   {
-    name: 'Finals MVP',
+    makeName: (leagueId: string) => `${leagueId} Finals MVP`,
     baseAwardId: 'FINALS_MVP_',
     tableSelector: singleWinnerTableSelector('finals_mvp_'),
     url: awardUrls.finals_mvp,
     playerSelector: SINGLE_WINNER_PLAYER_SELECTOR,
   },
   {
-    name: 'All-League Team',
+    makeName: (leagueId: string) => `All-${leagueId} Team`,
     baseAwardId: 'ALL_LEAGUE_',
     tableSelector: multiWinnerTableSelector('awards_all_league'),
     url: awardUrls.all_league,
     playerSelector: mutliWinnerPlayerSelector(15),
   },
   {
-    name: 'All-Rookie Team',
+    makeName: (leagueId: string) => `${leagueId} All-Rookie Team`,
     baseAwardId: 'ALL_ROOKIE_',
     tableSelector: multiWinnerTableSelector('awards_all_rookie'),
     url: awardUrls.all_rookie,
     playerSelector: mutliWinnerPlayerSelector(10),
   },
   {
-    name: 'All-Defense Team',
+    makeName: (leagueId: string) => `${leagueId} All-Defense Team`,
     baseAwardId: 'ALL_DEFENSE_',
     tableSelector: multiWinnerTableSelector('awards_all_defense'),
     url: awardUrls.all_defense,
@@ -127,7 +127,7 @@ const parse = ($: cheerio.CheerioAPI, config: AwardConfig): AwardParseResult => 
     
     awards[awardId] = {
       id: awardId,
-      name: config.name,
+      name: config.makeName(leagueId),
       leagueId,
       url,
     };
@@ -142,9 +142,10 @@ const parse = ($: cheerio.CheerioAPI, config: AwardConfig): AwardParseResult => 
     const year = parseInt(yearP) + 1;
 
     const seasonAwardId = `${awardId}_${year}`;
+    const name = `${config.makeName(leagueId)} (${year - 1}-${year.toString().slice(2)})`;
     seasonAwards[seasonAwardId] = {
       id: seasonAwardId,
-      name: config.name,
+      name,
       awardId,
       leagueId,
       year,
@@ -167,6 +168,7 @@ const parse = ($: cheerio.CheerioAPI, config: AwardConfig): AwardParseResult => 
       const [_, playerId] = res;
   
       return {
+        type: 'season',
         seasonAwardId,
         recipient: {type: 'player', id: playerId},
         year,

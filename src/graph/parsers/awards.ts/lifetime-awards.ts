@@ -72,15 +72,25 @@ const parse = ($: cheerio.CheerioAPI, config: AwardConfig): AwardParseResult => 
     const [_, playerId] = res;
 
     return {
+      type: 'lifetime',
       awardId: award.id,
       recipient: {type: 'player', id: playerId},
       url,
     };
   });
 
+  const dedupedRecipients: AwardRecipient[] = awardRecipients.reduce((acc: AwardRecipient[], curr: AwardRecipient) => {
+    const existing = acc.find(x => x.recipient.id === curr.recipient.id);
+    if (!existing) {
+      return [...acc, curr];
+    } else {
+      return acc;
+    }
+  }, []);
+
   return {
     award,
-    awardRecipients,
+    awardRecipients: dedupedRecipients,
   };
 };
 
