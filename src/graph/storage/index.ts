@@ -2,7 +2,7 @@ import { mkdir, readFile, writeFile } from "fs/promises";
 import Graph from "graphology";
 import path from "path";
 
-import { Award, Franchise, League, NBAData, NBAType, Player, PlayerSeason, Season, SeasonAward, SeasonAwardWinner, Team } from "../../shared/nba-types";
+import { Award, Franchise, League, NBAData, NBAType, Player, PlayerSeason, Season, SeasonAward, Team, AwardRecipient } from "../../shared/nba-types";
 import { Palette, SelectionMap } from "../../shared/types";
 
 import {
@@ -21,7 +21,7 @@ import {
   spriteColorsPath,
   AWARD_PATH,
   SEASON_AWARD_PATH,
-  SEASON_AWARD_WINNER_PATH,
+  AWARD_RECIPIENT_PATH,
 } from './paths';
 
 // ** read
@@ -90,7 +90,7 @@ export const persistPlayers: Persist<Player[]> = persistJSON(PLAYER_PATH);
 export const persistPlayerSeasons: Persist<PlayerSeason[]> = persistJSON(PLAYER_SEASON_PATH);
 export const persistAwards: Persist<Award[]> = persistJSON(AWARD_PATH);
 export const persistSeasonAwards: Persist<SeasonAward[]> = persistJSON(SEASON_AWARD_PATH);
-export const persistSeasonAwardWinners: Persist<SeasonAwardWinner[]> = persistJSON(SEASON_AWARD_WINNER_PATH);
+export const persistAwardRecipients: Persist<AwardRecipient[]> = persistJSON(AWARD_RECIPIENT_PATH);
 
 export async function persistGraph(graph: Graph): Promise<void> {
   const {attributes, options, nodes, edges} = graph.export();

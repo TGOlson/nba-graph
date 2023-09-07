@@ -1,7 +1,7 @@
 import * as cheerio from 'cheerio';
 
 import { LEAGUES_URL, allStarUrl, localPath } from "../util/bref-url";
-import { Award, SeasonAward, SeasonAwardWinner } from "../../shared/nba-types";
+import { Award, SeasonAward, AwardRecipient } from "../../shared/nba-types";
 import { HtmlParser } from "./html-parser";
 
 // kind weird selector, but basically slurp up all links like "/players/..."
@@ -26,7 +26,7 @@ export const ALL_STAR_AWARDS: Award[] = [
 
 type AllStarParseResult = {
   seasonAward: SeasonAward,
-  seasonAwardWinners: SeasonAwardWinner[],
+  awardRecipients: AwardRecipient[],
 };
 
 const nbaYears = Array.from({length: 73}, (_, i) => 1951 + i).filter(y => y !== 1999).map(x => `NBA_${x}`);
@@ -52,7 +52,7 @@ const parse = ($: cheerio.CheerioAPI, seasonId: string): AllStarParseResult => {
     url,
   };
 
-  const seasonAwardWinners = $(SELECTOR).toArray().map((el: cheerio.AnyNode) => {
+  const awardRecipients: AwardRecipient[] = $(SELECTOR).toArray().map((el: cheerio.AnyNode) => {
     const url = $(el).attr('href');
 
     if (!url) {
@@ -69,7 +69,7 @@ const parse = ($: cheerio.CheerioAPI, seasonId: string): AllStarParseResult => {
 
     return {
       seasonAwardId: seasonAward.id,
-      playerId,
+      recipient: {type: 'player', id: playerId},
       year: parseInt(year),
       url,
     };
@@ -77,7 +77,7 @@ const parse = ($: cheerio.CheerioAPI, seasonId: string): AllStarParseResult => {
 
   return {
     seasonAward,
-    seasonAwardWinners,
+    awardRecipients,
   };
 };
 

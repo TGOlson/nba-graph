@@ -80,12 +80,18 @@ export type SeasonAward = {
 };
 
 // Edges between player nodes and season award nodes
-export type SeasonAwardWinner = {
-  seasonAwardId: string,
-  playerId: string,
-  year: number,
+export type AwardRecipient = {
+  // team only used for single season champ, player in all other cases
+  recipient: {type: 'player' | 'team', id: string},
   url: string,
-};
+} & (
+  // for lifetime awards without a corresponding season
+  {awardId: string} | 
+  // for single seasona wards (eg. MVP, all-star, league champ)
+  {seasonAwardId: string, year: number}
+);
+  // awardId: string,
+  // year: number,
 
 // // HOF, TOP_75...
 // // Note: these awards will only be shwon as edges (hence no id)

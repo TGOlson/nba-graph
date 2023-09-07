@@ -1,7 +1,7 @@
 import * as cheerio from 'cheerio';
 
 import { awardUrls, localPath } from "../util/bref-url";
-import { Award, SeasonAward, SeasonAwardWinner } from "../../shared/nba-types";
+import { Award, SeasonAward, AwardRecipient } from "../../shared/nba-types";
 import { HtmlParser } from "./html-parser";
 
 type AwardConfig = {
@@ -110,16 +110,16 @@ const URL_REGEX = /players\/[a-z]{1}\/([a-z]{2,}\d{2}).html/;
 type AwardParseResult = {
   awards: Award[],
   seasonAwards: SeasonAward[],
-  seasonAwardWinners: SeasonAwardWinner[],
+  awardRecipients: AwardRecipient[],
 };
 
-const parse = ($: cheerio.CheerioAPI, config: AwardConfig): {awards: Award[], seasonAwards: SeasonAward[], seasonAwardWinners: SeasonAwardWinner[]} => {
+const parse = ($: cheerio.CheerioAPI, config: AwardConfig): AwardParseResult => {
   // cache of awards & season awards, use this to dedupe
   // because of the way this parser is structured, we'll end up w/ dupes (eg. multiple MVP_NBA awards)
   const awards: {[key: string]: Award} = {};
   const seasonAwards: {[key: string]: SeasonAward} = {};
 
-  const seasonAwardWinners = $(config.tableSelector).toArray().flatMap((el: cheerio.AnyNode) => {
+  const awardRecipients: AwardRecipient[] = $(config.tableSelector).toArray().flatMap((el: cheerio.AnyNode) => {
     const leagueId = $('td[data-stat="lg_id"] a[href]', el).text();
     const awardId = `${config.baseAwardId}${leagueId}`;
     const urlPieces = config.url.split('/');
@@ -151,7 +151,7 @@ const parse = ($: cheerio.CheerioAPI, config: AwardConfig): {awards: Award[], se
       url,
     };
 
-    const seasonAwardWinners = $(config.playerSelector, el).toArray().map((el: cheerio.AnyNode) => {
+    return $(config.playerSelector, el).toArray().map((el: cheerio.AnyNode) => {
       const playerUrl = $(el).attr('href');
 
       if (!playerUrl) {
@@ -168,19 +168,17 @@ const parse = ($: cheerio.CheerioAPI, config: AwardConfig): {awards: Award[], se
   
       return {
         seasonAwardId,
-        playerId,
+        recipient: {type: 'player', id: playerId},
         year,
         url,
       };
     });
-
-    return seasonAwardWinners;
   });
 
   return {
     awards: Object.values(awards),
     seasonAwards: Object.values(seasonAwards),
-    seasonAwardWinners,
+    awardRecipients,
   };
 };
 
