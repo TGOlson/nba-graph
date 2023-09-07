@@ -63,8 +63,8 @@ export type PlayerSeason = {
 // MVP_NBA, DPOY_ABA...
 export type Award = {
   id: string,
-  leagueId: string,
   name: string,
+  leagueId: string,
   url: string,
 };
 
@@ -72,24 +72,30 @@ export type Award = {
 // Note: these awards will be shown as node on the graph (hence the id)
 export type SeasonAward = {
   id: string,
-  name: string,
+  name: string, // should match award name, can be stylized later with year
   awardId: string,
+  leagueId: string, // can be derived, but convenient to have here
+  year: number,
+  url: string,
+};
+
+// Edges between player nodes and season award nodes
+export type SeasonAwardWinner = {
+  seasonAwardId: string,
   playerId: string,
   year: number,
   url: string,
-  // TODO?
-  // image: string,
 };
 
-// HOF, TOP_75...
-// Note: these awards will only be shwon as edges (hence no id)
-export type LifetimeAward = {
-  playerId: string,
-  awardId: string,
-  url: string,
-  // TODO?
-  // image: string,
-};
+// // HOF, TOP_75...
+// // Note: these awards will only be shwon as edges (hence no id)
+// export type LifetimeAward = {
+//   playerId: string,
+//   awardId: string,
+//   url: string,
+//   // TODO?
+//   // image: string,
+// };
 
 export type NBAData = {
   leagues: League[];

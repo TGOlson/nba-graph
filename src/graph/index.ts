@@ -8,7 +8,7 @@ import { seasonParser } from "./parsers/season";
 import { makeTeamParser } from "./parsers/team";
 import { makePlayerSeasonParser } from "./parsers/player-season";
 
-import { loadFranchises, loadNBAData, loadPlayers, loadSeasons, loadTeams, persistFranchises, persistGraph, persistJSON, persistLeagues, persistPlayers, persistPlayerSeasons, persistSeasons, persistTeams } from "./storage";
+import { loadFranchises, loadNBAData, loadPlayers, loadSeasons, loadTeams, persistAwards, persistFranchises, persistGraph, persistJSON, persistLeagues, persistPlayers, persistPlayerSeasons, persistSeasonAwards, persistSeasonAwardWinners, persistSeasons, persistTeams } from "./storage";
 import { imageDir, spriteColorsPath, spriteMappingPath, spritePath } from "./storage/paths";
 
 import { buildGraph } from "./builder";
@@ -214,16 +214,17 @@ async function main() {
     }
 
     case commands.parse.Awards: {
-      const singleWinnerSeasonAwards = await Promise.all(
+      const seasonAwardsRes = await Promise.all(
         seasonAwardsParser.map(parser => runHtmlParser(parser))
       );
 
-      singleWinnerSeasonAwards.forEach(award => {
-        console.log('Award: ', award);
-        // console.log('Winners: ', winners);
-      });
+      const awards = seasonAwardsRes.flatMap(x => x.awards);
+      const seasonAwardsFlat = seasonAwardsRes.flatMap(x => x.seasonAwards);
+      const seasonAwardWinners = seasonAwardsRes.flatMap(x => x.seasonAwardWinners);
 
-      return;
+      await persistAwards(awards);
+      await persistSeasonAwards(seasonAwardsFlat);
+      return await persistSeasonAwardWinners(seasonAwardWinners);
     }
 
     // *** graph commands

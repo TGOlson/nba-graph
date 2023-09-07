@@ -40,3 +40,35 @@ links
 * 50th anni: https://www.basketball-reference.com/awards/nba_50_greatest.html
 * bill simmons hall of fame: https://www.basketball-reference.com/awards/simmons_pyramid.html
 * aba-all time team: https://www.basketball-reference.com/awards/aba_all_time_team.html 
+
+### modeling options
+
+seperate models
+
+export type Award = {
+  id: string,
+  leagueId: string,
+  name: string,
+};
+
+// right now this is a slightly overloaded type
+// use it to express edges and a single node
+// it's overloaded...
+// a better modeling would be:
+// player -> season award winner (edge from player to award) -> season award (yearly node) -> award (single node)
+export type SeasonAward = {
+  id: string,
+  name: string,
+  awardId: string,
+  playerId: string,
+  year: number,
+};
+
+// simple for single winners
+player (lebron) -> seasonaward (2015 mvp) -> award (mvp)
+
+// weird for multi winners?
+
+player (lebron) ->
+player (curry) -> all-star (2015) -> all-star
+player (kd) -> 

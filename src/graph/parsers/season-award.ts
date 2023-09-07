@@ -1,7 +1,7 @@
 import * as cheerio from 'cheerio';
 
 import { awardUrls, localPath } from "../util/bref-url";
-import { SeasonAward } from "../../shared/nba-types";
+import { Award, SeasonAward, SeasonAwardWinner } from "../../shared/nba-types";
 import { HtmlParser } from "./html-parser";
 
 type AwardConfig = {
@@ -107,22 +107,51 @@ const AWARD_CONFIG: AwardConfig[] = [
 
 const URL_REGEX = /players\/[a-z]{1}\/([a-z]{2,}\d{2}).html/;
 
-const parse = ($: cheerio.CheerioAPI, config: AwardConfig): SeasonAward[] => {
-  return $(config.tableSelector).toArray().flatMap((el: cheerio.AnyNode) => {
+export type AwardParseResult = {
+  awards: Award[],
+  seasonAwards: SeasonAward[],
+  seasonAwardWinners: SeasonAwardWinner[],
+};
+
+const parse = ($: cheerio.CheerioAPI, config: AwardConfig): {awards: Award[], seasonAwards: SeasonAward[], seasonAwardWinners: SeasonAwardWinner[]} => {
+  // cache of awards & season awards, use this to dedupe
+  // because of the way this parser is structured, we'll end up w/ dupes (eg. multiple MVP_NBA awards)
+  const awards: {[key: string]: Award} = {};
+  const seasonAwards: {[key: string]: SeasonAward} = {};
+
+  const seasonAwardWinners = $(config.tableSelector).toArray().flatMap((el: cheerio.AnyNode) => {
     const leagueId = $('td[data-stat="lg_id"] a[href]', el).text();
     const awardId = `${config.baseAwardId}${leagueId}`;
     const urlPieces = config.url.split('/');
     const url = '/' + urlPieces.slice(urlPieces.length - 2).join('/');
     
+    awards[awardId] = {
+      id: awardId,
+      name: config.name,
+      leagueId,
+      url,
+    };
+    
     const yearStr = $('th[data-stat="season"] a[href]', el).text();
-    const [year] = yearStr.split('-');
+    const [yearP] = yearStr.split('-');
 
-    if (!year) {
+    if (!yearP) {
       throw new Error(`Invalid response from team: unparseable year. ${yearStr}`);
     }
 
-    // const playerUrl = $(config.playerSelector, el).attr('href');
-    return $(config.playerSelector, el).toArray().map((el: cheerio.AnyNode) => {
+    const year = parseInt(yearP) + 1;
+
+    const seasonAwardId = `${awardId}_${year}`;
+    seasonAwards[seasonAwardId] = {
+      id: seasonAwardId,
+      name: config.name,
+      awardId,
+      leagueId,
+      year,
+      url,
+    };
+
+    const seasonAwardWinners = $(config.playerSelector, el).toArray().map((el: cheerio.AnyNode) => {
       const playerUrl = $(el).attr('href');
 
       if (!playerUrl) {
@@ -138,18 +167,24 @@ const parse = ($: cheerio.CheerioAPI, config: AwardConfig): SeasonAward[] => {
       const [_, playerId] = res;
   
       return {
-        id: `${awardId}_${year}`,
-        name: config.name,
-        awardId,
+        seasonAwardId,
         playerId,
-        year: parseInt(year) + 1,
+        year,
         url,
       };
     });
+
+    return seasonAwardWinners;
   });
+
+  return {
+    awards: Object.values(awards),
+    seasonAwards: Object.values(seasonAwards),
+    seasonAwardWinners,
+  };
 };
 
-export const seasonAwardsParser: HtmlParser<SeasonAward[]>[] = AWARD_CONFIG.flatMap(config => {
+export const seasonAwardsParser: HtmlParser<AwardParseResult>[] = AWARD_CONFIG.flatMap(config => {
   return {
     inputPath: localPath(config.url).filePath,
     parse: ($: cheerio.CheerioAPI) => parse($, config)
