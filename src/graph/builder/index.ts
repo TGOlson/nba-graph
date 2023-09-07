@@ -33,12 +33,12 @@ export const buildGraph = async (data: NBAData, config: GraphConfig): Promise<Gr
   const endYear = config.endYear ?? Infinity;
   const teams: Team[] = data.teams.filter(({year}) => year >= startYear && year <= endYear);
 
-  const playerImgLocations = await loadSpriteMapping(NBAType.PLAYER);
-  const teamImgLocations = await loadSpriteMapping(NBAType.TEAM);
-  const franchiseImgLocations = await loadSpriteMapping(NBAType.FRANCHISE);
+  const playerImgLocations = await loadSpriteMapping('player');
+  const teamImgLocations = await loadSpriteMapping('team');
+  const franchiseImgLocations = await loadSpriteMapping('franchise');
 
-  const teamColors = await loadSpriteColors(NBAType.TEAM);
-  const franchiseColors = await loadSpriteColors(NBAType.FRANCHISE);
+  const teamColors = await loadSpriteColors('team');
+  const franchiseColors = await loadSpriteColors('franchise');
 
   const playerYearsActive: {[playerId: string]: number[]} = data.playerSeasons.reduce<{[playerId: string]: number[]}>((acc, {playerId, year}) => {
     const prev = acc[playerId] ?? [];
@@ -64,7 +64,7 @@ export const buildGraph = async (data: NBAData, config: GraphConfig): Promise<Gr
     const attrs: PlayerNodeAttributes = {
       size, 
       label: player.name, 
-      nbaType: NBAType.PLAYER,
+      nbaType: 'player',
       years: `${Math.min(...yearsActive) - 1}-${Math.max(...yearsActive)}`,
       color: config.defaultNodeColor, 
       borderColor: config.defaultBorderColors.player,
@@ -86,7 +86,7 @@ export const buildGraph = async (data: NBAData, config: GraphConfig): Promise<Gr
     const attrs: FranchiseNodeAttributes = { 
       size: config.sizes.franchise, 
       label: franchise.name, 
-      nbaType: NBAType.FRANCHISE,
+      nbaType: 'franchise',
       color: config.defaultNodeColor, 
       borderColor,
       ...imgProps, 
@@ -118,7 +118,7 @@ export const buildGraph = async (data: NBAData, config: GraphConfig): Promise<Gr
     const attrs: TeamNodeAttributes = { 
       size: config.sizes.team, 
       label, 
-      nbaType: NBAType.TEAM,
+      nbaType: 'team',
       color: config.defaultNodeColor, 
       borderColor,
       ...imgProps,

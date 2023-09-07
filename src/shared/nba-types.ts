@@ -1,12 +1,11 @@
-export enum NBAType {
-  // LEAGUE = 'league',
-  // SEASON = 'season',
-  FRANCHISE = 'franchise',
-  TEAM = 'team',
-  PLAYER = 'player',
-  // PLAYER_SEASON = 'player-season',
-  AWARD = 'award',
-}
+export type NBAType = 
+  //  'league' |
+  //  'season' |
+   'franchise' |
+   'team' |
+   'player' |
+  //  'player-season' |
+   'award';
  
 // NBA, ABA...
 export type League = {

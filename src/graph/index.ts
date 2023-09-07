@@ -120,7 +120,7 @@ async function main() {
       const franchises = await loadFranchises();
 
       const fns = franchises.map(x => {
-          return () => downloadImage(fetch, x.image, NBAType.FRANCHISE, x.id)
+          return () => downloadImage(fetch, x.image, 'franchise', x.id)
             .catch(err => console.log('Error downloading image... skipping... ', x.id, err));
       });
 
@@ -131,7 +131,7 @@ async function main() {
       const teams  = await loadTeams();
 
       const fns = teams.map(x => {
-          return () => downloadImage(fetch, x.image, NBAType.TEAM, x.id)
+          return () => downloadImage(fetch, x.image, 'team', x.id)
             .catch(err => console.log('Error download image for. Skipping ', x.id, err));
       });
 
@@ -153,7 +153,7 @@ async function main() {
               return;
             }
 
-            return await downloadImage(fetch, x.image, NBAType.PLAYER, x.id);
+            return await downloadImage(fetch, x.image, 'player', x.id);
           };
       });
 
@@ -238,9 +238,9 @@ async function main() {
     // *** misc commands
     case commands.misc.ConvertImages: {
       return await execSeq([
-        {typ: NBAType.FRANCHISE, transform: teamTransform},
-        {typ: NBAType.TEAM, transform: teamTransform},
-        {typ: NBAType.PLAYER, transform: playerTransform}
+        {typ: 'franchise' as NBAType, transform: teamTransform},
+        {typ: 'team' as NBAType, transform: teamTransform},
+        {typ: 'player' as NBAType, transform: playerTransform}
       ].map(({typ, transform}) => 
         () => {
           console.log('Building sprite for: ', typ);
@@ -250,21 +250,21 @@ async function main() {
     }
 
     case commands.misc.ParsePrimaryColors: {
-      const franchiseColors = await parseSpriteColorPallette(NBAType.FRANCHISE);
-      const teamColors = await parseSpriteColorPallette(NBAType.TEAM);
+      const franchiseColors = await parseSpriteColorPallette('franchise');
+      const teamColors = await parseSpriteColorPallette('team');
 
-      await persistJSON(spriteColorsPath(NBAType.FRANCHISE))(franchiseColors);
-      return await persistJSON(spriteColorsPath(NBAType.TEAM))(teamColors);
+      await persistJSON(spriteColorsPath('franchise'))(franchiseColors);
+      return await persistJSON(spriteColorsPath('team'))(teamColors);
     }
 
     // for testing, debugging, etc
     case commands.misc.Test: {
-      const seasons = await loadSeasons();
-      const validAllStarSeasons = seasons.filter(({leagueId, year}) => {
-        return (leagueId === 'NBA' && year >= 1951 && year <= 2023) || 
-          (leagueId === 'ABA' && year >= 1968 && year <= 1976);
-      });
-      console.log(seasons);
+      // const seasons = await loadSeasons();
+      // const validAllStarSeasons = seasons.filter(({leagueId, year}) => {
+      //   return (leagueId === 'NBA' && year >= 1951 && year <= 2023) || 
+      //     (leagueId === 'ABA' && year >= 1968 && year <= 1976);
+      // });
+      // console.log(seasons);
       return;
     }
 

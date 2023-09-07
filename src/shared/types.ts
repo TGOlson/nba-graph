@@ -22,14 +22,14 @@ export type BaseNodeAttributes = {
 } & SpriteNodeAttributes;
 
 export type PlayerNodeAttributes = BaseNodeAttributes & {
-  nbaType: NBAType.PLAYER;
+  nbaType: 'player';
   years: string;
 };
 
 export type FranchiseNodeAttributes = BaseNodeAttributes & {
-  nbaType: NBAType.FRANCHISE;
+  nbaType: 'franchise';
 };
 
 export type TeamNodeAttributes = BaseNodeAttributes & {
-  nbaType: NBAType.TEAM;
+  nbaType: 'team';
 };
