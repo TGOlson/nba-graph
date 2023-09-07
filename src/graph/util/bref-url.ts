@@ -25,24 +25,29 @@ export const LEAGUES_URL = fromRelative('/leagues');
 export const TEAMS_URL = fromRelative('/teams');
 export const PLAYERS_URL = fromRelative('/players');
 
-export const awards = {
-  MVP_AWARD_URL: fromRelative('/awards/mvp.html'),
-  DPOY_AWARD_URL: fromRelative('/awards/dpoy.html'),
-  ROY_AWARD_URL: fromRelative('/awards/roy.html'),
-  SMOY_AWARD_URL: fromRelative('/awards/smoy.html'),
-  MIP_AWARD_URL: fromRelative('/awards/mip.html'),
-  TMOY_AWARD_URL: fromRelative('/awards/tmoy.html'),
-  CITIZEN_AWARD_URL: fromRelative('/awards/citizenship.html'),
-  ASMVP_AWARD_URL: fromRelative('/awards/all_star_mvp.html'),
-  FMVP_AWARD_URL: fromRelative('/awards/finals_mvp.html'),
-  ALLNBA_AWARD_URL: fromRelative('/awards/all_league.html'),
-  ALLROOK_AWARD_URL: fromRelative('/awards/all_rookie.html'),
-  ALLDEF_AWARD_URL: fromRelative('/awards/all_defense.html'),
-  HOF_AWARD_URL: fromRelative('/awards/hof.html'),
-  ANNI75_AWARD_URL: fromRelative('/awards/nba_75th_anniversary.html'),
-  ANNI50_AWARD_URL: fromRelative('/awards/nba_50_greatest.html'),
-  BSHOF_AWARD_URL: fromRelative('/awards/simmons_pyramid.html'),
-  ABAALLTIME_AWARD_URL: fromRelative('/awards/aba_all_time_team.html '),
+export const awardUrls = {
+  // single winner season awards
+  mvp: fromRelative('/awards/mvp.html'),
+  dpoy: fromRelative('/awards/dpoy.html'),
+  roy: fromRelative('/awards/roy.html'),
+  smoy: fromRelative('/awards/smoy.html'),
+  mip: fromRelative('/awards/mip.html'),
+  tmoy: fromRelative('/awards/tmoy.html'),
+  citizenship: fromRelative('/awards/citizenship.html'),
+  all_star_mvp: fromRelative('/awards/all_star_mvp.html'),
+  finals_mvp: fromRelative('/awards/finals_mvp.html'),
+
+  // multi winner season awards
+  all_league: fromRelative('/awards/all_league.html'),
+  all_rookie: fromRelative('/awards/all_rookie.html'),
+  all_defense: fromRelative('/awards/all_defense.html'),
+
+  // lifetime awards
+  hof: fromRelative('/awards/hof.html'),
+  nba_75th_anniversary: fromRelative('/awards/nba_75th_anniversary.html'),
+  nba_50_greatest: fromRelative('/awards/nba_50_greatest.html'),
+  simmons_pyramid: fromRelative('/awards/simmons_pyramid.html'),
+  aba_all_time_team: fromRelative('/awards/aba_all_time_team.html'),
 };
 
 const ALL_STAR_URL = fromRelative('/allstar');

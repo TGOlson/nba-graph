@@ -1,10 +1,11 @@
 export enum NBAType {
-  LEAGUE = 'league',
-  SEASON = 'season',
+  // LEAGUE = 'league',
+  // SEASON = 'season',
   FRANCHISE = 'franchise',
   TEAM = 'team',
   PLAYER = 'player',
-  PLAYER_SEASON = 'player-season',
+  // PLAYER_SEASON = 'player-season',
+  AWARD = 'award',
 }
  
 // NBA, ABA...
@@ -58,6 +59,37 @@ export type PlayerSeason = {
   teamId: string;
   year: number; // can be derived, but convenient to have here
   url: string;
+};
+
+// MVP_NBA, DPOY_ABA...
+export type Award = {
+  id: string,
+  leagueId: string,
+  name: string,
+  url: string,
+};
+
+// MVP_NBA_2015, DPOY_NBA_2015...
+// Note: these awards will be shown as node on the graph (hence the id)
+export type SeasonAward = {
+  id: string,
+  name: string,
+  awardId: string,
+  playerId: string,
+  year: number,
+  url: string,
+  // TODO?
+  // image: string,
+};
+
+// HOF, TOP_75...
+// Note: these awards will only be shwon as edges (hence no id)
+export type LifetimeAward = {
+  playerId: string,
+  awardId: string,
+  url: string,
+  // TODO?
+  // image: string,
 };
 
 export type NBAData = {

@@ -18,7 +18,8 @@ import { makeDelayedFetch, makeFetch } from "./util/fetch";
 import { execSeq } from "./util/promise";
 import { createSpriteImage, parseSpriteColorPallette, playerTransform, teamTransform } from "./util/image";
 import { NBAType } from "../shared/nba-types";
-import { allStarUrl, awards, LEAGUE_CHAMP_URL, validAllStarSeasons } from "./util/bref-url";
+import { allStarUrl, awardUrls, LEAGUE_CHAMP_URL, validAllStarSeasons } from "./util/bref-url";
+import { seasonAwardsParser } from "./parsers/season-award";
 
 
 const VERBOSE_FETCH = true;
@@ -53,6 +54,7 @@ const commands = {
     Franchises: '--parse-franchises', // LAL, MIN...
     Teams: '--parse-teams', // LAL_2015, MIN_2022
     Players: '--parse-players', // James Harden + each season
+    Awards: '--parse-awards', // MVP, DPOY, etc
   },
   misc: {
     ConvertImages: '--convert-images',
@@ -159,10 +161,8 @@ async function main() {
     }
 
     case commands.download.Awards: {
-      const awardUrls = Object.values(awards);
-
       const urls = [
-        ...awardUrls,
+        ...Object.values(awardUrls),
         LEAGUE_CHAMP_URL,
       ];
       
@@ -211,6 +211,19 @@ async function main() {
 
       await persistPlayers(players);
       return await persistPlayerSeasons(playerSeasons);
+    }
+
+    case commands.parse.Awards: {
+      const singleWinnerSeasonAwards = await Promise.all(
+        seasonAwardsParser.map(parser => runHtmlParser(parser))
+      );
+
+      singleWinnerSeasonAwards.forEach(award => {
+        console.log('Award: ', award);
+        // console.log('Winners: ', winners);
+      });
+
+      return;
     }
 
     // *** graph commands
