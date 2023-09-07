@@ -255,12 +255,12 @@ async function main() {
 
     // for testing, debugging, etc
     case commands.misc.Test: {
-      const res = await Promise.all(
-        lifetimeAwardParser.map(parser => runHtmlParser(parser))
-      );
+      // const res = await Promise.all(
+      //   lifetimeAwardParser.map(parser => runHtmlParser(parser))
+      // );
 
-      console.log(res.map(x => x.award));
-      console.log(res.map(x => x.awardRecipients).flat());
+      // console.log(res.map(x => x.award));
+      // console.log(res.map(x => x.awardRecipients).flat());
       return;
     }
 

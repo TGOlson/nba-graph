@@ -7,7 +7,7 @@ import { HtmlParser } from "../html-parser";
 type AwardConfig = {
   name: string,
   awardId: string,
-  tableSelector: string,
+  playerSelector: string,
   url: string,
 };
 
@@ -15,20 +15,26 @@ const AWARD_CONFIG: AwardConfig[] = [
   {
     name: 'NBA 75th Anniversary Team',
     awardId: 'NBA_75_ANNIVERSARY',
-    tableSelector: 'table#stats tbody tr',
+    playerSelector: 'table#stats tbody tr th[data-stat="player"] a',
     url: awardUrls.nba_75th_anniversary,
   },
   {
     name: '50 Greatest Players in NBA History',
     awardId: 'NBA_50_GREATEST',
-    tableSelector: 'table#stats tbody tr',
+    playerSelector: 'table#stats tbody tr th[data-stat="player"] a',
     url: awardUrls.nba_50_greatest,
   },
   {
     name: 'ABA All-Time Team',
     awardId: 'ABA_ALL_TIME_TEAM',
-    tableSelector: 'table#stats tbody tr',
+    playerSelector: 'table#stats tbody tr th[data-stat="player"] a',
     url: awardUrls.aba_all_time_team,
+  },
+  {
+    name: 'Basketball Hall of Fame',
+    awardId: 'HOF',
+    playerSelector: 'table#hof tbody tr a[href^="/players"]',
+    url: awardUrls.hof,
   },
 ];
 
@@ -50,8 +56,8 @@ const parse = ($: cheerio.CheerioAPI, config: AwardConfig): AwardParseResult => 
     url,
   };
 
-  const awardRecipients: AwardRecipient[] = $(config.tableSelector).toArray().flatMap((el: cheerio.AnyNode) => {
-    const playerUrl = $('th[data-stat="player"] a', el).attr('href');
+  const awardRecipients: AwardRecipient[] = $(config.playerSelector).toArray().flatMap((el: cheerio.AnyNode) => {
+    const playerUrl = $(el).attr('href');
 
     if (!playerUrl) {
       throw new Error('Invalid response from player: no playerUrl');
