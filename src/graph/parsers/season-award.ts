@@ -16,7 +16,6 @@ const singleWinnerTableSelector = (baseId: string): string => `table#${baseId}NB
 const multiWinnerTableSelector = (baseId: string): string => `table#${baseId} tbody tr:not(.thead)`;
 
 const SINGLE_WINNER_PLAYER_SELECTOR = 'td[data-stat="player"] a';
-// const MUTLI_WINNER_PLAYER_SELECTOR = 'td[data-stat="1"] a,td[data-stat="2"] a,td[data-stat="3"] a,td[data-stat="4"] a,td[data-stat="5"] a';
 const mutliWinnerPlayerSelector = (num: number): string => Array.from({length: num}, (_, i) => `td[data-stat="${i + 1}"] a`).join(',');
 
 const AWARD_CONFIG: AwardConfig[] = [
