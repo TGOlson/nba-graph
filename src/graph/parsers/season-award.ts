@@ -107,7 +107,7 @@ const AWARD_CONFIG: AwardConfig[] = [
 
 const URL_REGEX = /players\/[a-z]{1}\/([a-z]{2,}\d{2}).html/;
 
-export type AwardParseResult = {
+type AwardParseResult = {
   awards: Award[],
   seasonAwards: SeasonAward[],
   seasonAwardWinners: SeasonAwardWinner[],

@@ -18,8 +18,9 @@ import { makeDelayedFetch, makeFetch } from "./util/fetch";
 import { execSeq } from "./util/promise";
 import { createSpriteImage, parseSpriteColorPallette, playerTransform, teamTransform } from "./util/image";
 import { NBAType } from "../shared/nba-types";
-import { allStarUrl, awardUrls, LEAGUE_CHAMP_URL, validAllStarSeasons } from "./util/bref-url";
+import { allStarUrl, awardUrls, LEAGUE_CHAMP_URL } from "./util/bref-url";
 import { seasonAwardsParser } from "./parsers/season-award";
+import { ALL_STAR_AWARDS, allStarParser, validAllStarSeasons } from "./parsers/all-star";
 
 
 const VERBOSE_FETCH = true;
@@ -166,17 +167,14 @@ async function main() {
         LEAGUE_CHAMP_URL,
       ];
       
-      // TODO: do we need a new nbatype == award?
       return await execSeq(urls.map(url => {
         return () => downloadPage(delayedFetch, url);
       }));
     }
 
     case commands.download.AllStar: {
-      const seasons = await loadSeasons();
-      const allStarUrls = validAllStarSeasons(seasons).map(x => x.id).map(allStarUrl);
+      const allStarUrls = validAllStarSeasons.map(allStarUrl);
 
-      // TODO: do we need a new nbatype == award?
       return await execSeq(allStarUrls.map(url => {
         return () => downloadPage(delayedFetch, url);
       }));
@@ -218,12 +216,25 @@ async function main() {
         seasonAwardsParser.map(parser => runHtmlParser(parser))
       );
 
-      const awards = seasonAwardsRes.flatMap(x => x.awards);
-      const seasonAwardsFlat = seasonAwardsRes.flatMap(x => x.seasonAwards);
-      const seasonAwardWinners = seasonAwardsRes.flatMap(x => x.seasonAwardWinners);
+      const allStarAwardRes = await Promise.all(
+        allStarParser.map(parser => runHtmlParser(parser))
+      );
+
+      const awards = [
+        ...seasonAwardsRes.flatMap(x => x.awards),
+        ...ALL_STAR_AWARDS
+      ];
+      const seasonAwards = [
+        ...seasonAwardsRes.flatMap(x => x.seasonAwards),
+        ...allStarAwardRes.map(x => x.seasonAward)
+      ];
+      const seasonAwardWinners = [
+        ...seasonAwardsRes.flatMap(x => x.seasonAwardWinners),
+        ...allStarAwardRes.flatMap(x => x.seasonAwardWinners)
+      ];
 
       await persistAwards(awards);
-      await persistSeasonAwards(seasonAwardsFlat);
+      await persistSeasonAwards(seasonAwards);
       return await persistSeasonAwardWinners(seasonAwardWinners);
     }
 

@@ -52,11 +52,6 @@ export const awardUrls = {
 
 const ALL_STAR_URL = fromRelative('/allstar');
 
-export const validAllStarSeasons = (seasons: Season[]): Season[] => seasons.filter(({leagueId, year}) => {
-  return (leagueId === 'NBA' && year >= 1951 && year <= 2023 && year !== 1999) || 
-    (leagueId === 'ABA' && year >= 1968 && year <= 1976);
-});
-
 export const allStarUrl = (seasonId: string): string => `${ALL_STAR_URL}/${seasonId}.html`;
 export const LEAGUE_CHAMP_URL = fromRelative('/playoffs');
 
