@@ -21,6 +21,7 @@ import { NBAType } from "../shared/nba-types";
 import { allStarUrl, awardUrls, LEAGUE_CHAMP_URL } from "./util/bref-url";
 import { seasonAwardsParser } from "./parsers/season-award";
 import { ALL_STAR_AWARDS, allStarParser, validAllStarSeasons } from "./parsers/all-star";
+import { leagueChampAwardsParser } from "./parsers/league-champ";
 
 
 const VERBOSE_FETCH = true;
@@ -220,9 +221,12 @@ async function main() {
         allStarParser.map(parser => runHtmlParser(parser))
       );
 
+      const leagueChampAwardRes = await runHtmlParser(leagueChampAwardsParser);
+
       const awards = [
         ...seasonAwardsRes.flatMap(x => x.awards),
-        ...ALL_STAR_AWARDS
+        ...ALL_STAR_AWARDS,
+        ...leagueChampAwardRes.awards,
       ];
       const seasonAwards = [
         ...seasonAwardsRes.flatMap(x => x.seasonAwards),
@@ -230,7 +234,8 @@ async function main() {
       ];
       const awardRecipients = [
         ...seasonAwardsRes.flatMap(x => x.awardRecipients),
-        ...allStarAwardRes.flatMap(x => x.awardRecipients)
+        ...allStarAwardRes.flatMap(x => x.awardRecipients),
+        ...leagueChampAwardRes.awardRecipients,
       ];
 
       await persistAwards(awards);
