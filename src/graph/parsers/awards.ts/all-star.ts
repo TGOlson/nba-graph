@@ -1,8 +1,8 @@
 import * as cheerio from 'cheerio';
 
-import { LEAGUES_URL, allStarUrl, localPath } from "../util/bref-url";
-import { Award, SeasonAward, AwardRecipient } from "../../shared/nba-types";
-import { HtmlParser } from "./html-parser";
+import { LEAGUES_URL, allStarUrl, localPath } from "../../util/bref-url";
+import { Award, SeasonAward, AwardRecipient } from "../../../shared/nba-types";
+import { HtmlParser } from "../html-parser";
 
 // kind weird selector, but basically slurp up all links like "/players/..."
 // it's easy to parse all the start from the boxscore, but injuries are represented differently

@@ -19,9 +19,11 @@ import { execSeq } from "./util/promise";
 import { createSpriteImage, parseSpriteColorPallette, playerTransform, teamTransform } from "./util/image";
 import { NBAType } from "../shared/nba-types";
 import { allStarUrl, awardUrls, LEAGUE_CHAMP_URL } from "./util/bref-url";
-import { seasonAwardsParser } from "./parsers/season-award";
-import { ALL_STAR_AWARDS, allStarParser, validAllStarSeasons } from "./parsers/all-star";
-import { leagueChampAwardsParser } from "./parsers/league-champ";
+import { seasonAwardsParser } from "./parsers/awards.ts/season-award";
+import { ALL_STAR_AWARDS, allStarParser, validAllStarSeasons } from "./parsers/awards.ts/all-star";
+import { leagueChampAwardsParser } from "./parsers/awards.ts/league-champ";
+import { lifetimeAwardParser } from "./parsers/awards.ts/lifetime-awards";
+import { runAwardsParsers } from "./parsers/awards.ts";
 
 
 const VERBOSE_FETCH = true;
@@ -213,30 +215,7 @@ async function main() {
     }
 
     case commands.parse.Awards: {
-      const seasonAwardsRes = await Promise.all(
-        seasonAwardsParser.map(parser => runHtmlParser(parser))
-      );
-
-      const allStarAwardRes = await Promise.all(
-        allStarParser.map(parser => runHtmlParser(parser))
-      );
-
-      const leagueChampAwardRes = await runHtmlParser(leagueChampAwardsParser);
-
-      const awards = [
-        ...seasonAwardsRes.flatMap(x => x.awards),
-        ...ALL_STAR_AWARDS,
-        ...leagueChampAwardRes.awards,
-      ];
-      const seasonAwards = [
-        ...seasonAwardsRes.flatMap(x => x.seasonAwards),
-        ...allStarAwardRes.map(x => x.seasonAward)
-      ];
-      const awardRecipients = [
-        ...seasonAwardsRes.flatMap(x => x.awardRecipients),
-        ...allStarAwardRes.flatMap(x => x.awardRecipients),
-        ...leagueChampAwardRes.awardRecipients,
-      ];
+      const {awards, seasonAwards, awardRecipients} = await runAwardsParsers();
 
       await persistAwards(awards);
       await persistSeasonAwards(seasonAwards);
@@ -276,12 +255,12 @@ async function main() {
 
     // for testing, debugging, etc
     case commands.misc.Test: {
-      // const seasons = await loadSeasons();
-      // const validAllStarSeasons = seasons.filter(({leagueId, year}) => {
-      //   return (leagueId === 'NBA' && year >= 1951 && year <= 2023) || 
-      //     (leagueId === 'ABA' && year >= 1968 && year <= 1976);
-      // });
-      // console.log(seasons);
+      const res = await Promise.all(
+        lifetimeAwardParser.map(parser => runHtmlParser(parser))
+      );
+
+      console.log(res.map(x => x.award));
+      console.log(res.map(x => x.awardRecipients).flat());
       return;
     }
 

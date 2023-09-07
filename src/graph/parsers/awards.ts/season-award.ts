@@ -1,8 +1,8 @@
 import * as cheerio from 'cheerio';
 
-import { awardUrls, localPath } from "../util/bref-url";
-import { Award, SeasonAward, AwardRecipient } from "../../shared/nba-types";
-import { HtmlParser } from "./html-parser";
+import { awardUrls, localPath } from "../../util/bref-url";
+import { Award, SeasonAward, AwardRecipient } from "../../../shared/nba-types";
+import { HtmlParser } from "../html-parser";
 
 type AwardConfig = {
   name: string,

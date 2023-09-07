@@ -46,8 +46,10 @@ export const awardUrls = {
   hof: fromRelative('/awards/hof.html'),
   nba_75th_anniversary: fromRelative('/awards/nba_75th_anniversary.html'),
   nba_50_greatest: fromRelative('/awards/nba_50_greatest.html'),
-  simmons_pyramid: fromRelative('/awards/simmons_pyramid.html'),
   aba_all_time_team: fromRelative('/awards/aba_all_time_team.html'),
+
+  // unused for now
+  simmons_pyramid: fromRelative('/awards/simmons_pyramid.html'),
 };
 
 const ALL_STAR_URL = fromRelative('/allstar');
