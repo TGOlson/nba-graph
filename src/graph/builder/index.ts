@@ -3,7 +3,7 @@ import { circular } from "graphology-layout";
 import forceAtlas2 from "graphology-layout-forceatlas2";
 import Color from "color";
 
-import { Award, NBAData, NBAType, Team } from "../../shared/nba-types";
+import { NBAData, Team } from "../../shared/nba-types";
 import { AwardNodeAttributes, FranchiseNodeAttributes, PlayerNodeAttributes, SpriteNodeAttributes, TeamNodeAttributes } from "../../shared/types";
 import { assets } from "../util/assets";
 import { GraphConfig } from "./config";
@@ -23,7 +23,9 @@ import { loadSpriteColors, loadSpriteMapping } from "../storage";
 // [pic] Denver Nuggets (franchise)
 //       1985-present / NBA
 
+// TODO: should resize player and team default pics to 128x128
 const DEFAULT_CROP = {x: 0, y: 0, width: 512, height: 512};
+const AWARD_CROP = {x: 0, y: 0, width: 128, height: 128};
 
 export const buildGraph = async (data: NBAData, config: GraphConfig): Promise<Graph> => {
   console.log('Building graph');
@@ -132,7 +134,7 @@ export const buildGraph = async (data: NBAData, config: GraphConfig): Promise<Gr
   });
 
   data.awards.forEach(award => {
-    const imgProps: SpriteNodeAttributes = {type: 'sprite', image: assets.img.teamDefault, crop: DEFAULT_CROP};
+    const imgProps: SpriteNodeAttributes = {type: 'sprite', image: award.image, crop: AWARD_CROP};
 
     const attrs: AwardNodeAttributes = {
       label: award.name,
@@ -146,19 +148,19 @@ export const buildGraph = async (data: NBAData, config: GraphConfig): Promise<Gr
     graph.addNode(award.id, attrs);
   });
 
-  data.seasonAwards.forEach(seasonAward => {
-    const imgProps: SpriteNodeAttributes = {type: 'sprite', image: assets.img.teamDefault, crop: DEFAULT_CROP};
-
+  data.multiWinnerAwards.forEach(award => {
+    const imgProps: SpriteNodeAttributes = {type: 'sprite', image: award.image, crop: AWARD_CROP};
+    
     const attrs: AwardNodeAttributes = {
-      label: seasonAward.name,
+      label: award.name,
       nbaType: 'award',
       color: '#ffffff',
       borderColor: '#000000',
       size: 3,
       ...imgProps,
     };
-
-    graph.addNode(seasonAward.id, attrs);
+    
+    graph.addNode(award.id, attrs);
   });
 
   // *************
@@ -189,14 +191,19 @@ export const buildGraph = async (data: NBAData, config: GraphConfig): Promise<Gr
     graph.addEdge(team.id, team.franchiseId, {color});
   });
 
-  data.seasonAwards.forEach(seasonAward => {
+  data.multiWinnerAwards.forEach(seasonAward => {
     graph.addEdge(seasonAward.awardId, seasonAward.id, {color: config.defaultEdgeColor});
   });
 
   data.awardRecipients.forEach(recipient => {
-    const awardId = recipient.type === 'lifetime' ? recipient.awardId : recipient.seasonAwardId;
-
-    graph.addEdge(recipient.recipient.id, awardId, {color: config.defaultEdgeColor});
+    // Need to check for dupdes because of how the data is modeled for single-winner awards
+    // eg. for MVP winners we just make an edge between player->NBA>MVP, without distinguishing between the years
+    // for guys who have won an MVP multiple times, this would create a duplicate edge
+    // in the future maybe it would be nice to add a weight to the edge to distinguish between multiple wins
+    // (or add an edge label, but that isn't used elsewhere and I think would be too busy)
+    if (!graph.hasEdge(recipient.recipientId, recipient.awardId)) {
+      graph.addEdge(recipient.recipientId, recipient.awardId, {color: config.defaultEdgeColor});
+    }
   });
 
   console.log('Assigning locations');

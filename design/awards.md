@@ -56,7 +56,7 @@ export type Award = {
 // it's overloaded...
 // a better modeling would be:
 // player -> season award winner (edge from player to award) -> season award (yearly node) -> award (single node)
-export type SeasonAward = {
+export type MultiWinnerAward = {
   id: string,
   name: string,
   awardId: string,
@@ -72,3 +72,11 @@ player (lebron) -> seasonaward (2015 mvp) -> award (mvp)
 player (lebron) ->
 player (curry) -> all-star (2015) -> all-star
 player (kd) -> 
+
+### modeling idea v2
+
+all single winner awards don't have intermediate nodes
+so MVP: lebron -> MVP
+you cant actually see what year they won, but makes the graph less cluttered and more visually fun to inspect
+
+all multi winner awards (all-star team, all-nba) point to a year specific node

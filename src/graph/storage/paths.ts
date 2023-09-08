@@ -12,7 +12,7 @@ export const SEASON_PATH = path.resolve(PARSED_PATH, 'seasons.json');
 export const PLAYER_PATH = path.resolve(PARSED_PATH, 'players.json');
 export const PLAYER_SEASON_PATH = path.resolve(PARSED_PATH, 'player-seasons.json');
 export const AWARD_PATH = path.resolve(PARSED_PATH, 'awards.json');
-export const SEASON_AWARD_PATH = path.resolve(PARSED_PATH, 'season-awards.json');
+export const MULTI_WINNER_AWARD_PATH = path.resolve(PARSED_PATH, 'multi-winner-awards.json');
 export const AWARD_RECIPIENT_PATH = path.resolve(PARSED_PATH, 'award-recipients.json');
 
 // graph data

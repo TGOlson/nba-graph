@@ -3,6 +3,7 @@ import * as cheerio from 'cheerio';
 import { LEAGUE_CHAMP_URL, localPath } from "../../util/bref-url";
 import { Award, AwardRecipient } from "../../../shared/nba-types";
 import { HtmlParser } from "../html-parser";
+import { assets } from '../../util/assets';
 
 const TEAM_URL_REGEX = /teams\/([A-Z]{3})\/(\d{4}).html/;
 
@@ -29,6 +30,7 @@ const parse = ($: cheerio.CheerioAPI): AwardParseResult => {
     awards[awardId] = {
       id: awardId,
       name: `${leagueId} League Champion`,
+      image: assets.img.award.trophy_lob,
       leagueId,
       url,
     };
@@ -45,9 +47,8 @@ const parse = ($: cheerio.CheerioAPI): AwardParseResult => {
     const teamId = `${yearAppropriateFranchiseId}_${year}`;
 
     const awardRecipient: AwardRecipient = {
-      type: 'lifetime',
       awardId,
-      recipient: {type: 'team', id: teamId},
+      recipientId: teamId,
       url
     };
 

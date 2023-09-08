@@ -65,32 +65,27 @@ export type Award = {
   id: string,
   name: string,
   leagueId: string,
+  image: string,
   url: string,
 };
 
-// MVP_NBA_2015, DPOY_NBA_2015...
-// Note: these awards will be shown as node on the graph (hence the id)
-export type SeasonAward = {
+// Only for single season awards that have multiple winners (eg. all-star 2015, all-defense 2020...)
+// These awards will be shown as node on the graph (hence the id)
+export type MultiWinnerAward = {
   id: string,
-  name: string, // should match award name, can be stylized later with year
+  name: string,
   awardId: string,
-  leagueId: string, // can be derived, but convenient to have here
   year: number,
+  image: string,
   url: string,
 };
 
-type BaseAwardRecipient = {
-  // team only used for single season champ, player in all other cases
-  recipient: {type: 'player' | 'team', id: string},
+// Edges between player/team nodes and awards (award node could be top-level Award or MultiWinnerAward)
+export type AwardRecipient = {
+  recipientId: string,
+  awardId: string,
   url: string,
 };
-
-// Edges between player nodes and season award nodes
-export type AwardRecipient = 
-// for single seasona wards (eg. MVP, all-star, league champ)
-  (BaseAwardRecipient & {type: 'season', seasonAwardId: string, year: number}) |
-  // for lifetime awards without a corresponding season
-  (BaseAwardRecipient & {type: 'lifetime', awardId: string});
 
 export type NBAData = {
   leagues: League[];
@@ -100,6 +95,6 @@ export type NBAData = {
   players: Player[];
   playerSeasons: PlayerSeason[];
   awards: Award[];
-  seasonAwards: SeasonAward[];
+  multiWinnerAwards: MultiWinnerAward[];
   awardRecipients: AwardRecipient[];
 };

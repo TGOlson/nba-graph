@@ -8,7 +8,7 @@ import { seasonParser } from "./parsers/season";
 import { makeTeamParser } from "./parsers/team";
 import { makePlayerSeasonParser } from "./parsers/player-season";
 
-import { loadFranchises, loadNBAData, loadPlayers, loadTeams, persistAwards, persistFranchises, persistGraph, persistJSON, persistLeagues, persistPlayers, persistPlayerSeasons, persistSeasonAwards, persistAwardRecipients, persistSeasons, persistTeams } from "./storage";
+import { loadFranchises, loadNBAData, loadPlayers, loadTeams, persistAwards, persistFranchises, persistGraph, persistJSON, persistLeagues, persistPlayers, persistPlayerSeasons, persistMultiWinnerAwards, persistAwardRecipients, persistSeasons, persistTeams } from "./storage";
 import { imageDir, spriteColorsPath, spriteMappingPath, spritePath } from "./storage/paths";
 
 import { buildGraph } from "./builder";
@@ -19,12 +19,8 @@ import { execSeq } from "./util/promise";
 import { createSpriteImage, parseSpriteColorPallette, playerTransform, teamTransform } from "./util/image";
 import { NBAType } from "../shared/nba-types";
 import { allStarUrl, awardUrls, LEAGUE_CHAMP_URL } from "./util/bref-url";
-import { seasonAwardsParser } from "./parsers/awards.ts/season-award";
-import { ALL_STAR_AWARDS, allStarParser, validAllStarSeasons } from "./parsers/awards.ts/all-star";
-import { leagueChampAwardsParser } from "./parsers/awards.ts/league-champ";
-import { lifetimeAwardParser } from "./parsers/awards.ts/lifetime-awards";
-import { runAwardsParsers } from "./parsers/awards.ts";
-
+import { validAllStarSeasons } from "./parsers/awards/all-star";
+import { runAwardsParsers } from "./parsers/awards";
 
 const VERBOSE_FETCH = true;
 const FETCH_DELAY_MS = 6000; // basketball-reference seems to get mad at >~30 req/m
@@ -215,10 +211,10 @@ async function main() {
     }
 
     case commands.parse.Awards: {
-      const {awards, seasonAwards, awardRecipients} = await runAwardsParsers();
+      const {awards, multiWinnerAwards, awardRecipients} = await runAwardsParsers();
 
       await persistAwards(awards);
-      await persistSeasonAwards(seasonAwards);
+      await persistMultiWinnerAwards(multiWinnerAwards);
       return await persistAwardRecipients(awardRecipients);
     }
 

@@ -19,7 +19,7 @@ type DisplayGraphProps = {
 };
 
 const NBAGraph = (props: DisplayGraphProps) => {
-  const graph = new Graph();
+  const graph = new Graph(props.data.options);
   graph.import(props.data);
 
   // availble options:

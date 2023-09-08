@@ -1,8 +1,9 @@
 import * as cheerio from 'cheerio';
 
 import { LEAGUES_URL, allStarUrl, localPath } from "../../util/bref-url";
-import { Award, SeasonAward, AwardRecipient } from "../../../shared/nba-types";
+import { Award, MultiWinnerAward, AwardRecipient } from "../../../shared/nba-types";
 import { HtmlParser } from "../html-parser";
+import { assets } from '../../util/assets';
 
 // kind weird selector, but basically slurp up all links like "/players/..."
 // it's easy to parse all the start from the boxscore, but injuries are represented differently
@@ -14,18 +15,20 @@ export const ALL_STAR_AWARDS: Award[] = [
     id: 'ALL_STAR_NBA',
     name: 'NBA All-Star Team',
     leagueId: 'NBA',
+    image: assets.img.award.medal,
     url: LEAGUES_URL,
   },
   {
     id: 'ALL_STAR_ABA',
     name: 'ABA All-Star Team',
     leagueId: 'ABA',
+    image: assets.img.award.medal,
     url: LEAGUES_URL,
   }
 ];
 
 type AllStarParseResult = {
-  seasonAward: SeasonAward,
+  mutliWinnerAward: MultiWinnerAward,
   awardRecipients: AwardRecipient[],
 };
 
@@ -45,11 +48,11 @@ const parse = ($: cheerio.CheerioAPI, seasonId: string): AllStarParseResult => {
   
   const year = parseInt(yearStr);
 
-  const seasonAward: SeasonAward = {
+  const mutliWinnerAward: MultiWinnerAward = {
     id: `ALL_STAR_${seasonId}`,
     name: `${leagueId} All-Star Team (${year})`,
     awardId: `ALL_STAR_${leagueId}`,
-    leagueId,
+    image: assets.img.award.medal,
     year,
     url,
   };
@@ -70,16 +73,14 @@ const parse = ($: cheerio.CheerioAPI, seasonId: string): AllStarParseResult => {
     const [_, playerId] = res;
 
     return {
-      type: 'season',
-      seasonAwardId: seasonAward.id,
-      recipient: {type: 'player', id: playerId},
-      year,
+      recipientId: playerId,
+      awardId: mutliWinnerAward.id,
       url,
     };
   });
 
   const dedupedRecipients: AwardRecipient[] = awardRecipients.reduce((acc: AwardRecipient[], curr: AwardRecipient) => {
-    const existing = acc.find(x => x.recipient.id === curr.recipient.id);
+    const existing = acc.find(x => x.recipientId === curr.recipientId);
     if (!existing) {
       return [...acc, curr];
     } else {
@@ -88,7 +89,7 @@ const parse = ($: cheerio.CheerioAPI, seasonId: string): AllStarParseResult => {
   }, []);
 
   return {
-    seasonAward,
+    mutliWinnerAward,
     awardRecipients: dedupedRecipients,
   };
 };

@@ -3,6 +3,7 @@ import * as cheerio from 'cheerio';
 import { awardUrls, localPath } from "../../util/bref-url";
 import { Award, AwardRecipient } from "../../../shared/nba-types";
 import { HtmlParser } from "../html-parser";
+import { assets } from '../../util/assets';
 
 type AwardConfig = {
   name: string,
@@ -49,10 +50,11 @@ const parse = ($: cheerio.CheerioAPI, config: AwardConfig): AwardParseResult => 
   const urlPieces = config.url.split('/');
   const url = '/' + urlPieces.slice(urlPieces.length - 2).join('/');
 
-  const award = {
+  const award: Award = {
     id: config.awardId,
     name: config.name,
     leagueId: 'NBA',
+    image: assets.img.award.wreath,
     url,
   };
 
@@ -72,15 +74,15 @@ const parse = ($: cheerio.CheerioAPI, config: AwardConfig): AwardParseResult => 
     const [_, playerId] = res;
 
     return {
-      type: 'lifetime',
       awardId: award.id,
-      recipient: {type: 'player', id: playerId},
+      recipientId: playerId,
       url,
     };
   });
 
+  // dedupe because for some awards people are listed multiple times (eg. some players/coaches inducted to HOF multiple times)
   const dedupedRecipients: AwardRecipient[] = awardRecipients.reduce((acc: AwardRecipient[], curr: AwardRecipient) => {
-    const existing = acc.find(x => x.recipient.id === curr.recipient.id);
+    const existing = acc.find(x => x.recipientId === curr.recipientId);
     if (!existing) {
       return [...acc, curr];
     } else {

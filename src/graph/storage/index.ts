@@ -2,7 +2,7 @@ import { mkdir, readFile, writeFile } from "fs/promises";
 import Graph from "graphology";
 import path from "path";
 
-import { Award, Franchise, League, NBAData, NBAType, Player, PlayerSeason, Season, SeasonAward, Team, AwardRecipient } from "../../shared/nba-types";
+import { Award, Franchise, League, NBAData, NBAType, Player, PlayerSeason, Season, MultiWinnerAward, Team, AwardRecipient } from "../../shared/nba-types";
 import { Palette, SelectionMap } from "../../shared/types";
 
 import {
@@ -20,7 +20,7 @@ import {
   imgPath,
   spriteColorsPath,
   AWARD_PATH,
-  SEASON_AWARD_PATH,
+  MULTI_WINNER_AWARD_PATH,
   AWARD_RECIPIENT_PATH,
 } from './paths';
 
@@ -42,7 +42,7 @@ export const loadSeasons: Read<Season[]> = readJSON(SEASON_PATH);
 export const loadPlayers: Read<Player[]> = readJSON(PLAYER_PATH);
 export const loadPlayerSeasons: Read<PlayerSeason[]> = readJSON(PLAYER_SEASON_PATH);
 export const loadAwards: Read<Award[]> = readJSON(AWARD_PATH);
-export const loadSeasonAwards: Read<SeasonAward[]> = readJSON(SEASON_AWARD_PATH);
+export const loadMultiWinnerAwards: Read<MultiWinnerAward[]> = readJSON(MULTI_WINNER_AWARD_PATH);
 export const loadAwardRecipients: Read<AwardRecipient[]> = readJSON(AWARD_RECIPIENT_PATH);
 
 export async function loadNBAData(): Promise<NBAData> {
@@ -53,7 +53,7 @@ export async function loadNBAData(): Promise<NBAData> {
   const players: Player[] = await loadPlayers();
   const playerSeasons: PlayerSeason[] = await loadPlayerSeasons();
   const awards: Award[] = await loadAwards();
-  const seasonAwards: SeasonAward[] = await loadSeasonAwards();
+  const multiWinnerAwards: MultiWinnerAward[] = await loadMultiWinnerAwards();
   const awardRecipients: AwardRecipient[] = await loadAwardRecipients();
 
   return {
@@ -64,7 +64,7 @@ export async function loadNBAData(): Promise<NBAData> {
     players, 
     playerSeasons, 
     awards, 
-    seasonAwards, 
+    multiWinnerAwards, 
     awardRecipients
   };
 }
@@ -105,7 +105,7 @@ export const persistSeasons: Persist<Season[]> = persistJSON(SEASON_PATH);
 export const persistPlayers: Persist<Player[]> = persistJSON(PLAYER_PATH);
 export const persistPlayerSeasons: Persist<PlayerSeason[]> = persistJSON(PLAYER_SEASON_PATH);
 export const persistAwards: Persist<Award[]> = persistJSON(AWARD_PATH);
-export const persistSeasonAwards: Persist<SeasonAward[]> = persistJSON(SEASON_AWARD_PATH);
+export const persistMultiWinnerAwards: Persist<MultiWinnerAward[]> = persistJSON(MULTI_WINNER_AWARD_PATH);
 export const persistAwardRecipients: Persist<AwardRecipient[]> = persistJSON(AWARD_RECIPIENT_PATH);
 
 export async function persistGraph(graph: Graph): Promise<void> {

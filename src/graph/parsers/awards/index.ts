@@ -1,19 +1,24 @@
-import { Award, AwardRecipient, SeasonAward } from "../../../shared/nba-types";
+import { Award, AwardRecipient, MultiWinnerAward } from "../../../shared/nba-types";
 import { runHtmlParser } from "../html-parser";
 import { ALL_STAR_AWARDS, allStarParser } from "./all-star";
 import { leagueChampAwardsParser } from "./league-champ";
-import { lifetimeAwardParser } from "./lifetime-awards";
-import { seasonAwardsParser } from "./season-award";
+import { lifetimeAwardParser } from "./lifetime-award";
+import { seasonMultiWinnerAwardsParser } from "./season-multi-winner-award";
+import { seasonSingleWinnerAwardsParser } from "./season-single-winner-award";
 
 export type AwardParseResult = {
   awards: Award[],
-  seasonAwards: SeasonAward[],
+  multiWinnerAwards: MultiWinnerAward[],
   awardRecipients: AwardRecipient[],
 };
 
 export async function runAwardsParsers(): Promise<AwardParseResult> {
-  const seasonAwardsRes = await Promise.all(
-    seasonAwardsParser.map(parser => runHtmlParser(parser))
+  const singleWinnerAwardsRes = await Promise.all(
+    seasonSingleWinnerAwardsParser.map(parser => runHtmlParser(parser))
+  );
+
+  const multiWinnerAwardsRes = await Promise.all(
+    seasonMultiWinnerAwardsParser.map(parser => runHtmlParser(parser))
   );
 
   const allStarAwardRes = await Promise.all(
@@ -27,18 +32,19 @@ export async function runAwardsParsers(): Promise<AwardParseResult> {
   );
 
   const awards = [
-    ...seasonAwardsRes.flatMap(x => x.awards),
+    ...singleWinnerAwardsRes.flatMap(x => x.awards),
+    ...multiWinnerAwardsRes.flatMap(x => x.awards),
     ...ALL_STAR_AWARDS,
     ...leagueChampAwardRes.awards,
     ...lifetimeAwardsRes.map(x => x.award),
   ];
-  const seasonAwards = [
-    ...seasonAwardsRes.flatMap(x => x.seasonAwards),
-    ...allStarAwardRes.map(x => x.seasonAward)
+  const multiWinnerAwards = [
+    ...multiWinnerAwardsRes.flatMap(x => x.multiWinnerAwards),
+    ...allStarAwardRes.map(x => x.mutliWinnerAward)
   ];
-
   const awardRecipients = [
-    ...seasonAwardsRes.flatMap(x => x.awardRecipients),
+    ...singleWinnerAwardsRes.flatMap(x => x.awardRecipients),
+    ...multiWinnerAwardsRes.flatMap(x => x.awardRecipients),
     ...allStarAwardRes.flatMap(x => x.awardRecipients),
     ...leagueChampAwardRes.awardRecipients,
     ...lifetimeAwardsRes.flatMap(x => x.awardRecipients),
@@ -46,7 +52,7 @@ export async function runAwardsParsers(): Promise<AwardParseResult> {
 
   return {
     awards,
-    seasonAwards,
+    multiWinnerAwards,
     awardRecipients,
   };
 }
