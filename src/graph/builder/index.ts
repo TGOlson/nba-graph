@@ -23,9 +23,7 @@ import { loadSpriteColors, loadSpriteMapping } from "../storage";
 // [pic] Denver Nuggets (franchise)
 //       1985-present / NBA
 
-// TODO: should resize player and team default pics to 128x128
-const DEFAULT_CROP = {x: 0, y: 0, width: 512, height: 512};
-const AWARD_CROP = {x: 0, y: 0, width: 128, height: 128};
+const STANDALONE_IMAGE_CROP = {x: 0, y: 0, width: 128, height: 128};
 
 export const buildGraph = async (data: NBAData, config: GraphConfig): Promise<Graph> => {
   console.log('Building graph');
@@ -65,15 +63,15 @@ export const buildGraph = async (data: NBAData, config: GraphConfig): Promise<Gr
     
     const imgProps: SpriteNodeAttributes = imgCoords 
       ? {type: 'sprite', image: assets.img.playerSprite, crop: imgCoords}
-      : {type: 'sprite', image: assets.img.playerDefault, crop: DEFAULT_CROP};
+      : {type: 'sprite', image: assets.img.playerDefault, crop: STANDALONE_IMAGE_CROP};
 
     const attrs: PlayerNodeAttributes = {
       size, 
       label: player.name, 
       nbaType: 'player',
       years: `${Math.min(...yearsActive) - 1}-${Math.max(...yearsActive)}`,
-      color: config.defaultNodeColor, 
-      borderColor: config.defaultBorderColors.player,
+      color: config.nodeColors.default, 
+      borderColor: config.borderColors.player,
       ...imgProps, 
     };
 
@@ -85,15 +83,15 @@ export const buildGraph = async (data: NBAData, config: GraphConfig): Promise<Gr
     
     const imgProps: SpriteNodeAttributes = imgCoords
       ? {type: 'sprite', image: assets.img.franchiseSprite, crop: imgCoords}
-      : {type: 'sprite', image: assets.img.teamDefault, crop: DEFAULT_CROP};
+      : {type: 'sprite', image: assets.img.teamDefault, crop: STANDALONE_IMAGE_CROP};
 
-    const borderColor = franchiseColors[franchise.id]?.primary ?? config.defaultBorderColors.franchise;
+    const borderColor = franchiseColors[franchise.id]?.primary ?? config.borderColors.franchise;
     
     const attrs: FranchiseNodeAttributes = { 
       size: config.sizes.franchise, 
       label: franchise.name, 
       nbaType: 'franchise',
-      color: config.defaultNodeColor, 
+      color: config.nodeColors.default, 
       borderColor,
       ...imgProps, 
     };
@@ -116,16 +114,16 @@ export const buildGraph = async (data: NBAData, config: GraphConfig): Promise<Gr
     } else if (fallbackImgCoords) {
       imgProps = {type: 'sprite', image: assets.img.franchiseSprite, crop: fallbackImgCoords};
     } else {
-      imgProps = {type: 'sprite', image: assets.img.teamDefault, crop: DEFAULT_CROP};
+      imgProps = {type: 'sprite', image: assets.img.teamDefault, crop: STANDALONE_IMAGE_CROP};
     }
   
-    const borderColor = teamColors[team.id]?.primary ?? config.defaultBorderColors.team;
+    const borderColor = teamColors[team.id]?.primary ?? config.borderColors.team;
 
     const attrs: TeamNodeAttributes = { 
       size: config.sizes.team, 
       label, 
       nbaType: 'team',
-      color: config.defaultNodeColor, 
+      color: config.nodeColors.default, 
       borderColor,
       ...imgProps,
     };
@@ -134,30 +132,30 @@ export const buildGraph = async (data: NBAData, config: GraphConfig): Promise<Gr
   });
 
   data.awards.forEach(award => {
-    const imgProps: SpriteNodeAttributes = {type: 'sprite', image: award.image, crop: AWARD_CROP};
-
     const attrs: AwardNodeAttributes = {
       label: award.name,
       nbaType: 'award',
-      color: '#ffffff',
-      borderColor: '#000000',
-      size: 3,
-      ...imgProps,
+      color: config.nodeColors.award,
+      borderColor: config.borderColors.award,
+      size: config.sizes.awardMax, // TODO: maybe filter by mvp, hof for max, others are default size?
+      type: 'sprite',
+      image: award.image,
+      crop: STANDALONE_IMAGE_CROP
     };
 
     graph.addNode(award.id, attrs);
   });
 
   data.multiWinnerAwards.forEach(award => {
-    const imgProps: SpriteNodeAttributes = {type: 'sprite', image: award.image, crop: AWARD_CROP};
-    
     const attrs: AwardNodeAttributes = {
       label: award.name,
       nbaType: 'award',
-      color: '#ffffff',
-      borderColor: '#000000',
-      size: 3,
-      ...imgProps,
+      color: config.nodeColors.award,
+      borderColor: config.borderColors.award,
+      size: config.sizes.awardDefault,
+      type: 'sprite',
+      image: award.image,
+      crop: STANDALONE_IMAGE_CROP
     };
     
     graph.addNode(award.id, attrs);
@@ -174,7 +172,7 @@ export const buildGraph = async (data: NBAData, config: GraphConfig): Promise<Gr
   
     const color = teamPalette
       ? Color(teamPalette.primary).lighten(0.3).hex()
-      : config.defaultEdgeColor;
+      : config.edgeColors.default;
 
     graph.addEdge(pt.playerId, pt.teamId, {color});
   });
@@ -186,13 +184,13 @@ export const buildGraph = async (data: NBAData, config: GraphConfig): Promise<Gr
   
     const color = teamPalette
       ? Color(teamPalette.primary).lighten(0.3).hex()
-      : config.defaultEdgeColor;
+      : config.edgeColors.default;
 
     graph.addEdge(team.id, team.franchiseId, {color});
   });
 
   data.multiWinnerAwards.forEach(seasonAward => {
-    graph.addEdge(seasonAward.awardId, seasonAward.id, {color: config.defaultEdgeColor});
+    graph.addEdge(seasonAward.awardId, seasonAward.id, {color: config.edgeColors.award});
   });
 
   data.awardRecipients.forEach(recipient => {
@@ -202,7 +200,7 @@ export const buildGraph = async (data: NBAData, config: GraphConfig): Promise<Gr
     // in the future maybe it would be nice to add a weight to the edge to distinguish between multiple wins
     // (or add an edge label, but that isn't used elsewhere and I think would be too busy)
     if (!graph.hasEdge(recipient.recipientId, recipient.awardId)) {
-      graph.addEdge(recipient.recipientId, recipient.awardId, {color: config.defaultEdgeColor});
+      graph.addEdge(recipient.recipientId, recipient.awardId, {color: config.edgeColors.award});
     }
   });
 

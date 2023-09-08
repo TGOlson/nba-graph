@@ -100,7 +100,7 @@ The output graph data is stored in `./data/graph/graph.json`. The graph is built
 * data
   * ~~download player images + create sprite~~
   * ~~improve player parser to use players/x/xxx.html files for better info (seasons, all-stars, etc)~~
-  * __add other interesting nodes (MVP, champion, X time all star, YY year all-star, YY year all-nba)__
+  * ~~add other interesting nodes (MVP, champion, X time all star, YY year all-star, YY year all-nba)~~
   * improve locations (do this last after adding more node types)
 * UI 
   * ~~improve / fix search to move to current node~~
@@ -109,7 +109,7 @@ The output graph data is stored in `./data/graph/graph.json`. The graph is built
   * ~~improve node sizes~~
   * ~~placeholders for teams/players without images~~
   * ~~more fun edge colors (based on team primary?)~~
-  * filters and advanced search
+  * filters (toggle awards?) and advanced search (idk?)
 * hacks
   * ~~test animations for force layout and other movements~~
   * ~~test moving neighbors in a circle around selected node (and keeping them there... animation?)~~
@@ -123,7 +123,8 @@ The output graph data is stored in `./data/graph/graph.json`. The graph is built
   * search is a little laggy?
   * compress graph json?
   * fun AI logo
-  * more colorful default picks for teams?
+  * more colorful default image for teams
+  * add padding and background to award images
 * deploy
  * setup github page (TODO: where to store data?)
  * deploy assets to aws/cloudflair
