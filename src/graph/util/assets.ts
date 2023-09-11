@@ -24,10 +24,10 @@ export const assets: AssetPath = {
     playerSprite: '/assets/sprites/player.png',
     playerDefault: '/assets/img/player_default.png',
     award: {
-      medal: '/assets/img/award/medal.png',
-      trophy: '/assets/img/award/trophy.png',
-      trophy_lob: '/assets/img/award/trophy_lob.png',
-      wreath: '/assets/img/award/wreath.png',
+      medal: '/assets/img/award/medal_200.png',
+      trophy: '/assets/img/award/trophy_200.png',
+      trophy_lob: '/assets/img/award/trophy_lob_200.png',
+      wreath: '/assets/img/award/wreath_200.png',
     }
   }
 };

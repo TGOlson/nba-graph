@@ -109,7 +109,7 @@ The output graph data is stored in `./data/graph/graph.json`. The graph is built
   * ~~improve node sizes~~
   * ~~placeholders for teams/players without images~~
   * ~~more fun edge colors (based on team primary?)~~
-  * filters (toggle awards?) and advanced search (idk?)
+  * filters (toggle awards, toggle leagues?) and advanced search (idk?)
 * hacks
   * ~~test animations for force layout and other movements~~
   * ~~test moving neighbors in a circle around selected node (and keeping them there... animation?)~~
@@ -118,13 +118,12 @@ The output graph data is stored in `./data/graph/graph.json`. The graph is built
 * small cleanups
   * ~~some edge colors are funky (check spurs 1981/1982)~~
   * ~~darken circle around teams (right now it's just primary color)~~
+  * ~~add padding and background to award images~~
   * sort by last name in search bar
   * adjust player node size for awards
   * search is a little laggy?
   * compress graph json?
   * fun AI logo
-  * more colorful default image for teams
-  * add padding and background to award images
 * deploy
  * setup github page (TODO: where to store data?)
  * deploy assets to aws/cloudflair

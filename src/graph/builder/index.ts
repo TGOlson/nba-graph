@@ -23,7 +23,8 @@ import { loadSpriteColors, loadSpriteMapping } from "../storage";
 // [pic] Denver Nuggets (franchise)
 //       1985-present / NBA
 
-const STANDALONE_IMAGE_CROP = {x: 0, y: 0, width: 128, height: 128};
+const AWARD_IMAGE_CROP = {x: 0, y: 0, width: 200, height: 200};
+const DEFAULT_IMAGE_CROP = {x: 0, y: 0, width: 128, height: 128};
 
 export const buildGraph = async (data: NBAData, config: GraphConfig): Promise<Graph> => {
   console.log('Building graph');
@@ -63,7 +64,7 @@ export const buildGraph = async (data: NBAData, config: GraphConfig): Promise<Gr
     
     const imgProps: SpriteNodeAttributes = imgCoords 
       ? {type: 'sprite', image: assets.img.playerSprite, crop: imgCoords}
-      : {type: 'sprite', image: assets.img.playerDefault, crop: STANDALONE_IMAGE_CROP};
+      : {type: 'sprite', image: assets.img.playerDefault, crop: DEFAULT_IMAGE_CROP};
 
     const attrs: PlayerNodeAttributes = {
       size, 
@@ -83,7 +84,7 @@ export const buildGraph = async (data: NBAData, config: GraphConfig): Promise<Gr
     
     const imgProps: SpriteNodeAttributes = imgCoords
       ? {type: 'sprite', image: assets.img.franchiseSprite, crop: imgCoords}
-      : {type: 'sprite', image: assets.img.teamDefault, crop: STANDALONE_IMAGE_CROP};
+      : {type: 'sprite', image: assets.img.teamDefault, crop: DEFAULT_IMAGE_CROP};
 
     const borderColor = franchiseColors[franchise.id]?.primary ?? config.borderColors.franchise;
     
@@ -114,7 +115,7 @@ export const buildGraph = async (data: NBAData, config: GraphConfig): Promise<Gr
     } else if (fallbackImgCoords) {
       imgProps = {type: 'sprite', image: assets.img.franchiseSprite, crop: fallbackImgCoords};
     } else {
-      imgProps = {type: 'sprite', image: assets.img.teamDefault, crop: STANDALONE_IMAGE_CROP};
+      imgProps = {type: 'sprite', image: assets.img.teamDefault, crop: DEFAULT_IMAGE_CROP};
     }
   
     const borderColor = teamColors[team.id]?.primary ?? config.borderColors.team;
@@ -140,7 +141,7 @@ export const buildGraph = async (data: NBAData, config: GraphConfig): Promise<Gr
       size: config.sizes.awardMax, // TODO: maybe filter by mvp, hof for max, others are default size?
       type: 'sprite',
       image: award.image,
-      crop: STANDALONE_IMAGE_CROP
+      crop: AWARD_IMAGE_CROP
     };
 
     graph.addNode(award.id, attrs);
@@ -155,7 +156,7 @@ export const buildGraph = async (data: NBAData, config: GraphConfig): Promise<Gr
       size: config.sizes.awardDefault,
       type: 'sprite',
       image: award.image,
-      crop: STANDALONE_IMAGE_CROP
+      crop: AWARD_IMAGE_CROP
     };
     
     graph.addNode(award.id, attrs);
