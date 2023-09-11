@@ -3,7 +3,7 @@ import { circular } from "graphology-layout";
 import forceAtlas2 from "graphology-layout-forceatlas2";
 import Color from "color";
 
-import { NBAData, Team } from "../../shared/nba-types";
+import { Award, NBAData, PlayerSeason, Season, Team } from "../../shared/nba-types";
 import { AwardNodeAttributes, FranchiseNodeAttributes, PlayerNodeAttributes, SpriteNodeAttributes, TeamNodeAttributes } from "../../shared/types";
 import { assets } from "../util/assets";
 import { GraphConfig } from "./config";
@@ -41,12 +41,27 @@ export const buildGraph = async (data: NBAData, config: GraphConfig): Promise<Gr
   const teamColors = await loadSpriteColors('team');
   const franchiseColors = await loadSpriteColors('franchise');
 
-  const playerYearsActive: {[playerId: string]: number[]} = data.playerSeasons.reduce<{[playerId: string]: number[]}>((acc, {playerId, year}) => {
-    const prev = acc[playerId] ?? [];
+  const playerSeasons: {[playerId: string]: PlayerSeason[]} = data.playerSeasons.reduce<{[playerId: string]: PlayerSeason[]}>((acc, season) => {
+    const prev = acc[season.playerId] ?? [];
 
-    prev.push(year);
-    acc[playerId] = prev;
+    prev.push(season);
+    acc[season.playerId] = prev;
 
+    return acc;
+  }, {});
+
+  const seasonsById = data.seasons.reduce<{[id: string]: Season}>((acc, season) => {
+    acc[season.id] = season;
+    return acc;
+  }, {});
+
+  const teamsById = data.teams.reduce<{[id: string]: Team}>((acc, team) => {
+    acc[team.id] = team;
+    return acc;
+  }, {});
+
+  const awardsById = data.awards.reduce<{[id: string]: Award}>((acc, award) => {
+    acc[award.id] = award;
     return acc;
   }, {});
 
@@ -56,11 +71,18 @@ export const buildGraph = async (data: NBAData, config: GraphConfig): Promise<Gr
 
   data.players.forEach(player => {
     // TODO: more sophisticated size calculation, using seasons, awards, etc.
-    const yearsActive = playerYearsActive[player.id];
-    if (!yearsActive) throw new Error(`Unexpected error: no years active for player ${player.name}`);
-    const size = yearsActive.length <= 3 ? config.sizes.playerMin : config.sizes.playerDefault;
+    const seasons = playerSeasons[player.id];
+    if (!seasons) throw new Error(`Unexpected error: no years active for player ${player.name}`);
+    const years = seasons.map(x => x.year).sort();
+    const end = years[years.length - 1];
+
+    const size = (years.length <= 3 && end !== 2023) ? config.sizes.playerMin : config.sizes.playerDefault;
 
     const imgCoords = playerImgLocations[player.id];
+
+    const seasonIds = seasons.map(x => teamsById[x.teamId]?.seasonId).filter(x => x) as string[];
+    const leagues = seasonIds.map(seasonId => seasonsById[seasonId]?.leagueId).filter(x => x) as string[];
+    const leagueIds = [...new Set(leagues)];
     
     const imgProps: SpriteNodeAttributes = imgCoords 
       ? {type: 'sprite', image: assets.img.playerSprite, crop: imgCoords}
@@ -70,9 +92,10 @@ export const buildGraph = async (data: NBAData, config: GraphConfig): Promise<Gr
       size, 
       label: player.name, 
       nbaType: 'player',
-      years: yearsActive.sort(),
+      years,
       color: config.nodeColors.default, 
       borderColor: config.borderColors.player,
+      leagues: leagueIds,
       ...imgProps, 
     };
 
@@ -88,12 +111,17 @@ export const buildGraph = async (data: NBAData, config: GraphConfig): Promise<Gr
 
     const borderColor = franchiseColors[franchise.id]?.primary ?? config.borderColors.franchise;
     
+    const teams = data.teams.filter(team => team.franchiseId === franchise.id);
+    const leagues = teams.map(team => seasonsById[team.seasonId]?.leagueId).filter(x => x) as string[];
+    const leagueIds = [...new Set(leagues)];
+
     const attrs: FranchiseNodeAttributes = { 
       size: config.sizes.franchise, 
       label: franchise.name, 
       nbaType: 'franchise',
       color: config.nodeColors.default, 
       borderColor,
+      leagues: leagueIds,
       ...imgProps, 
     };
 
@@ -120,12 +148,17 @@ export const buildGraph = async (data: NBAData, config: GraphConfig): Promise<Gr
   
     const borderColor = teamColors[team.id]?.primary ?? config.borderColors.team;
 
+    const leagueId = seasonsById[team.seasonId]?.leagueId;
+
+    if (!leagueId) throw new Error(`Unexpected error: no leagueId for team ${team.name} ${team.year}`);
+
     const attrs: TeamNodeAttributes = { 
       size: config.sizes.team, 
       label, 
       nbaType: 'team',
       color: config.nodeColors.default, 
       borderColor,
+      leagues: [leagueId],
       ...imgProps,
     };
 
@@ -141,6 +174,7 @@ export const buildGraph = async (data: NBAData, config: GraphConfig): Promise<Gr
       size: config.sizes.awardMax, // TODO: maybe filter by mvp, hof for max, others are default size?
       type: 'sprite',
       image: award.image,
+      leagues: [award.leagueId],
       crop: AWARD_IMAGE_CROP
     };
 
@@ -148,6 +182,11 @@ export const buildGraph = async (data: NBAData, config: GraphConfig): Promise<Gr
   });
 
   data.multiWinnerAwards.forEach(award => {
+    const baseAward = awardsById[award.awardId];
+    if (!baseAward) throw new Error(`Unexpected error: no base award for multi-winner award ${award.name}`);
+
+    const leagueId = baseAward.leagueId;
+
     const attrs: AwardNodeAttributes = {
       label: award.name,
       nbaType: 'award',
@@ -156,6 +195,7 @@ export const buildGraph = async (data: NBAData, config: GraphConfig): Promise<Gr
       size: config.sizes.awardDefault,
       type: 'sprite',
       image: award.image,
+      leagues: [leagueId],
       crop: AWARD_IMAGE_CROP
     };
     

@@ -1,8 +1,6 @@
 export type GraphFilters = {
-  // filter on nbaType = 'award'
+  // implemented
   showAwards: boolean;
-
-  // need to add a years active prop to players
   showShortCareerPlayers: boolean;
 
   // need to add additional info to award, player, team and franchise nodes

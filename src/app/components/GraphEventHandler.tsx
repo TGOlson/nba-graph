@@ -11,6 +11,22 @@ type GraphEventsProps = {
   filters: GraphFilters;
 };
 
+const isHiddenFromFilters = (filters: GraphFilters, data: NodeAttributes): boolean => {
+  if (!filters.showAwards && data.nbaType === 'award') return true;
+  if (!filters.showShortCareerPlayers && data.nbaType === 'player') {
+    const n = data.years.length;
+    return n <= 3 && data.years[n - 1] !== 2023;
+  }
+
+  // naive and a little inefficient... maybe change leagues to a map (string->bool)
+  if (!filters.showNBA && data.leagues.includes('NBA')) return true;
+  if (!filters.showABA && data.leagues.includes('ABA')) return true;
+  if (!filters.showBAA && data.leagues.includes('BAA')) return true;
+
+  return false;
+};
+
+
 const GraphEvents = ({filters}: GraphEventsProps) => {
   const sigma = useSigma();
   (window as any).sigma = sigma; // eslint-disable-line
@@ -45,8 +61,15 @@ const GraphEvents = ({filters}: GraphEventsProps) => {
         // a little type cohersion to make typescript happy
         const data = baseData as NodeAttributes;
 
-        if (!filters.showAwards && data.nbaType === 'award') return { ...data, hidden: true };
-        if (!filters.showShortCareerPlayers && data.nbaType === 'player' && data.years.length <= 3) return { ...data, hidden: true };
+        const isHidden = isHiddenFromFilters(filters, data);
+
+        if (isHidden) {
+          if (selectedNode === node) setSelectedNode(null);
+          return { ...data, hidden: true };
+        }
+
+        // if (!filters.showAwards && data.nbaType === 'award') return { ...data, hidden: true };
+        // if (!filters.showShortCareerPlayers && data.nbaType === 'player' && data.years.length <= 3) return { ...data, hidden: true };
 
         // if nothing selected or hovered, quick return default
         if (!hoveredNode && !selectedNode) return data;

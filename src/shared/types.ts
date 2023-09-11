@@ -19,6 +19,7 @@ export type BaseNodeAttributes = {
   borderColor: string;
   size: number;
   label: string;
+  leagues: string[];
 } & SpriteNodeAttributes;
 
 export type PlayerNodeAttributes = BaseNodeAttributes & {
