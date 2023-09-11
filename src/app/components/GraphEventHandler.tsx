@@ -4,9 +4,14 @@ import { EventHandlers, useCamera } from "@react-sigma/core";
 import { useSigma, useRegisterEvents, useSetSettings } from "@react-sigma/core";
 import { Attributes } from 'graphology-types';
 import { NodeDisplayData } from 'sigma/types';
-import { BaseNodeAttributes, CustomNodeAttributes } from '../../shared/types';
+import { CustomNodeAttributes, NodeAttributes } from '../../shared/types';
+import { GraphFilters } from '../util/types';
 
-const GraphEvents = () => {
+type GraphEventsProps = {
+  filters: GraphFilters;
+};
+
+const GraphEvents = ({filters}: GraphEventsProps) => {
   const sigma = useSigma();
   (window as any).sigma = sigma; // eslint-disable-line
 
@@ -36,8 +41,13 @@ const GraphEvents = () => {
 
   useEffect(() => {
     setSettings({
-      // TODO: think about intented UI here, kind of messy interactions right now
-      nodeReducer: (node: string, data: Attributes): Partial<NodeDisplayData & CustomNodeAttributes> => {
+      nodeReducer: (node: string, baseData: Attributes): Partial<NodeDisplayData & CustomNodeAttributes> => {
+        // a little type cohersion to make typescript happy
+        const data = baseData as NodeAttributes;
+
+        if (!filters.showAwards && data.nbaType === 'award') return { ...data, hidden: true };
+        if (!filters.showShortCareerPlayers && data.nbaType === 'player' && data.years.length <= 3) return { ...data, hidden: true };
+
         // if nothing selected or hovered, quick return default
         if (!hoveredNode && !selectedNode) return data;
 
@@ -51,21 +61,21 @@ const GraphEvents = () => {
         // console.log(data);
         // if a neighbor of selected or hovered, emphasize node
         // only emphasize on hover is there is no selected node
-        const activeBorderColor = data.nbaType === 'player' ? '#ffffff' : data.borderColor as string;
+        const activeBorderColor = data.nbaType === 'player' ? '#ffffff' : data.borderColor;
         if ((selectedNode && graph.neighbors(selectedNode).includes(node) || (hoveredNode && !selectedNode && graph.neighbors(hoveredNode).includes(node)))) {
           return { 
             ...data, 
             zIndex: 700,
             highlighted: true, 
             borderColor: activeBorderColor,
-            size: data.size as number + (nodeIsHovered ? 2 : 1),
+            size: data.size + (nodeIsHovered ? 2 : 1),
           };
         }
 
         // if current reducer node is selected or hovered, apply styles
-        if (nodeIsSelected && nodeIsHovered) return { ...data, zIndex: 1000, highlighted: true, borderColor: activeBorderColor, size: data.size as number + 4};
-        if (nodeIsSelected) return { ...data, zIndex: 900, highlighted: true, borderColor: activeBorderColor, size: data.size as number + 3};
-        if (nodeIsHovered) return { ...data, zIndex: 800, highlighted: true, borderColor: activeBorderColor, size: data.size as number + 1};
+        if (nodeIsSelected && nodeIsHovered) return { ...data, zIndex: 1000, highlighted: true, borderColor: activeBorderColor, size: data.size + 4};
+        if (nodeIsSelected) return { ...data, zIndex: 900, highlighted: true, borderColor: activeBorderColor, size: data.size + 3};
+        if (nodeIsHovered) return { ...data, zIndex: 800, highlighted: true, borderColor: activeBorderColor, size: data.size + 1};
 
         return {
           ...data, 
@@ -87,12 +97,12 @@ const GraphEvents = () => {
 
         // if a neighbor of selected or hovered, draw edge node
         // only draw edge on hover is there is no selected node
-        if (isSelectedNeighbor || isHoveredNeighbor) return {...data, size: 1.2, zIndex: 100};
+        if (isSelectedNeighbor || isHoveredNeighbor) return {...data, size: 1.2, hidden: false, zIndex: 100};
 
         return { ...data, hidden: true };
       }
     });
-  }, [hoveredNode, selectedNode, setSettings, sigma]);
+  }, [hoveredNode, selectedNode, setSettings, sigma, filters]);
 
 
   return null;

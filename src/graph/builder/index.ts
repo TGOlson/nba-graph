@@ -58,7 +58,7 @@ export const buildGraph = async (data: NBAData, config: GraphConfig): Promise<Gr
     // TODO: more sophisticated size calculation, using seasons, awards, etc.
     const yearsActive = playerYearsActive[player.id];
     if (!yearsActive) throw new Error(`Unexpected error: no years active for player ${player.name}`);
-    const size = yearsActive.length < 2 ? config.sizes.playerMin : config.sizes.playerDefault;
+    const size = yearsActive.length <= 3 ? config.sizes.playerMin : config.sizes.playerDefault;
 
     const imgCoords = playerImgLocations[player.id];
     
@@ -70,7 +70,7 @@ export const buildGraph = async (data: NBAData, config: GraphConfig): Promise<Gr
       size, 
       label: player.name, 
       nbaType: 'player',
-      years: `${Math.min(...yearsActive) - 1}-${Math.max(...yearsActive)}`,
+      years: yearsActive.sort(),
       color: config.nodeColors.default, 
       borderColor: config.borderColors.player,
       ...imgProps, 
@@ -175,7 +175,7 @@ export const buildGraph = async (data: NBAData, config: GraphConfig): Promise<Gr
       ? Color(teamPalette.primary).lighten(0.3).hex()
       : config.edgeColors.default;
 
-    graph.addEdge(pt.playerId, pt.teamId, {color});
+    graph.addEdge(pt.playerId, pt.teamId, {color, hidden: true});
   });
 
   teams.forEach(team => {
@@ -187,11 +187,11 @@ export const buildGraph = async (data: NBAData, config: GraphConfig): Promise<Gr
       ? Color(teamPalette.primary).lighten(0.3).hex()
       : config.edgeColors.default;
 
-    graph.addEdge(team.id, team.franchiseId, {color});
+    graph.addEdge(team.id, team.franchiseId, {color, hidden: true});
   });
 
   data.multiWinnerAwards.forEach(seasonAward => {
-    graph.addEdge(seasonAward.awardId, seasonAward.id, {color: config.edgeColors.award});
+    graph.addEdge(seasonAward.awardId, seasonAward.id, {color: config.edgeColors.award, hidden: true});
   });
 
   data.awardRecipients.forEach(recipient => {
@@ -201,7 +201,7 @@ export const buildGraph = async (data: NBAData, config: GraphConfig): Promise<Gr
     // in the future maybe it would be nice to add a weight to the edge to distinguish between multiple wins
     // (or add an edge label, but that isn't used elsewhere and I think would be too busy)
     if (!graph.hasEdge(recipient.recipientId, recipient.awardId)) {
-      graph.addEdge(recipient.recipientId, recipient.awardId, {color: config.edgeColors.award});
+      graph.addEdge(recipient.recipientId, recipient.awardId, {color: config.edgeColors.award, hidden: true});
     }
   });
 

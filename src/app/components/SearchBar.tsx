@@ -5,12 +5,11 @@ import { SerializedNode } from 'graphology-types';
 import Box from '@mui/joy/Box';
 import Autocomplete, {createFilterOptions} from '@mui/joy/Autocomplete';
 import AutocompleteOption from '@mui/joy/AutocompleteOption';
-import Avatar from '@mui/joy/Avatar';
 import ListItemContent from '@mui/joy/ListItemContent';
 import ListItemDecorator from '@mui/joy/ListItemDecorator';
 import Typography from '@mui/joy/Typography';
 
-import { BaseNodeAttributes, Selection } from '../../shared/types';
+import { NodeAttributes, Selection } from '../../shared/types';
 
 type SearchBarProps = {
   nodes: SerializedNode[];
@@ -66,14 +65,19 @@ const SearchBar = ({nodes}: SearchBarProps) => {
     zIndex: 1000,
   };
 
-  const getSubLabel = (node: SerializedNode): string => {
-    const typ = node.attributes?.nbaType as string;
-
-    if (typ === 'franchise') return 'Franchise';
-    if (typ === 'team') return (node.attributes?.label as string).match(/\d{4}-\d{2}/)?.[0] as string;
+  const getSubLabel = (attrs: NodeAttributes): string => {
+    if (attrs.nbaType === 'franchise') return 'Franchise';
+    if (attrs.nbaType === 'award') return 'award';
+    if (attrs.nbaType === 'team') return attrs.label.match(/\d{4}-\d{2}/)?.[0] as string;
     
     // player
-    return node.attributes?.years as string;
+    const years = attrs.years;
+    const n = years.length;
+
+    const start = years[0] as number - 1;
+    const end = years[n - 1] as number;
+
+    return `${start}-${end.toString().slice(2)}`;
   };
 
   // TODO: sort
@@ -81,11 +85,11 @@ const SearchBar = ({nodes}: SearchBarProps) => {
   // 2. franchise by name
   // 3. team by name / year
   const options = nodes.map((node) => {
-    const attrs = node.attributes as BaseNodeAttributes;
+    const attrs = node.attributes as NodeAttributes;
     return {
       key: node.key,
       label: attrs.nbaType === 'team' ? attrs.label.match(/.*(?=\s\(\d{4}-\d{2}\))/)?.[0] as string : attrs.label,
-      subLabel: getSubLabel(node),
+      subLabel: getSubLabel(attrs),
       image: {
         src: attrs.image,
         crop: attrs.crop,

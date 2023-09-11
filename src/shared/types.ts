@@ -23,7 +23,7 @@ export type BaseNodeAttributes = {
 
 export type PlayerNodeAttributes = BaseNodeAttributes & {
   nbaType: 'player';
-  years: string;
+  years: number[];
 };
 
 export type FranchiseNodeAttributes = BaseNodeAttributes & {
@@ -37,3 +37,9 @@ export type TeamNodeAttributes = BaseNodeAttributes & {
 export type AwardNodeAttributes = BaseNodeAttributes & {
   nbaType: 'award';
 };
+
+export type NodeAttributes = 
+  PlayerNodeAttributes |
+  FranchiseNodeAttributes |
+  TeamNodeAttributes |
+  AwardNodeAttributes;

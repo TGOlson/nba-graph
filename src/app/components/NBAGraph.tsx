@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { ControlsContainer, SigmaContainer, ZoomControl } from "@react-sigma/core";
 import Graph from 'graphology';
 import { Settings } from 'sigma/settings';
@@ -10,17 +10,35 @@ import makeNodeSpriteProgramTriangles from '../program/node-sprite-triangles';
 import { Sprite } from '../util/image';
 
 import GraphEvents from './GraphEventHandler';
-import Header from './Header';
+import HeaderMenu from './HeaderMenu';
 import SearchBar from './SearchBar';
+import { GraphFilters } from '../util/types';
 
 type DisplayGraphProps = {
   data: GraphData;
   sprite: Sprite;
 };
 
+const defaultFilters: GraphFilters = {
+  showAwards: true,
+  showShortCareerPlayers: true,
+  showNBA: true,
+  showABA: true,
+  showBAA: true,
+  minYear: 1946,
+  maxYear: 2023,
+};
+
 const NBAGraph = (props: DisplayGraphProps) => {
-  const graph = new Graph(props.data.options);
-  graph.import(props.data);
+  const [graph, setGraph] = React.useState<Graph | undefined>(undefined);
+  const [filters, setFilters] = React.useState<GraphFilters>(defaultFilters);
+
+  useEffect(() => {
+    console.log('registering graph');
+    const graph = new Graph(props.data.options);
+    graph.import(props.data);
+    setGraph(graph);
+  }, []);
 
   // availble options:
   // https://github.com/jacomyal/sigma.js/blob/154408adf4d5df12df88b8d137609327c99fada8/src/settings.ts
@@ -49,7 +67,6 @@ const NBAGraph = (props: DisplayGraphProps) => {
     // edgeLabelColor: { attribute: "color" },
     // stagePadding: 30,
   
-    
     // Labels
     // labelDensity: 1,
     // labelGridCellSize: 100,
@@ -69,15 +86,19 @@ const NBAGraph = (props: DisplayGraphProps) => {
     },
   };
 
+  const onFilterChange = (change: Partial<GraphFilters>) => {
+    setFilters({ ...filters, ...change });
+  };
+
   return (
     <SigmaContainer 
-      style={{ height: "100vh", backgroundColor: "#f8f8f9" }} 
+      style={{ height: "100vh", backgroundColor: "#fcfcfc" }} 
       graph={graph}
       settings={settings}
     >
-      <Header />
+      <HeaderMenu filters={filters} onFilterChange={onFilterChange}/>
       <SearchBar nodes={props.data.nodes} />
-      <GraphEvents />
+      <GraphEvents filters={filters}/>
       <ControlsContainer position={"bottom-right"}>
         <ZoomControl />
       </ControlsContainer>

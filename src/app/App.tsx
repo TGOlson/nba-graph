@@ -17,7 +17,7 @@ function notNull<T>(value: T | null | undefined): value is T {
 
 const loading = (
   <Box sx={{textAlign: 'center', mt: -4}}>
-    <Typography sx={{mb: 1}}>Loading graph data...</Typography>
+    <Typography sx={{mb: 1}}>Loading graph...</Typography>
     <CircularProgress />
   </Box>
 );
