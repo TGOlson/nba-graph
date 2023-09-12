@@ -129,7 +129,7 @@ The output graph data is stored in `./data/graph/graph.json`. The graph is built
   * compress graph json?
   * fun AI logo
   * a way to collapse team/award years in search?
-    * when nodes are filtered from graph, remove from search results
+  * when nodes are filtered from graph, remove from search results
 * deploy
  * setup github page (TODO: where to store data?)
  * deploy assets to aws/cloudflair

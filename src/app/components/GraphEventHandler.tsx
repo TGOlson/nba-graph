@@ -72,7 +72,7 @@ const GraphEvents = ({filters}: GraphEventsProps) => {
       enterNode: (event) => setHoveredNode(event.node),
       leaveNode: () => setHoveredNode(null),
     });
-  }, [registerEvents, selectedNode, hoveredNode]);
+  }, [gotoNode, registerEvents, selectedNode, hoveredNode]);
 
   useEffect(() => {
     setSettings({
