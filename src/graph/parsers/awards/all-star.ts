@@ -22,7 +22,7 @@ export const ALL_STAR_AWARDS: Award[] = [
     id: 'ALL_STAR_ABA',
     name: 'ABA All-Star Team',
     leagueId: 'ABA',
-    image: assets.img.award.allstar,
+    image: assets.img.award.allstar_aba,
     url: LEAGUES_URL,
   }
 ];
@@ -52,7 +52,7 @@ const parse = ($: cheerio.CheerioAPI, seasonId: string): AllStarParseResult => {
     id: `ALL_STAR_${seasonId}`,
     name: `${leagueId} All-Star Team (${year})`,
     awardId: `ALL_STAR_${leagueId}`,
-    image: assets.img.award.allstar,
+    image: leagueId === 'NBA' ? assets.img.award.allstar : assets.img.award.allstar_aba,
     year,
     url,
   };

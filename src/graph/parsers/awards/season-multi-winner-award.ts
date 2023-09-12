@@ -48,6 +48,15 @@ type AwardParseResult = {
   awardRecipients: AwardRecipient[],
 };
 
+const getImage = (leagueId: string): string => {
+  switch (leagueId) {
+    case 'NBA': return assets.img.league.nba;
+    case 'ABA': return assets.img.league.aba;
+    case 'BAA': return assets.img.league.baa;
+    default: throw new Error(`Invalid leagueId: ${leagueId}`);
+  }
+};
+
 const parse = ($: cheerio.CheerioAPI, config: AwardConfig): AwardParseResult => {
   // cache of awards & season awards, use this to dedupe
   // because of the way this parser is structured, we'll end up w/ dupes (eg. multiple MVP_NBA awards)
@@ -65,7 +74,7 @@ const parse = ($: cheerio.CheerioAPI, config: AwardConfig): AwardParseResult => 
       id: awardId,
       name: config.makeName(leagueId),
       leagueId,
-      image: assets.img.award.medal,
+      image: getImage(leagueId),
       url,
     };
     
@@ -85,7 +94,7 @@ const parse = ($: cheerio.CheerioAPI, config: AwardConfig): AwardParseResult => 
       id: seasonAwardId,
       name,
       awardId,
-      image: assets.img.award.medal,
+      image: getImage(leagueId),
       year,
       url,
     };

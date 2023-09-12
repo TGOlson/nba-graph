@@ -9,6 +9,7 @@ type AwardConfig = {
   name: string,
   awardId: string,
   playerSelector: string,
+  img: string,
   url: string,
 };
 
@@ -17,24 +18,28 @@ const AWARD_CONFIG: AwardConfig[] = [
     name: 'NBA 75th Anniversary Team',
     awardId: 'NBA_75_ANNIVERSARY',
     playerSelector: 'table#stats tbody tr th[data-stat="player"] a',
+    img: assets.img.league.nba,
     url: awardUrls.nba_75th_anniversary,
   },
   {
     name: '50 Greatest Players in NBA History',
     awardId: 'NBA_50_GREATEST',
     playerSelector: 'table#stats tbody tr th[data-stat="player"] a',
+    img: assets.img.league.nba,
     url: awardUrls.nba_50_greatest,
   },
   {
     name: 'ABA All-Time Team',
     awardId: 'ABA_ALL_TIME_TEAM',
     playerSelector: 'table#stats tbody tr th[data-stat="player"] a',
+    img: assets.img.league.aba,
     url: awardUrls.aba_all_time_team,
   },
   {
     name: 'Basketball Hall of Fame',
     awardId: 'HOF',
     playerSelector: 'table#hof tbody tr a[href^="/players"]',
+    img: assets.img.award.hof,
     url: awardUrls.hof,
   },
 ];
@@ -54,7 +59,7 @@ const parse = ($: cheerio.CheerioAPI, config: AwardConfig): AwardParseResult => 
     id: config.awardId,
     name: config.name,
     leagueId: 'NBA',
-    image: config.awardId === 'HOF' ? assets.img.award.hof : assets.img.award.nba,
+    image: config.img,
     url,
   };
 
