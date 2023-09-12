@@ -55,7 +55,7 @@ export const GRAPH_CONFIG: GraphConfig = {
     franchise: '#FFFFFF',
     team: '#FFFFFF',
     player: '#C6C3BD',
-    award: '#9f6e50',
+    award: '#dd1b32',
   },
   edgeColors: {
     default: '#CCCCCC',

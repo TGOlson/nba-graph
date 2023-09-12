@@ -54,7 +54,7 @@ const parse = ($: cheerio.CheerioAPI, config: AwardConfig): AwardParseResult => 
     id: config.awardId,
     name: config.name,
     leagueId: 'NBA',
-    image: assets.img.award.wreath,
+    image: config.awardId === 'HOF' ? assets.img.award.hof : assets.img.award.nba,
     url,
   };
 

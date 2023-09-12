@@ -7,6 +7,9 @@ type AssetPath = {
     playerSprite: string,
     playerDefault: string,
     award: {
+      allstar: string,
+      hof: string,
+      nba: string,
       medal: string,
       trophy: string,
       trophy_lob: string,
@@ -24,6 +27,9 @@ export const assets: AssetPath = {
     playerSprite: '/assets/sprites/player.png',
     playerDefault: '/assets/img/player_default.png',
     award: {
+      allstar: '/assets/img/award/allstar_200.png',
+      nba: '/assets/img/award/nba_200.png',
+      hof: '/assets/img/award/hof_200.png',
       medal: '/assets/img/award/medal_200.png',
       trophy: '/assets/img/award/trophy_200.png',
       trophy_lob: '/assets/img/award/trophy_lob_200.png',

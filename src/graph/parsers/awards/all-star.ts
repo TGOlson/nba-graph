@@ -52,7 +52,7 @@ const parse = ($: cheerio.CheerioAPI, seasonId: string): AllStarParseResult => {
     id: `ALL_STAR_${seasonId}`,
     name: `${leagueId} All-Star Team (${year})`,
     awardId: `ALL_STAR_${leagueId}`,
-    image: assets.img.award.medal,
+    image: assets.img.award.allstar,
     year,
     url,
   };
