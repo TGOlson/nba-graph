@@ -84,7 +84,7 @@ export type MultiWinnerAward = {
 export type AwardRecipient = {
   recipientId: string,
   awardId: string,
-  year: number | null,
+  year: number | null, // year is null only for lifetime awards (eg. HOF)
   url: string,
 };
 

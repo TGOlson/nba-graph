@@ -269,7 +269,7 @@ export const buildGraph = async (data: NBAData, config: GraphConfig): Promise<Gr
     // in the future maybe it would be nice to add a weight to the edge to distinguish between multiple wins
     // (or add an edge label, but that isn't used elsewhere and I think would be too busy)
     if (!graph.hasEdge(recipient.recipientId, recipient.awardId)) {
-      graph.addEdge(recipient.recipientId, recipient.awardId, {color: config.edgeColors.award, hidden: true});
+      graph.addEdge(recipient.recipientId, recipient.awardId, {color: config.edgeColors.award, hidden: true, year: recipient.year, nbaType: 'award'});
     }
   });
 

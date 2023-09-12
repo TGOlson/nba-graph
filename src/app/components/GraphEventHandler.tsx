@@ -84,9 +84,6 @@ const GraphEvents = ({filters}: GraphEventsProps) => {
           return { ...data, hidden: true };
         }
 
-        // if (!filters.showAwards && data.nbaType === 'award') return { ...data, hidden: true };
-        // if (!filters.showShortCareerPlayers && data.nbaType === 'player' && data.years.length <= 3) return { ...data, hidden: true };
-
         // if nothing selected or hovered, quick return default
         if (!hoveredNode && !selectedNode) return data;
 
@@ -95,13 +92,13 @@ const GraphEvents = ({filters}: GraphEventsProps) => {
 
         // check neighbors...
         const graph = sigma.getGraph();
-        // const selectedNe = graph.neighbors(selectedNode);
 
-        // console.log(data);
         // if a neighbor of selected or hovered, emphasize node
         // only emphasize on hover is there is no selected node
+        
         const activeBorderColor = data.nbaType === 'player' ? '#ffffff' : data.borderColor;
         if ((selectedNode && graph.neighbors(selectedNode).includes(node) || (hoveredNode && !selectedNode && graph.neighbors(hoveredNode).includes(node)))) {
+          // TODO: somehow hide nodes attached to an award that should be filtered out
           return { 
             ...data, 
             zIndex: 700,
@@ -130,6 +127,16 @@ const GraphEvents = ({filters}: GraphEventsProps) => {
 
         // check neighbors
         const graph = sigma.getGraph();
+
+        // this one is a little tricky...
+        // some awards are given to multiple people over multiple years, but don't have nodes differentiating the year (eg. MVP)
+        // in the case that year filters are applied, we want to hide the edge if the year is not in the range
+        const edgeAttrs = graph.getEdgeAttributes(edge);
+        if (edgeAttrs.nbaType === 'award' && edgeAttrs.year) {
+          const year = edgeAttrs.year as number;
+          const isWithinYearRange = year - 1 >= filters.minYear && year - 1 <= filters.maxYear;
+          if (!isWithinYearRange) return { ...data, hidden: true };
+        }
 
         const isSelectedNeighbor = selectedNode && graph.extremities(edge).includes(selectedNode);
         const isHoveredNeighbor = hoveredNode && !selectedNode && graph.extremities(edge).includes(hoveredNode);
