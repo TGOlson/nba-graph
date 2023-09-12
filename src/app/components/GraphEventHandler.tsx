@@ -6,6 +6,7 @@ import { Attributes } from 'graphology-types';
 import { NodeDisplayData } from 'sigma/types';
 import { CustomNodeAttributes, NodeAttributes } from '../../shared/types';
 import { GraphFilters } from '../util/types';
+import { SigmaNodeEventPayload } from 'sigma/sigma';
 
 type GraphEventsProps = {
   filters: GraphFilters;
@@ -51,9 +52,13 @@ const GraphEvents = ({filters}: GraphEventsProps) => {
 
   useEffect(() => {
     registerEvents({
-      clickNode: (event) => {
-        console.log('click event', event, 'node', sigma.getGraph().getNodeAttributes(event.node));
-        if (selectedNode === event.node) {
+      clickNode: (baseEvent) => {
+        // event is hackily overloaded at one point to include a synthetic click event from the search bar
+        // adjust type here to make typescript happy
+        const event = baseEvent as SigmaNodeEventPayload & {syntheticClickEventFromSearch: boolean};
+        console.log('click event', baseEvent, 'node', sigma.getGraph().getNodeAttributes(event.node));
+    
+        if (selectedNode === event.node && !event.syntheticClickEventFromSearch) {
           setSelectedNode(null);
         } else {
           setSelectedNode(event.node);

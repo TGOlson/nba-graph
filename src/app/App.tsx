@@ -10,10 +10,7 @@ import { fetchGraphData, GraphData } from './api';
 import { combineImages, fetchImage, Sprite } from './util/image';
 
 import "./App.css";
-
-function notNull<T>(value: T | null | undefined): value is T {
-  return value !== null && value !== undefined;
-}
+import { notNull } from '../shared/util';
 
 const loading = (
   <Box sx={{textAlign: 'center', mt: -4}}>

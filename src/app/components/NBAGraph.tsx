@@ -10,7 +10,7 @@ import makeNodeSpriteProgramTriangles from '../program/node-sprite-triangles';
 import { Sprite } from '../util/image';
 
 import GraphEvents from './GraphEventHandler';
-import HeaderMenu from './HeaderMenu';
+import HeaderMenu, { DEFAULT_FILTERS } from './HeaderMenu';
 import SearchBar from './SearchBar';
 import { GraphFilters } from '../util/types';
 
@@ -19,19 +19,9 @@ type DisplayGraphProps = {
   sprite: Sprite;
 };
 
-const defaultFilters: GraphFilters = {
-  showAwards: true,
-  showShortCareerPlayers: true,
-  showNBA: true,
-  showABA: true,
-  showBAA: true,
-  minYear: 1946,
-  maxYear: 2023,
-};
-
 const NBAGraph = (props: DisplayGraphProps) => {
   const [graph, setGraph] = React.useState<Graph | undefined>(undefined);
-  const [filters, setFilters] = React.useState<GraphFilters>(defaultFilters);
+  const [filters, setFilters] = React.useState<GraphFilters>(DEFAULT_FILTERS);
 
   useEffect(() => {
     console.log('registering graph');

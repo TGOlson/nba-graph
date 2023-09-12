@@ -114,7 +114,7 @@ The output graph data is stored in `./data/graph/graph.json`. The graph is built
   * ~~test animations for force layout and other movements~~
   * ~~test moving neighbors in a circle around selected node (and keeping them there... animation?)~~
   * ~~try to improve sprite generation, some heads are off center?~~
-  * views (roster view, teammate view, something else?)
+  * [skip] views (roster view, teammate view, something else?)
 * small cleanups
   * ~~some edge colors are funky (check spurs 1981/1982)~~
   * ~~darken circle around teams (right now it's just primary color)~~
@@ -126,9 +126,9 @@ The output graph data is stored in `./data/graph/graph.json`. The graph is built
   * fun AI logo
   * a way to collapse team/award years in search?
   * a few filter cleanups
-    * lifetime award leagues don't seem right (just NBA right now?)
-    * remove HOF and other lifetime awards if all recipients are filtered out
-    * validation or something for year text inputs
+    * ~~validation or something for year text inputs~~
+    * ~~remove HOF and other lifetime awards if all recipients are filtered out~~
+    * ~~lifetime award leagues don't seem right (just NBA right now?)~~
     * when nodes are filtered from graph, remove from search results
     * when filtering down to just 2022 season should all MVPs be shown?
 * deploy

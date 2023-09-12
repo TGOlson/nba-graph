@@ -8,6 +8,7 @@ import { NodeAttributes, SpriteNodeAttributes } from "../../shared/types";
 import { assets } from "../util/assets";
 import { GraphConfig } from "./config";
 import { loadSpriteColors, loadSpriteMapping } from "../storage";
+import { notNull } from "../../shared/util";
 
 // TODO: things that would be nice to add (that we already have the data for, but need to stitch together):
 // - years active for players
@@ -119,7 +120,7 @@ export const buildGraph = async (data: NBAData, config: GraphConfig): Promise<Gr
     
     const franchiseTeams = teams.filter(team => team.franchiseId === franchise.id);
     const years = franchiseTeams.map(team => team.year).sort();
-    const leagues = franchiseTeams.map(team => seasonsById[team.seasonId]?.leagueId).filter(x => x) as string[];
+    const leagues = franchiseTeams.map(team => seasonsById[team.seasonId]?.leagueId).filter(notNull);
     const leagueIds = [...new Set(leagues)];
 
     const attrs: NodeAttributes = { 
@@ -178,10 +179,22 @@ export const buildGraph = async (data: NBAData, config: GraphConfig): Promise<Gr
     const multiWinner = data.multiWinnerAwards.filter(x => x.awardId === award.id);
     const recipients = data.awardRecipients.filter(x => x.awardId === award.id);
 
-    const potentialYearsAll = [...multiWinner, ...recipients].map(x => x.year).filter(x => x).sort() as number[];
+    const potentialYearsAll = [...multiWinner, ...recipients].map(x => x.year).filter(notNull).sort();
 
-    // Note: this will be empty lifetime awards (eg. HOF)
-    const years = [...new Set(potentialYearsAll)];
+    let years = [...new Set(potentialYearsAll)];
+    let leagues = [award.leagueId];
+    
+    // this will be the case for lifetime awards that don't have years
+    // in this case just use the cumulative career years of all the recipients
+    if (years.length === 0) {
+      const recipientSeasons = recipients.map(x => playerSeasons[x.recipientId]).flat().filter(notNull);
+      const recipientYears = recipientSeasons.map(x => x.year).sort();
+      years = [...new Set(recipientYears)];
+
+      // also kind of hacky, but for lifetime awards just use the cumulative leagues of all the recipients
+      // other awards know their league at parse time, but lifetime awards don't have easy access to that info
+      leagues = [...new Set(recipientSeasons.map(x => x.leagueId))];
+    }
 
     const attrs: NodeAttributes = {
       nbaType: 'award',
@@ -191,7 +204,7 @@ export const buildGraph = async (data: NBAData, config: GraphConfig): Promise<Gr
       size: config.sizes.awardMax, // TODO: maybe filter by mvp, hof for max, others are default size?
       type: 'sprite',
       image: award.image,
-      leagues: [award.leagueId],
+      leagues,
       years,
       crop: AWARD_IMAGE_CROP
     };
