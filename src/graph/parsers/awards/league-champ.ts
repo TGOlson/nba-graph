@@ -31,7 +31,7 @@ const parse = ($: cheerio.CheerioAPI): AwardParseResult => {
     awards[awardId] = {
       id: awardId,
       name: `${leagueId} League Champion`,
-      image: assets.img.award.trophy_lob,
+      image: assets.img.award.champ,
       leagueId,
       url,
     };

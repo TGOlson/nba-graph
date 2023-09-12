@@ -15,14 +15,14 @@ export const ALL_STAR_AWARDS: Award[] = [
     id: 'ALL_STAR_NBA',
     name: 'NBA All-Star Team',
     leagueId: 'NBA',
-    image: assets.img.award.medal,
+    image: assets.img.award.allstar,
     url: LEAGUES_URL,
   },
   {
     id: 'ALL_STAR_ABA',
     name: 'ABA All-Star Team',
     leagueId: 'ABA',
-    image: assets.img.award.medal,
+    image: assets.img.award.allstar,
     url: LEAGUES_URL,
   }
 ];
