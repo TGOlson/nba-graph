@@ -108,6 +108,7 @@ const parse = ($: cheerio.CheerioAPI, config: AwardConfig): AwardParseResult => 
       return {
         awardId: seasonAwardId,
         recipientId: playerId,
+        year,
         url,
       };
     });

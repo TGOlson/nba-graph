@@ -20,6 +20,7 @@ const parse = ($: cheerio.CheerioAPI): AwardParseResult => {
   const awards: {[key: string]: Award} = {};
 
   const awardRecipients = $(SELECTOR).toArray().map((el: cheerio.AnyNode) => {
+    const yearStr = $('th[data-stat="year_id"] a[href]', el).text();
     const leagueId = $('td[data-stat="lg_id"] a[href]', el).text();
 
     const urlPieces = LEAGUE_CHAMP_URL.split('/');
@@ -49,6 +50,7 @@ const parse = ($: cheerio.CheerioAPI): AwardParseResult => {
     const awardRecipient: AwardRecipient = {
       awardId,
       recipientId: teamId,
+      year: parseInt(yearStr),
       url
     };
 

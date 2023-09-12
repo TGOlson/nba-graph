@@ -8,12 +8,15 @@ export type SelectionMap = {[key: string]: Selection};
 
 export type Palette = {primary: string, light: string, dark: string};
 
-export type CustomNodeAttributes = {muted?: boolean, borderColor: string} & SpriteNodeAttributes;
-export type SpriteNodeAttributes = {type: 'sprite', image: string, crop: Selection};
-
 export type EmptyObject = Record<string, never>;
 
-export type BaseNodeAttributes = {
+export type SpriteNodeAttributes = {type: 'sprite', image: string, crop: Selection};
+
+// used in graph rendering
+export type CustomNodeAttributes = {muted?: boolean, borderColor: string} & SpriteNodeAttributes;
+
+// used in graph building & rendering
+export type NodeAttributes = {
   nbaType: NBAType;
   color: string;
   borderColor: string;
@@ -22,25 +25,3 @@ export type BaseNodeAttributes = {
   leagues: string[];
   years: number[];
 } & SpriteNodeAttributes;
-
-export type PlayerNodeAttributes = BaseNodeAttributes & {
-  nbaType: 'player';
-};
-
-export type FranchiseNodeAttributes = BaseNodeAttributes & {
-  nbaType: 'franchise';
-};
-
-export type TeamNodeAttributes = BaseNodeAttributes & {
-  nbaType: 'team';
-};
-
-export type AwardNodeAttributes = BaseNodeAttributes & {
-  nbaType: 'award';
-};
-
-export type NodeAttributes = 
-  PlayerNodeAttributes |
-  FranchiseNodeAttributes |
-  TeamNodeAttributes |
-  AwardNodeAttributes;

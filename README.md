@@ -109,7 +109,7 @@ The output graph data is stored in `./data/graph/graph.json`. The graph is built
   * ~~improve node sizes~~
   * ~~placeholders for teams/players without images~~
   * ~~more fun edge colors (based on team primary?)~~
-  * filters (toggle awards, low minute players, toggle leagues?) and advanced search (idk?)
+  * ~~filters (toggle awards, low minute players, toggle leagues?) and advanced search (idk?)~~
 * hacks
   * ~~test animations for force layout and other movements~~
   * ~~test moving neighbors in a circle around selected node (and keeping them there... animation?)~~
@@ -125,6 +125,12 @@ The output graph data is stored in `./data/graph/graph.json`. The graph is built
   * compress graph json?
   * fun AI logo
   * a way to collapse team/award years in search?
+  * a few filter cleanups
+    * lifetime award leagues don't seem right (just NBA right now?)
+    * remove HOF and other lifetime awards if all recipients are filtered out
+    * validation or something for year text inputs
+    * when nodes are filtered from graph, remove from search results
+    * when filtering down to just 2022 season should all MVPs be shown?
 * deploy
  * setup github page (TODO: where to store data?)
  * deploy assets to aws/cloudflair

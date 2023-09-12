@@ -3,8 +3,8 @@ import { circular } from "graphology-layout";
 import forceAtlas2 from "graphology-layout-forceatlas2";
 import Color from "color";
 
-import { Award, NBAData, PlayerSeason, Season, Team } from "../../shared/nba-types";
-import { AwardNodeAttributes, FranchiseNodeAttributes, PlayerNodeAttributes, SpriteNodeAttributes, TeamNodeAttributes } from "../../shared/types";
+import { Award, NBAData, Season, Team } from "../../shared/nba-types";
+import { NodeAttributes, SpriteNodeAttributes } from "../../shared/types";
 import { assets } from "../util/assets";
 import { GraphConfig } from "./config";
 import { loadSpriteColors, loadSpriteMapping } from "../storage";
@@ -41,15 +41,6 @@ export const buildGraph = async (data: NBAData, config: GraphConfig): Promise<Gr
   const teamColors = await loadSpriteColors('team');
   const franchiseColors = await loadSpriteColors('franchise');
 
-  const playerSeasons: {[playerId: string]: PlayerSeason[]} = data.playerSeasons.reduce<{[playerId: string]: PlayerSeason[]}>((acc, season) => {
-    const prev = acc[season.playerId] ?? [];
-
-    prev.push(season);
-    acc[season.playerId] = prev;
-
-    return acc;
-  }, {});
-
   const seasonsById = data.seasons.reduce<{[id: string]: Season}>((acc, season) => {
     acc[season.id] = season;
     return acc;
@@ -65,6 +56,21 @@ export const buildGraph = async (data: NBAData, config: GraphConfig): Promise<Gr
     return acc;
   }, {});
 
+  const playerSeasons: {[playerId: string]: Season[]} = data.playerSeasons.reduce<{[playerId: string]: Season[]}>((acc, ps) => {
+    const prev = acc[ps.playerId] ?? [];
+
+    const team = teamsById[ps.teamId];
+    if (!team) throw new Error(`Unexpected error: no team for player ${ps.playerId} ${ps.year}`);
+
+    const season = seasonsById[team.seasonId];
+    if (!season) throw new Error(`Unexpected error: no season for player ${ps.playerId} ${ps.year}`);
+
+    prev.push(season);
+    acc[ps.playerId] = prev;
+
+    return acc;
+  }, {});
+
   // *************
   // *** NODES ***
   // *************
@@ -73,25 +79,25 @@ export const buildGraph = async (data: NBAData, config: GraphConfig): Promise<Gr
     // TODO: more sophisticated size calculation, using seasons, awards, etc.
     const seasons = playerSeasons[player.id];
     if (!seasons) throw new Error(`Unexpected error: no years active for player ${player.name}`);
-    const years = seasons.map(x => x.year).sort();
+    const yearsAll = seasons.map(x => x.year).sort();
+    const years = [...new Set(yearsAll)];
     const end = years[years.length - 1];
 
     const size = (years.length <= 3 && end !== 2023) ? config.sizes.playerMin : config.sizes.playerDefault;
 
     const imgCoords = playerImgLocations[player.id];
 
-    const seasonIds = seasons.map(x => teamsById[x.teamId]?.seasonId).filter(x => x) as string[];
-    const leagues = seasonIds.map(seasonId => seasonsById[seasonId]?.leagueId).filter(x => x) as string[];
+    const leagues = seasons.map(season => season.leagueId);
     const leagueIds = [...new Set(leagues)];
     
     const imgProps: SpriteNodeAttributes = imgCoords 
       ? {type: 'sprite', image: assets.img.playerSprite, crop: imgCoords}
       : {type: 'sprite', image: assets.img.playerDefault, crop: DEFAULT_IMAGE_CROP};
 
-    const attrs: PlayerNodeAttributes = {
-      size, 
-      label: player.name, 
+    const attrs: NodeAttributes = {
       nbaType: 'player',
+      label: player.name, 
+      size, 
       years,
       color: config.nodeColors.default, 
       borderColor: config.borderColors.player,
@@ -111,15 +117,15 @@ export const buildGraph = async (data: NBAData, config: GraphConfig): Promise<Gr
 
     const borderColor = franchiseColors[franchise.id]?.primary ?? config.borderColors.franchise;
     
-    const teams = data.teams.filter(team => team.franchiseId === franchise.id);
-    const years = teams.map(team => team.year).sort();
-    const leagues = teams.map(team => seasonsById[team.seasonId]?.leagueId).filter(x => x) as string[];
+    const franchiseTeams = teams.filter(team => team.franchiseId === franchise.id);
+    const years = franchiseTeams.map(team => team.year).sort();
+    const leagues = franchiseTeams.map(team => seasonsById[team.seasonId]?.leagueId).filter(x => x) as string[];
     const leagueIds = [...new Set(leagues)];
 
-    const attrs: FranchiseNodeAttributes = { 
-      size: config.sizes.franchise, 
-      label: franchise.name, 
+    const attrs: NodeAttributes = { 
       nbaType: 'franchise',
+      label: franchise.name, 
+      size: config.sizes.franchise, 
       color: config.nodeColors.default, 
       borderColor,
       leagues: leagueIds,
@@ -154,10 +160,10 @@ export const buildGraph = async (data: NBAData, config: GraphConfig): Promise<Gr
 
     if (!leagueId) throw new Error(`Unexpected error: no leagueId for team ${team.name} ${team.year}`);
 
-    const attrs: TeamNodeAttributes = { 
-      size: config.sizes.team, 
-      label, 
+    const attrs: NodeAttributes = { 
       nbaType: 'team',
+      label, 
+      size: config.sizes.team, 
       color: config.nodeColors.default, 
       borderColor,
       leagues: [leagueId],
@@ -169,12 +175,17 @@ export const buildGraph = async (data: NBAData, config: GraphConfig): Promise<Gr
   });
 
   data.awards.forEach(award => {
+    const multiWinner = data.multiWinnerAwards.filter(x => x.awardId === award.id);
     const recipients = data.awardRecipients.filter(x => x.awardId === award.id);
-    const years = recipients.map(x => x.year).filter(x => x).sort() as number[];
 
-    const attrs: AwardNodeAttributes = {
-      label: award.name,
+    const potentialYearsAll = [...multiWinner, ...recipients].map(x => x.year).filter(x => x).sort() as number[];
+
+    // Note: this will be empty lifetime awards (eg. HOF)
+    const years = [...new Set(potentialYearsAll)];
+
+    const attrs: NodeAttributes = {
       nbaType: 'award',
+      label: award.name,
       color: config.nodeColors.award,
       borderColor: config.borderColors.award,
       size: config.sizes.awardMax, // TODO: maybe filter by mvp, hof for max, others are default size?
@@ -194,9 +205,9 @@ export const buildGraph = async (data: NBAData, config: GraphConfig): Promise<Gr
 
     const leagueId = baseAward.leagueId;
 
-    const attrs: AwardNodeAttributes = {
-      label: award.name,
+    const attrs: NodeAttributes = {
       nbaType: 'award',
+      label: award.name,
       color: config.nodeColors.award,
       borderColor: config.borderColors.award,
       size: config.sizes.awardDefault,
@@ -215,8 +226,6 @@ export const buildGraph = async (data: NBAData, config: GraphConfig): Promise<Gr
   // *************
 
   data.playerSeasons.forEach(pt => {
-    // graph.addEdge(pt.playerId, pt.teamId, {label: 'played_on'});
-
     const teamPalette = teamColors[pt.teamId];
   
     const color = teamPalette
@@ -227,8 +236,6 @@ export const buildGraph = async (data: NBAData, config: GraphConfig): Promise<Gr
   });
 
   teams.forEach(team => {
-    // graph.addEdge(team.id, team.franchiseId, {label: 'season_of'});
-  
     const teamPalette = teamColors[team.id];
   
     const color = teamPalette

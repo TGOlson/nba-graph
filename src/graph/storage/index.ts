@@ -28,7 +28,7 @@ import {
 
 type Read<T> = () => Promise<T>;
 
-function readJSON<T>(p: string): Read<T> {
+export function readJSON<T>(p: string): Read<T> {
   return async () => {
     const raw = await readFile(p, 'utf8');
     return JSON.parse(raw) as T;

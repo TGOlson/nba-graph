@@ -1,7 +1,7 @@
 import { Attributes, GraphOptions, SerializedEdge, SerializedNode } from 'graphology-types';
-import { FranchiseNodeAttributes, PlayerNodeAttributes, TeamNodeAttributes } from '../shared/types';
+import { NodeAttributes } from '../shared/types';
 
-type NBANode = SerializedNode & {attributes: PlayerNodeAttributes | TeamNodeAttributes | FranchiseNodeAttributes};
+type NBANode = SerializedNode & {attributes: NodeAttributes};
 
 export type GraphData = {
   attributes: Attributes;

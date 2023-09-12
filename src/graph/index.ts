@@ -8,7 +8,7 @@ import { seasonParser } from "./parsers/season";
 import { makeTeamParser } from "./parsers/team";
 import { makePlayerSeasonParser } from "./parsers/player-season";
 
-import { loadFranchises, loadNBAData, loadPlayers, loadTeams, persistAwards, persistFranchises, persistGraph, persistJSON, persistLeagues, persistPlayers, persistPlayerSeasons, persistMultiWinnerAwards, persistAwardRecipients, persistSeasons, persistTeams } from "./storage";
+import { loadFranchises, loadNBAData, loadPlayers, loadTeams, persistAwards, persistFranchises, persistGraph, persistJSON, persistLeagues, persistPlayers, persistPlayerSeasons, persistMultiWinnerAwards, persistAwardRecipients, persistSeasons, persistTeams, readJSON } from "./storage";
 import { imageDir, spriteColorsPath, spriteMappingPath, spritePath } from "./storage/paths";
 
 import { buildGraph } from "./builder";
@@ -21,6 +21,8 @@ import { NBAType } from "../shared/nba-types";
 import { allStarUrl, awardUrls, LEAGUE_CHAMP_URL } from "./util/bref-url";
 import { validAllStarSeasons } from "./parsers/awards/all-star";
 import { runAwardsParsers } from "./parsers/awards";
+import { NodeAttributes } from "../shared/types";
+import path from "path";
 
 const VERBOSE_FETCH = true;
 const FETCH_DELAY_MS = 6000; // basketball-reference seems to get mad at >~30 req/m
@@ -251,6 +253,30 @@ async function main() {
 
     // for testing, debugging, etc
     case commands.misc.Test: {
+      const nodes = await readJSON<{key: string, attributes: NodeAttributes}[]>(path.resolve(__dirname, '../data/graph/nodes.json'))();
+
+      // const years = nodes.map(x => x.attributes.years);
+
+      const nonConsecutive = nodes.filter(x => {
+        const years = x.attributes.years;
+        // const n = years.length;
+        // const sorted = x.sort();
+        const first = years[0] as number;
+        const last = years[years.length - 1] as number;
+
+        return last - first + 1 !== years.length;
+      }).map(x => ({
+        id: x.key,
+        type: x.attributes.nbaType,
+        label: x.attributes.label,
+        years: x.attributes.years,
+      })).filter(x => x.type !== 'player');
+
+      console.log(nonConsecutive);
+
+      // loadGraph
+      // loadGraph
+      // loadN
       // const res = await Promise.all(
       //   lifetimeAwardParser.map(parser => runHtmlParser(parser))
       // );

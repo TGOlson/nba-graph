@@ -86,8 +86,12 @@ const parse = ($: cheerio.CheerioAPI, config: AwardConfig): AwardParseResult => 
 
   const tableSelector = singleWinnerTableSelector(config.baseTableSelector);
   const awardRecipients: AwardRecipient[] = $(tableSelector).toArray().flatMap((el: cheerio.AnyNode) => {
+    const yearStr = $('th[data-stat="season"] a[href]', el).text();
+    const year = parseInt(yearStr.split('-')[0] as string) + 1;
+
     const leagueId = $('td[data-stat="lg_id"] a[href]', el).text();
     const awardId = `${config.baseAwardId}${leagueId}`;
+    
     const urlPieces = config.url.split('/');
     const url = '/' + urlPieces.slice(urlPieces.length - 2).join('/');
     
@@ -116,6 +120,7 @@ const parse = ($: cheerio.CheerioAPI, config: AwardConfig): AwardParseResult => 
     return {
       awardId,
       recipientId: playerId,
+      year,
       url,
     };
   });

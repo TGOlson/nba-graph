@@ -15,7 +15,8 @@ const isHiddenFromFilters = (filters: GraphFilters, data: NodeAttributes): boole
   if (!filters.showAwards && data.nbaType === 'award') return true;
   if (!filters.showShortCareerPlayers && data.nbaType === 'player') {
     const n = data.years.length;
-    return n <= 3 && data.years[n - 1] !== 2023;
+    const shortCareer = n <= 3 && data.years[n - 1] !== 2023;
+    if (shortCareer) return true;
   }
 
   const leagues = new Set(data.leagues);
@@ -25,6 +26,13 @@ const isHiddenFromFilters = (filters: GraphFilters, data: NodeAttributes): boole
   if (!filters.showBAA) leagues.delete('BAA');
 
   if (leagues.size === 0) return true;
+
+  // this is the case only for lifetime awards (e.g. HOF)
+  // for these nba types, never filter out based on years
+  if (data.years.length === 0) return false;
+
+  const isWithinYearRange = data.years.some((year) => year - 1 >= filters.minYear && year - 1 <= filters.maxYear);
+  if (!isWithinYearRange) return true;
 
   return false;
 };
