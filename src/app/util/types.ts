@@ -2,13 +2,6 @@ export type GraphFilters = {
   // implemented
   showAwards: boolean;
   showShortCareerPlayers: boolean;
-
-  // need to add additional info to award, player, team and franchise nodes
-  // award: league id
-  // multi winner award: league id
-  // player: leagues[] (array of league ids)
-  // team: league id
-  // franchise: leagues[] (array of league ids)
   showNBA: boolean;
   showABA: boolean;
   showBAA: boolean;

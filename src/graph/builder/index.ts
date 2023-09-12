@@ -112,6 +112,7 @@ export const buildGraph = async (data: NBAData, config: GraphConfig): Promise<Gr
     const borderColor = franchiseColors[franchise.id]?.primary ?? config.borderColors.franchise;
     
     const teams = data.teams.filter(team => team.franchiseId === franchise.id);
+    const years = teams.map(team => team.year).sort();
     const leagues = teams.map(team => seasonsById[team.seasonId]?.leagueId).filter(x => x) as string[];
     const leagueIds = [...new Set(leagues)];
 
@@ -122,6 +123,7 @@ export const buildGraph = async (data: NBAData, config: GraphConfig): Promise<Gr
       color: config.nodeColors.default, 
       borderColor,
       leagues: leagueIds,
+      years,
       ...imgProps, 
     };
 
@@ -159,6 +161,7 @@ export const buildGraph = async (data: NBAData, config: GraphConfig): Promise<Gr
       color: config.nodeColors.default, 
       borderColor,
       leagues: [leagueId],
+      years: [team.year],
       ...imgProps,
     };
 
@@ -166,6 +169,9 @@ export const buildGraph = async (data: NBAData, config: GraphConfig): Promise<Gr
   });
 
   data.awards.forEach(award => {
+    const recipients = data.awardRecipients.filter(x => x.awardId === award.id);
+    const years = recipients.map(x => x.year).filter(x => x).sort() as number[];
+
     const attrs: AwardNodeAttributes = {
       label: award.name,
       nbaType: 'award',
@@ -175,6 +181,7 @@ export const buildGraph = async (data: NBAData, config: GraphConfig): Promise<Gr
       type: 'sprite',
       image: award.image,
       leagues: [award.leagueId],
+      years,
       crop: AWARD_IMAGE_CROP
     };
 
@@ -196,6 +203,7 @@ export const buildGraph = async (data: NBAData, config: GraphConfig): Promise<Gr
       type: 'sprite',
       image: award.image,
       leagues: [leagueId],
+      years: [award.year],
       crop: AWARD_IMAGE_CROP
     };
     

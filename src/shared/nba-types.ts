@@ -84,6 +84,8 @@ export type MultiWinnerAward = {
 export type AwardRecipient = {
   recipientId: string,
   awardId: string,
+  // TODO: need to add this (likely to parser as well)
+  year?: number,
   url: string,
 };
 

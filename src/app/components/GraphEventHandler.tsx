@@ -18,10 +18,13 @@ const isHiddenFromFilters = (filters: GraphFilters, data: NodeAttributes): boole
     return n <= 3 && data.years[n - 1] !== 2023;
   }
 
-  // naive and a little inefficient... maybe change leagues to a map (string->bool)
-  if (!filters.showNBA && data.leagues.includes('NBA')) return true;
-  if (!filters.showABA && data.leagues.includes('ABA')) return true;
-  if (!filters.showBAA && data.leagues.includes('BAA')) return true;
+  const leagues = new Set(data.leagues);
+
+  if (!filters.showNBA) leagues.delete('NBA');
+  if (!filters.showABA) leagues.delete('ABA');
+  if (!filters.showBAA) leagues.delete('BAA');
+
+  if (leagues.size === 0) return true;
 
   return false;
 };

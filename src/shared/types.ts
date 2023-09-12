@@ -20,11 +20,11 @@ export type BaseNodeAttributes = {
   size: number;
   label: string;
   leagues: string[];
+  years: number[];
 } & SpriteNodeAttributes;
 
 export type PlayerNodeAttributes = BaseNodeAttributes & {
   nbaType: 'player';
-  years: number[];
 };
 
 export type FranchiseNodeAttributes = BaseNodeAttributes & {

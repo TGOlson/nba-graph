@@ -10,7 +10,6 @@ import ListItemDecorator from '@mui/joy/ListItemDecorator';
 import Typography from '@mui/joy/Typography';
 
 import { NodeAttributes, Selection } from '../../shared/types';
-import { attr } from 'cheerio/lib/api/attributes';
 
 type SearchBarProps = {
   nodes: SerializedNode[];
@@ -69,7 +68,7 @@ const SearchBar = ({nodes}: SearchBarProps) => {
   const getLabel = (attrs: NodeAttributes): string => {
     if (attrs.nbaType === 'team') return attrs.label.match(/.*(?=\s\(\d{4}-\d{2}\))/)?.[0] as string;
     if (attrs.nbaType === 'award') return attrs.label.match(/.*(?=\s\(\d{4}-\d{2}\))/)?.[0] ?? attrs.label;
-    
+
     return attrs.label;
   };
 
