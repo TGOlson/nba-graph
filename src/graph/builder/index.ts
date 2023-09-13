@@ -79,6 +79,55 @@ export const buildGraph = async (data: NBAData, config: GraphConfig): Promise<Gr
   // *** NODES ***
   // *************
 
+  data.leagues.forEach(league => {
+    const imgCoords = leagueImgLocations[league.id];
+    if (!imgCoords) throw new Error(`Unexpected error: no image for league ${league.id}`);
+
+    const borderColor = leagueColors[league.id]?.primary;
+    if (!borderColor) throw new Error(`Unexpected error: no color for league ${league.id}`);
+
+    const attrs: NodeAttributes = {
+      nbaType: 'league',
+      label: league.id, 
+      size: config.sizes.league, 
+      years: [1946, 2023], // TODO!
+      color: config.nodeColors.default, 
+      borderColor,
+      leagues: [league.id],
+      type: 'sprite',
+      image: assets.img.leagueSprite,
+      crop: imgCoords, 
+    };
+
+    graph.addNode(league.id, attrs);
+  });
+
+  data.seasons.forEach(season => {
+    const imgCoords = leagueImgLocations[season.leagueId];
+    if (!imgCoords) throw new Error(`Unexpected error: no image for season ${season.id}`);
+
+    const borderColor = leagueColors[season.leagueId]?.primary;
+    if (!borderColor) throw new Error(`Unexpected error: no color for season ${season.id}`);
+
+    const edgeColor = Color(borderColor).lighten(0.3).hex();
+
+    const attrs: NodeAttributes = {
+      nbaType: 'league',
+      label: `${season.leagueId} Season (${season.year - 1}-${season.year.toString().slice(2)})` , 
+      size: config.sizes.season, 
+      years: [1946, 2023], // TODO!
+      color: config.nodeColors.default, 
+      borderColor,
+      leagues: [season.leagueId],
+      type: 'sprite',
+      image: assets.img.leagueSprite,
+      crop: imgCoords, 
+    };
+
+    graph.addNode(season.id, attrs);
+    graph.addEdge(season.leagueId, season.id, {color: edgeColor, hidden: true});
+  });
+
   data.players.forEach(player => {
     // TODO: more sophisticated size calculation, using seasons, awards, etc.
     const seasons = playerSeasons[player.id];
@@ -159,10 +208,15 @@ export const buildGraph = async (data: NBAData, config: GraphConfig): Promise<Gr
     }
   
     const borderColor = teamColors[team.id]?.primary ?? config.borderColors.team;
-
     const leagueId = seasonsById[team.seasonId]?.leagueId;
 
     if (!leagueId) throw new Error(`Unexpected error: no leagueId for team ${team.name} ${team.year}`);
+
+    const leagueColor = leagueColors[leagueId]?.primary;
+    if (!leagueColor) throw new Error(`Unexpected error: no color for league ${leagueId}`);
+    
+    const teamEdgeColor = Color(borderColor).lighten(0.3).hex();
+    const seasonEdgeColor = Color(leagueColor).lighten(0.3).hex();
 
     const attrs: NodeAttributes = { 
       nbaType: 'team',
@@ -176,6 +230,8 @@ export const buildGraph = async (data: NBAData, config: GraphConfig): Promise<Gr
     };
 
     graph.addNode(team.id, attrs);
+    graph.addEdge(team.id, team.seasonId, {color: seasonEdgeColor, hidden: true});
+    graph.addEdge(team.id, team.franchiseId, {color: teamEdgeColor, hidden: true});
   });
 
   data.awards.forEach(award => {
@@ -237,11 +293,15 @@ export const buildGraph = async (data: NBAData, config: GraphConfig): Promise<Gr
       ? awardColors[award.image.id]?.primary 
       : leagueColors[award.image.id]?.primary;
 
+    if (!borderColor) throw new Error(`Unexpected error: no color for award ${award.name}`);
+    
+    const edgeColor = Color(borderColor).lighten(0.3).hex();
+
     const attrs: NodeAttributes = {
       nbaType: 'award',
       label: award.name,
       color: config.nodeColors.award,
-      borderColor: borderColor ?? config.borderColors.award,
+      borderColor: borderColor,
       size: config.sizes.awardDefault,
       type: 'sprite',
       image,
@@ -251,6 +311,7 @@ export const buildGraph = async (data: NBAData, config: GraphConfig): Promise<Gr
     };
     
     graph.addNode(award.id, attrs);
+    graph.addEdge(award.awardId, award.id, {color: edgeColor, hidden: true});
   });
 
   // *************
@@ -265,20 +326,6 @@ export const buildGraph = async (data: NBAData, config: GraphConfig): Promise<Gr
       : config.edgeColors.default;
 
     graph.addEdge(pt.playerId, pt.teamId, {color, hidden: true});
-  });
-
-  teams.forEach(team => {
-    const teamPalette = teamColors[team.id];
-  
-    const color = teamPalette
-      ? Color(teamPalette.primary).lighten(0.3).hex()
-      : config.edgeColors.default;
-
-    graph.addEdge(team.id, team.franchiseId, {color, hidden: true});
-  });
-
-  data.multiWinnerAwards.forEach(seasonAward => {
-    graph.addEdge(seasonAward.awardId, seasonAward.id, {color: config.edgeColors.award, hidden: true});
   });
 
   data.awardRecipients.forEach(recipient => {

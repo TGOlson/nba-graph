@@ -4,6 +4,8 @@ export type GraphConfig = {
   startYear: number | null;
   endYear: number | null;
   sizes: {
+    league: number;
+    season: number;
     franchise: number;
     team: number;
     playerMax: number;
@@ -32,6 +34,8 @@ export const GRAPH_CONFIG: GraphConfig = {
   startYear: null,
   endYear: 2023,
   sizes: {
+    league: 10,
+    season: 6,
     franchise: 8,
     team: 5,
     playerMax: 6,
