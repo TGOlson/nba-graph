@@ -247,7 +247,6 @@ async function main() {
       return await execSeq([
         {typ: 'award' as NBAType, transform: noopTransform},
         {typ: 'league' as NBAType, transform: teamTransform},
-        // {typ: 'player' as NBAType, transform: playerTransform}
       ].map(({typ, transform}) => 
         () => {
           console.log('Building sprite for: ', typ);
@@ -257,11 +256,13 @@ async function main() {
     }
 
     case commands.misc.ParsePrimaryColors: {
-      const franchiseColors = await parseSpriteColorPallette('franchise');
-      const teamColors = await parseSpriteColorPallette('team');
-
-      await persistJSON(spriteColorsPath('franchise'))(franchiseColors);
-      return await persistJSON(spriteColorsPath('team'))(teamColors);
+      const types: NBAType[] = ['franchise', 'team', 'award', 'league'];
+      return await execSeq(types.map(typ =>
+        async () => {
+          const colors = await parseSpriteColorPallette(typ);
+          return persistJSON(spriteColorsPath(typ))(colors);
+        }
+      ));
     }
 
     // for testing, debugging, etc

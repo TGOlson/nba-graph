@@ -42,6 +42,8 @@ export const buildGraph = async (data: NBAData, config: GraphConfig): Promise<Gr
 
   const teamColors = await loadSpriteColors('team');
   const franchiseColors = await loadSpriteColors('franchise');
+  const leagueColors = await loadSpriteColors('league');
+  const awardColors = await loadSpriteColors('award');
 
   const seasonsById = data.seasons.reduce<{[id: string]: Season}>((acc, season) => {
     acc[season.id] = season;
@@ -202,11 +204,15 @@ export const buildGraph = async (data: NBAData, config: GraphConfig): Promise<Gr
 
     if (!crop) throw new Error(`Unexpected error: no image for award ${award.name}, type ${award.image.type}`);
 
+    const borderColor = award.image.type === 'award' 
+      ? awardColors[award.image.id]?.primary 
+      : leagueColors[award.image.id]?.primary;
+
     const attrs: NodeAttributes = {
       nbaType: 'award',
       label: award.name,
       color: config.nodeColors.award,
-      borderColor: config.borderColors.award,
+      borderColor: borderColor ?? config.borderColors.award,
       size: config.sizes.awardMax, // TODO: maybe filter by mvp, hof for max, others are default size?
       type: 'sprite',
       image,
@@ -227,11 +233,15 @@ export const buildGraph = async (data: NBAData, config: GraphConfig): Promise<Gr
 
     if (!crop) throw new Error(`Unexpected error: no image for award ${award.name}, type ${award.image.type}`);
 
+    const borderColor = award.image.type === 'award' 
+      ? awardColors[award.image.id]?.primary 
+      : leagueColors[award.image.id]?.primary;
+
     const attrs: NodeAttributes = {
       nbaType: 'award',
       label: award.name,
       color: config.nodeColors.award,
-      borderColor: config.borderColors.award,
+      borderColor: borderColor ?? config.borderColors.award,
       size: config.sizes.awardDefault,
       type: 'sprite',
       image,
