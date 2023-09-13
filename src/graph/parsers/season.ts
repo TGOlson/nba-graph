@@ -1,7 +1,7 @@
 import * as cheerio from 'cheerio';
 
 import { LEAGUES_URL, localPath } from "../util/bref-url";
-import { Season } from "../../shared/nba-types";
+import { LeagueId, Season } from "../../shared/nba-types";
 import { HtmlParser } from "./html-parser";
 
 const SELECTOR = 'tr th a[href]';
@@ -25,7 +25,7 @@ export const parse = ($: cheerio.CheerioAPI): Season[] => {
 
     return {
       id: `${leagueId}_${year}`,
-      leagueId,
+      leagueId: leagueId as LeagueId,
       year: parseInt(year),
       url,
     };

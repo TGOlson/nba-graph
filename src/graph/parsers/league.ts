@@ -1,7 +1,7 @@
 import * as cheerio from 'cheerio';
 
 import { LEAGUES_URL, localPath, toRelative } from "../util/bref-url";
-import { League } from "../../shared/nba-types";
+import { League, LeagueId } from "../../shared/nba-types";
 import { HtmlParser } from "./html-parser";
 
 const SELECTOR = 'tr th a[href]';
@@ -25,7 +25,7 @@ export const parse = ($: cheerio.CheerioAPI): League[] => {
     const [_, leagueId] = res;
 
     return {
-      id: leagueId,
+      id: leagueId as LeagueId,
       url: toRelative(LEAGUES_URL),
     };
   });

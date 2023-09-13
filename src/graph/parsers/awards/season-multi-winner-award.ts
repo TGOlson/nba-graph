@@ -1,9 +1,8 @@
 import * as cheerio from 'cheerio';
 
 import { awardUrls, localPath } from "../../util/bref-url";
-import { Award, MultiWinnerAward, AwardRecipient } from "../../../shared/nba-types";
+import { Award, MultiWinnerAward, AwardRecipient, LeagueId } from "../../../shared/nba-types";
 import { HtmlParser } from "../html-parser";
-import { LeagueId } from '../../util/assets';
 
 type AwardConfig = {
   makeName: (leagueId: string) => string,

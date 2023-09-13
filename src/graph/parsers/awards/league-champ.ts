@@ -1,9 +1,8 @@
 import * as cheerio from 'cheerio';
 
 import { LEAGUE_CHAMP_URL, localPath } from "../../util/bref-url";
-import { Award, AwardRecipient } from "../../../shared/nba-types";
+import { Award, AwardRecipient, LeagueId } from "../../../shared/nba-types";
 import { HtmlParser } from "../html-parser";
-import { LeagueId } from '../../util/assets';
 
 const TEAM_URL_REGEX = /teams\/([A-Z]{3})\/(\d{4}).html/;
 
