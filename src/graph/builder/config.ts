@@ -34,7 +34,7 @@ export const GRAPH_CONFIG: GraphConfig = {
   startYear: null,
   endYear: 2023,
   sizes: {
-    league: 10,
+    league: 12,
     season: 6,
     franchise: 8,
     team: 5,
