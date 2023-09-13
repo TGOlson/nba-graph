@@ -24,7 +24,6 @@ import { notNull } from "../../shared/util";
 // [pic] Denver Nuggets (franchise)
 //       1985-present / NBA
 
-const AWARD_IMAGE_CROP = {x: 0, y: 0, width: 200, height: 200};
 const DEFAULT_IMAGE_CROP = {x: 0, y: 0, width: 128, height: 128};
 
 export const buildGraph = async (data: NBAData, config: GraphConfig): Promise<Graph> => {
@@ -34,10 +33,12 @@ export const buildGraph = async (data: NBAData, config: GraphConfig): Promise<Gr
   const startYear = config.startYear ?? 0; 
   const endYear = config.endYear ?? Infinity;
   const teams: Team[] = data.teams.filter(({year}) => year >= startYear && year <= endYear);
-
+  
   const playerImgLocations = await loadSpriteMapping('player');
   const teamImgLocations = await loadSpriteMapping('team');
   const franchiseImgLocations = await loadSpriteMapping('franchise');
+  const leagueImgLocations = await loadSpriteMapping('league');
+  const awardImgLocations = await loadSpriteMapping('award');
 
   const teamColors = await loadSpriteColors('team');
   const franchiseColors = await loadSpriteColors('franchise');
@@ -196,6 +197,11 @@ export const buildGraph = async (data: NBAData, config: GraphConfig): Promise<Gr
       leagues = [...new Set(recipientSeasons.map(x => x.leagueId))];
     }
 
+    const image = award.image.type === 'award' ? assets.img.awardSprite : assets.img.leagueSprite;
+    const crop = award.image.type === 'award' ? awardImgLocations[award.image.id] : leagueImgLocations[award.image.id];
+
+    if (!crop) throw new Error(`Unexpected error: no image for award ${award.name}, type ${award.image.type}`);
+
     const attrs: NodeAttributes = {
       nbaType: 'award',
       label: award.name,
@@ -203,10 +209,10 @@ export const buildGraph = async (data: NBAData, config: GraphConfig): Promise<Gr
       borderColor: config.borderColors.award,
       size: config.sizes.awardMax, // TODO: maybe filter by mvp, hof for max, others are default size?
       type: 'sprite',
-      image: award.image,
+      image,
       leagues,
       years,
-      crop: AWARD_IMAGE_CROP
+      crop
     };
 
     graph.addNode(award.id, attrs);
@@ -216,7 +222,10 @@ export const buildGraph = async (data: NBAData, config: GraphConfig): Promise<Gr
     const baseAward = awardsById[award.awardId];
     if (!baseAward) throw new Error(`Unexpected error: no base award for multi-winner award ${award.name}`);
 
-    const leagueId = baseAward.leagueId;
+    const image = award.image.type === 'award' ? assets.img.awardSprite : assets.img.leagueSprite;
+    const crop = award.image.type === 'award' ? awardImgLocations[award.image.id] : leagueImgLocations[award.image.id];
+
+    if (!crop) throw new Error(`Unexpected error: no image for award ${award.name}, type ${award.image.type}`);
 
     const attrs: NodeAttributes = {
       nbaType: 'award',
@@ -225,10 +234,10 @@ export const buildGraph = async (data: NBAData, config: GraphConfig): Promise<Gr
       borderColor: config.borderColors.award,
       size: config.sizes.awardDefault,
       type: 'sprite',
-      image: award.image,
-      leagues: [leagueId],
+      image,
+      leagues: [baseAward.leagueId],
       years: [award.year],
-      crop: AWARD_IMAGE_CROP
+      crop,
     };
     
     graph.addNode(award.id, attrs);

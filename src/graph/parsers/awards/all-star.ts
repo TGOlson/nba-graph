@@ -3,7 +3,6 @@ import * as cheerio from 'cheerio';
 import { LEAGUES_URL, allStarUrl, localPath } from "../../util/bref-url";
 import { Award, MultiWinnerAward, AwardRecipient } from "../../../shared/nba-types";
 import { HtmlParser } from "../html-parser";
-import { assets } from '../../util/assets';
 
 // kind weird selector, but basically slurp up all links like "/players/..."
 // it's easy to parse all the start from the boxscore, but injuries are represented differently
@@ -15,14 +14,14 @@ export const ALL_STAR_AWARDS: Award[] = [
     id: 'ALL_STAR_NBA',
     name: 'NBA All-Star Team',
     leagueId: 'NBA',
-    image: assets.img.award.allstar,
+    image: {type: 'award', id: 'allstar'},
     url: LEAGUES_URL,
   },
   {
     id: 'ALL_STAR_ABA',
     name: 'ABA All-Star Team',
     leagueId: 'ABA',
-    image: assets.img.award.allstar_aba,
+    image: {type: 'award', id: 'allstar_aba'},
     url: LEAGUES_URL,
   }
 ];
@@ -52,7 +51,7 @@ const parse = ($: cheerio.CheerioAPI, seasonId: string): AllStarParseResult => {
     id: `ALL_STAR_${seasonId}`,
     name: `${leagueId} All-Star Team (${year})`,
     awardId: `ALL_STAR_${leagueId}`,
-    image: leagueId === 'NBA' ? assets.img.award.allstar : assets.img.award.allstar_aba,
+    image: {type: 'award', id: leagueId === 'NBA' ? 'allstar' : 'allstar_aba'},
     year,
     url,
   };

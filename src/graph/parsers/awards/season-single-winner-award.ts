@@ -3,12 +3,13 @@ import * as cheerio from 'cheerio';
 import { awardUrls, localPath } from "../../util/bref-url";
 import { Award, AwardRecipient } from "../../../shared/nba-types";
 import { HtmlParser } from "../html-parser";
-import { assets } from '../../util/assets';
+import { AwardImageId, LeagueId } from '../../util/assets';
 
 type AwardConfig = {
   makeName: (leagueId: string) => string,
   baseAwardId: string,
   baseTableSelector: string,
+  imageId: AwardImageId,
   url: string,
 };
 
@@ -17,57 +18,66 @@ const SINGLE_WINNER_PLAYER_SELECTOR = 'td[data-stat="player"] a';
 
 const AWARD_CONFIG: AwardConfig[] = [
   {
-    makeName: (leagueId: string) => `${leagueId} Most Valuable Player`,
+    makeName: (leagueId: string) => `${leagueId} Most Valuable Player (MVP)`,
     baseAwardId: 'MVP_',
     baseTableSelector: 'mvp_',
+    imageId: 'mvp',
     url: awardUrls.mvp,
   },
   {
-    makeName: (leagueId: string) => `${leagueId} Defensive Player of the Year`,
+    makeName: (leagueId: string) => `${leagueId} Defensive Player of the Year (DPOY)`,
     baseAwardId: 'DPOY_',
     baseTableSelector: 'dpoy_',
+    imageId: 'trophy',
     url: awardUrls.dpoy,
   },
   {
-    makeName: (leagueId: string) => `${leagueId} Rookie of the Year`,
+    makeName: (leagueId: string) => `${leagueId} Rookie of the Year (ROY)`,
     baseAwardId: 'ROY_',
     baseTableSelector: 'roy_',
+    imageId: 'trophy',
     url: awardUrls.roy,
   },
   {
-    makeName: (leagueId: string) => `${leagueId} Sixth Man of the Year`,
+    makeName: (leagueId: string) => `${leagueId} Sixth Man of the Year (SMOY)`,
     baseAwardId: 'SMOY_',
     baseTableSelector: 'smoy_',
+    imageId: 'trophy',
     url: awardUrls.smoy,
   },
   {
-    makeName: (leagueId: string) => `${leagueId} Most Improved Player`,
+    makeName: (leagueId: string) => `${leagueId} Most Improved Player (MIP)`,
     baseAwardId: 'MIP_',
     baseTableSelector: 'mip_',
+    imageId: 'trophy',
     url: awardUrls.mip,
   },
   {
     makeName: (leagueId: string) => `${leagueId} Teammate of the Year`,
     baseAwardId: 'TMOY_',
     baseTableSelector: 'tmoy_',
+    imageId: 'trophy',
     url: awardUrls.tmoy,
   },
   {
     makeName: (leagueId: string) => `${leagueId} Citizenship Award`,
     baseAwardId: 'CITIZENSHIP_',
     baseTableSelector: 'citizenship_',
+    imageId: 'trophy',
     url: awardUrls.citizenship,
   },
   {
     makeName: (leagueId: string) => `${leagueId} All-Star MVP`,
     baseAwardId: 'ALL_STAR_MVP_',
     baseTableSelector: 'all_star_mvp_',
+    imageId: 'allstar_mvp',
     url: awardUrls.all_star_mvp,
   },
   {
     makeName: (leagueId: string) => `${leagueId} Finals MVP`,
     baseAwardId: 'FINALS_MVP_',
     baseTableSelector: 'finals_mvp_',
+    imageId: 'finals_mvp',
     url: awardUrls.finals_mvp,
   },
 ];
@@ -89,7 +99,7 @@ const parse = ($: cheerio.CheerioAPI, config: AwardConfig): AwardParseResult => 
     const yearStr = $('th[data-stat="season"] a[href]', el).text();
     const year = parseInt(yearStr.split('-')[0] as string) + 1;
 
-    const leagueId = $('td[data-stat="lg_id"] a[href]', el).text();
+    const leagueId = $('td[data-stat="lg_id"] a[href]', el).text() as LeagueId;
     const awardId = `${config.baseAwardId}${leagueId}`;
     
     const urlPieces = config.url.split('/');
@@ -99,7 +109,7 @@ const parse = ($: cheerio.CheerioAPI, config: AwardConfig): AwardParseResult => 
       id: awardId,
       name: config.makeName(leagueId),
       leagueId,
-      image: assets.img.award.trophy,
+      image: {type: 'award', id: config.imageId},
       url,
     };
     

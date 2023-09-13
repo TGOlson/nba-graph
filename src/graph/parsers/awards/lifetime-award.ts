@@ -3,13 +3,12 @@ import * as cheerio from 'cheerio';
 import { awardUrls, localPath } from "../../util/bref-url";
 import { Award, AwardRecipient } from "../../../shared/nba-types";
 import { HtmlParser } from "../html-parser";
-import { assets } from '../../util/assets';
 
 type AwardConfig = {
   name: string,
   awardId: string,
   playerSelector: string,
-  img: string,
+  image: Award['image'],
   url: string,
 };
 
@@ -18,28 +17,28 @@ const AWARD_CONFIG: AwardConfig[] = [
     name: 'NBA 75th Anniversary Team',
     awardId: 'NBA_75_ANNIVERSARY',
     playerSelector: 'table#stats tbody tr th[data-stat="player"] a',
-    img: assets.img.league.nba,
+    image: {type: 'league', id: 'NBA'},
     url: awardUrls.nba_75th_anniversary,
   },
   {
     name: '50 Greatest Players in NBA History',
     awardId: 'NBA_50_GREATEST',
     playerSelector: 'table#stats tbody tr th[data-stat="player"] a',
-    img: assets.img.league.nba,
+    image: {type: 'league', id: 'NBA'},
     url: awardUrls.nba_50_greatest,
   },
   {
     name: 'ABA All-Time Team',
     awardId: 'ABA_ALL_TIME_TEAM',
     playerSelector: 'table#stats tbody tr th[data-stat="player"] a',
-    img: assets.img.league.aba,
+    image: {type: 'league', id: 'ABA'},
     url: awardUrls.aba_all_time_team,
   },
   {
     name: 'Basketball Hall of Fame',
     awardId: 'HOF',
     playerSelector: 'table#hof tbody tr a[href^="/players"]',
-    img: assets.img.award.hof,
+    image: {type: 'award', id: 'hof'},
     url: awardUrls.hof,
   },
 ];
@@ -59,7 +58,7 @@ const parse = ($: cheerio.CheerioAPI, config: AwardConfig): AwardParseResult => 
     id: config.awardId,
     name: config.name,
     leagueId: 'NBA',
-    image: config.img,
+    image: config.image,
     url,
   };
 

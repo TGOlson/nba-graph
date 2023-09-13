@@ -3,7 +3,7 @@ import * as cheerio from 'cheerio';
 import { LEAGUE_CHAMP_URL, localPath } from "../../util/bref-url";
 import { Award, AwardRecipient } from "../../../shared/nba-types";
 import { HtmlParser } from "../html-parser";
-import { assets } from '../../util/assets';
+import { LeagueId } from '../../util/assets';
 
 const TEAM_URL_REGEX = /teams\/([A-Z]{3})\/(\d{4}).html/;
 
@@ -21,7 +21,7 @@ const parse = ($: cheerio.CheerioAPI): AwardParseResult => {
 
   const awardRecipients = $(SELECTOR).toArray().map((el: cheerio.AnyNode) => {
     const yearStr = $('th[data-stat="year_id"] a[href]', el).text();
-    const leagueId = $('td[data-stat="lg_id"] a[href]', el).text();
+    const leagueId = $('td[data-stat="lg_id"] a[href]', el).text() as LeagueId;
 
     const urlPieces = LEAGUE_CHAMP_URL.split('/');
     const url = '/' + urlPieces.slice(urlPieces.length - 1).join('/');
@@ -31,7 +31,7 @@ const parse = ($: cheerio.CheerioAPI): AwardParseResult => {
     awards[awardId] = {
       id: awardId,
       name: `${leagueId} League Champion`,
-      image: assets.img.award.champ,
+      image: {type: 'award', id: 'champ'},
       leagueId,
       url,
     };

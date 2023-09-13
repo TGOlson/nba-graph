@@ -16,7 +16,7 @@ import { GRAPH_CONFIG } from "./builder/config";
 
 import { makeDelayedFetch, makeFetch } from "./util/fetch";
 import { execSeq } from "./util/promise";
-import { createSpriteImage, parseSpriteColorPallette, playerTransform, teamTransform } from "./util/image";
+import { createSpriteImage, noopTransform, parseSpriteColorPallette, playerTransform, teamTransform } from "./util/image";
 import { NBAType } from "../shared/nba-types";
 import { allStarUrl, awardUrls, LEAGUE_CHAMP_URL } from "./util/bref-url";
 import { validAllStarSeasons } from "./parsers/awards/all-star";
@@ -60,6 +60,7 @@ const commands = {
   },
   misc: {
     ConvertImages: '--convert-images',
+    ConvertImagesTwo: '--convert-images-two',
     ParsePrimaryColors: '--parse-primary-colors',
     Test: '--test',
   },
@@ -235,6 +236,18 @@ async function main() {
         {typ: 'franchise' as NBAType, transform: teamTransform},
         {typ: 'team' as NBAType, transform: teamTransform},
         {typ: 'player' as NBAType, transform: playerTransform}
+      ].map(({typ, transform}) => 
+        () => {
+          console.log('Building sprite for: ', typ);
+          return createSpriteImage(imageDir(typ), spritePath(typ), spriteMappingPath(typ), transform);
+        }
+      ));
+    }
+    case commands.misc.ConvertImagesTwo: {
+      return await execSeq([
+        {typ: 'award' as NBAType, transform: noopTransform},
+        {typ: 'league' as NBAType, transform: teamTransform},
+        // {typ: 'player' as NBAType, transform: playerTransform}
       ].map(({typ, transform}) => 
         () => {
           console.log('Building sprite for: ', typ);

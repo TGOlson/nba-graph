@@ -3,7 +3,7 @@ import * as cheerio from 'cheerio';
 import { awardUrls, localPath } from "../../util/bref-url";
 import { Award, MultiWinnerAward, AwardRecipient } from "../../../shared/nba-types";
 import { HtmlParser } from "../html-parser";
-import { assets } from '../../util/assets';
+import { LeagueId } from '../../util/assets';
 
 type AwardConfig = {
   makeName: (leagueId: string) => string,
@@ -48,15 +48,6 @@ type AwardParseResult = {
   awardRecipients: AwardRecipient[],
 };
 
-const getImage = (leagueId: string): string => {
-  switch (leagueId) {
-    case 'NBA': return assets.img.league.nba;
-    case 'ABA': return assets.img.league.aba;
-    case 'BAA': return assets.img.league.baa;
-    default: throw new Error(`Invalid leagueId: ${leagueId}`);
-  }
-};
-
 const parse = ($: cheerio.CheerioAPI, config: AwardConfig): AwardParseResult => {
   // cache of awards & season awards, use this to dedupe
   // because of the way this parser is structured, we'll end up w/ dupes (eg. multiple MVP_NBA awards)
@@ -65,7 +56,7 @@ const parse = ($: cheerio.CheerioAPI, config: AwardConfig): AwardParseResult => 
 
   const tableSelector = multiWinnerTableSelector(config.baseTtableSelector);
   const awardRecipients: AwardRecipient[] = $(tableSelector).toArray().flatMap((el: cheerio.AnyNode) => {
-    const leagueId = $('td[data-stat="lg_id"] a[href]', el).text();
+    const leagueId = $('td[data-stat="lg_id"] a[href]', el).text() as LeagueId;
     const awardId = `${config.baseAwardId}${leagueId}`;
     const urlPieces = config.url.split('/');
     const url = '/' + urlPieces.slice(urlPieces.length - 2).join('/');
@@ -74,7 +65,7 @@ const parse = ($: cheerio.CheerioAPI, config: AwardConfig): AwardParseResult => 
       id: awardId,
       name: config.makeName(leagueId),
       leagueId,
-      image: getImage(leagueId),
+      image: {type: 'league', id: leagueId},
       url,
     };
     
@@ -94,7 +85,7 @@ const parse = ($: cheerio.CheerioAPI, config: AwardConfig): AwardParseResult => 
       id: seasonAwardId,
       name,
       awardId,
-      image: getImage(leagueId),
+      image: {type: 'league', id: leagueId},
       year,
       url,
     };

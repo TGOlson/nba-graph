@@ -15,6 +15,8 @@ const TEAM_IMAGE_PADDING = 60; // TEAM_IMAGE_SIZE / 3;
 const PLAYER_IMAGE_SIZE = 120;
 const PLAYER_IMAGE_TOP_PADDING = 5;
 
+export const noopTransform = (_key: string, image: Jimp): Jimp => image;
+
 // Note: team and franchise photos are downlaoaded as 125x125 squares
 // Since they will be rendered within a circle, add extra padding so that none of the base image is clipped
 export const teamTransform = (_key: string, image: Jimp): Jimp => {

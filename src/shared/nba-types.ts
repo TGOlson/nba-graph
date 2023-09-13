@@ -1,5 +1,7 @@
+import { AwardImageId } from "../graph/util/assets";
+
 export type NBAType = 
-  //  'league' |
+   'league' |
   //  'season' |
    'franchise' |
    'team' |
@@ -7,16 +9,19 @@ export type NBAType =
   //  'player-season' |
    'award';
  
+
+export type LeagueId = 'NBA' | 'ABA' | 'BAA';
+
 // NBA, ABA...
 export type League = {
-  id: string;
+  id: LeagueId;
   url: string;
 };
 
 // NBA_2015, NBA_2020...
 export type Season = {
   id: string;
-  leagueId: string;
+  leagueId: LeagueId;
   year: number;
   url: string;
 };
@@ -64,8 +69,8 @@ export type PlayerSeason = {
 export type Award = {
   id: string,
   name: string,
-  leagueId: string,
-  image: string,
+  leagueId: LeagueId,
+  image: {type: 'league', id: LeagueId} | {type: 'award', id: AwardImageId},
   url: string,
 };
 
@@ -76,7 +81,7 @@ export type MultiWinnerAward = {
   name: string,
   awardId: string,
   year: number,
-  image: string,
+  image: {type: 'league', id: LeagueId} | {type: 'award', id: AwardImageId},
   url: string,
 };
 
