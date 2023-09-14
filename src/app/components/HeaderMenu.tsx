@@ -21,8 +21,17 @@ export const DEFAULT_FILTERS: GraphFilters = {
   showNBA: true,
   showABA: true,
   showBAA: true,
-  minYear: 1946,
-  maxYear: 2022,
+  minYear: 1947,
+  maxYear: 2023,
+};
+
+const leagueLabel = (league: string, years: string): React.ReactNode => {
+  return (
+    <React.Fragment>
+      <Typography>{league}</Typography>
+      <Typography level="body-xs" sx={{ml: 0.5}}>{years}</Typography>
+    </React.Fragment>
+  );
 };
 
 const GraphFilters = ({filters, onFilterChange}: HeaderProps) => {
@@ -35,7 +44,6 @@ const GraphFilters = ({filters, onFilterChange}: HeaderProps) => {
     ml: 2,
     mr: 2,
     position: 'absolute', 
-    // width: '100vw', 
     zIndex: 1000,
     "--Card-radius": "6px",
     width: 300,
@@ -50,7 +58,7 @@ const GraphFilters = ({filters, onFilterChange}: HeaderProps) => {
       <Box sx={{display: 'flex'}}>
         <Input 
           size="sm" 
-          sx={{width: 80}} 
+          sx={{width: 70}} 
           value={isNaN(minYear) ? '' : minYear} 
           onChange={(e) => setMinYear(parseInt(e.target.value))}
           onBlur={(e) => {
@@ -64,10 +72,10 @@ const GraphFilters = ({filters, onFilterChange}: HeaderProps) => {
             onFilterChange({minYear: year});
           }}
         />
-        <Divider sx={{width: 16, mt: 2, mr: 1, ml: 1}} />
+        <Divider sx={{width: 12, mt: 2, mr: 1, ml: 1}} />
         <Input 
           size="sm" 
-          sx={{width: 80}} 
+          sx={{width: 70}} 
           value={isNaN(maxYear) ? '' : maxYear} 
           onChange={(e) => setMaxYear(parseInt(e.target.value))}
           onBlur={(e) => {
@@ -82,7 +90,7 @@ const GraphFilters = ({filters, onFilterChange}: HeaderProps) => {
           }}
         />
       </Box>
-      <Box sx={{pl: 1, pr: 1, mb: -1}}>
+      <Box sx={{pl: 1, pr: 1, mb: -1, mt: -1}}>
         <Slider 
           size="sm"
           sx={{pl: 2, pr: 2}}
@@ -102,9 +110,27 @@ const GraphFilters = ({filters, onFilterChange}: HeaderProps) => {
         />
       </Box>
       <Typography level="body-sm">Leagues</Typography>
-      <Checkbox size="sm" label="NBA (1946-present)" checked={filters.showNBA} onChange={() => onFilterChange({showNBA: !filters.showNBA})} />
-      <Checkbox size="sm" label="ABA (1967-1976)" checked={filters.showABA} onChange={() => onFilterChange({showABA: !filters.showABA})} />
-      <Checkbox size="sm" label="BAA (1946-1949)" checked={filters.showBAA} onChange={() => onFilterChange({showBAA: !filters.showBAA})} />
+      <Checkbox 
+        size="sm" 
+        sx={{mb: '-4px'}}
+        label={leagueLabel('NBA', '1950-present')} 
+        checked={filters.showNBA} 
+        onChange={() => onFilterChange({showNBA: !filters.showNBA})} 
+      />
+      <Checkbox 
+        size="sm" 
+        sx={{mb: '-4px'}}
+        label={leagueLabel('ABA', '1968-1976')} 
+        checked={filters.showABA} 
+        onChange={() => onFilterChange({showABA: !filters.showABA})} 
+      />
+      <Checkbox 
+        size="sm" 
+        sx={{mb: '-4px'}}
+        label={leagueLabel('BAA', '1947-1949')} 
+        checked={filters.showBAA} 
+        onChange={() => onFilterChange({showBAA: !filters.showBAA})} 
+      />
       <Typography level="body-sm" sx={{mt: 1}}>Misc.</Typography>
       <Checkbox size="sm" label="Awards" checked={filters.showAwards} onChange={() => onFilterChange({showAwards: !filters.showAwards})} />
       <Checkbox size="sm" label="Short career players" checked={filters.showShortCareerPlayers} onChange={() => onFilterChange({showShortCareerPlayers: !filters.showShortCareerPlayers})} />

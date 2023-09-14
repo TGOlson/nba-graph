@@ -124,13 +124,14 @@ The output graph data is stored in `./data/graph/graph.json`. The graph is built
     * ~~lifetime award leagues don't seem right (just NBA right now?)~~
     * ~~when filtering down to just 2022 season should all MVPs be shown?~~
   * ~~more fun logos for awards~~
-  * sort by last name in search bar
+  * search
+    * sort by last name in search bar
+    * search is a little laggy?
+    * a way to collapse team/award years in search?
+    * when nodes are filtered from graph, remove from search results
   * adjust player node size for awards
-  * search is a little laggy?
   * compress graph json?
   * fun AI logo
-  * a way to collapse team/award years in search?
-  * when nodes are filtered from graph, remove from search results
 * deploy
  * setup github page (TODO: where to store data?)
  * deploy assets to aws/cloudflair

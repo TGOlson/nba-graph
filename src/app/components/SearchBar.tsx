@@ -149,9 +149,10 @@ const SearchBar = ({nodes}: SearchBarProps) => {
 
           const res = createFilterOptions<Option>()(options, state);
           
-          return res.length > 100
-            // slice to limit to first 100 results
-            ? [...res.slice(0, 100), {key: 'more_results', label: `...and ${res.length} more...`, image: false} as Option] 
+          const limit = 10;
+          return res.length > limit
+            // slice to limit to first N results
+            ? [...res.slice(0, limit), {key: 'more_results', label: `...and ${res.length} more...`, image: false} as Option] 
             : res;
         }}
       />

@@ -26,13 +26,33 @@ import { notNull } from "../../shared/util";
 
 const DEFAULT_IMAGE_CROP = {x: 0, y: 0, width: 128, height: 128};
 
-export const buildGraph = async (data: NBAData, config: GraphConfig): Promise<Graph> => {
+const filterYears = (data: NBAData, config: GraphConfig): NBAData => {
+  const startYear = config.startYear ?? 0; 
+  const endYear = config.endYear ?? Infinity;
+
+  const seasons = data.seasons.filter(({year}) => year >= startYear && year <= endYear);
+  const teams = data.teams.filter(({year}) => year >= startYear && year <= endYear);
+  const playerSeasons = data.playerSeasons.filter(({year}) => year >= startYear && year <= endYear);
+  // const awards = data.awards.filter(({year}) => !year || (year >= startYear && year <= endYear));
+  const awardRecipients = data.awardRecipients.filter(({year}) => !year || (year >= startYear && year <= endYear));
+  const multiWinnerAwards = data.multiWinnerAwards.filter(({year}) => year >= startYear && year <= endYear);
+
+  return {
+    ...data,
+    seasons,
+    teams,
+    playerSeasons,
+    // awards,
+    awardRecipients,
+    multiWinnerAwards,
+  };
+};
+
+export const buildGraph = async (rawData: NBAData, config: GraphConfig): Promise<Graph> => {
   console.log('Building graph');
   const graph = new DirectedGraph();
 
-  const startYear = config.startYear ?? 0; 
-  const endYear = config.endYear ?? Infinity;
-  const teams: Team[] = data.teams.filter(({year}) => year >= startYear && year <= endYear);
+  const data = filterYears(rawData, config);
   
   const playerImgLocations = await loadSpriteMapping('player');
   const teamImgLocations = await loadSpriteMapping('team');
@@ -86,11 +106,17 @@ export const buildGraph = async (data: NBAData, config: GraphConfig): Promise<Gr
     const borderColor = leagueColors[league.id]?.primary;
     if (!borderColor) throw new Error(`Unexpected error: no color for league ${league.id}`);
 
+    const seasons = data.seasons.filter(season => season.leagueId === league.id);
+    const yearsAll = seasons.map(season => season.year).sort();
+    const years = [...new Set(yearsAll)];
+
+    console.log('league', league.id, years);
+
     const attrs: NodeAttributes = {
       nbaType: 'league',
       label: league.id, 
       size: config.sizes.league, 
-      years: [1946, 2023], // TODO!
+      years,
       color: config.nodeColors.default, 
       borderColor,
       leagues: [league.id],
@@ -112,10 +138,10 @@ export const buildGraph = async (data: NBAData, config: GraphConfig): Promise<Gr
     const edgeColor = Color(borderColor).lighten(0.3).hex();
 
     const attrs: NodeAttributes = {
-      nbaType: 'league',
+      nbaType: 'season',
       label: `${season.leagueId} Season (${season.year - 1}-${season.year.toString().slice(2)})` , 
       size: config.sizes.season, 
-      years: [1946, 2023], // TODO!
+      years: [season.year],
       color: config.nodeColors.default, 
       borderColor,
       leagues: [season.leagueId],
@@ -170,7 +196,7 @@ export const buildGraph = async (data: NBAData, config: GraphConfig): Promise<Gr
 
     const borderColor = franchiseColors[franchise.id]?.primary ?? config.borderColors.franchise;
     
-    const franchiseTeams = teams.filter(team => team.franchiseId === franchise.id);
+    const franchiseTeams = data.teams.filter(team => team.franchiseId === franchise.id);
     const years = franchiseTeams.map(team => team.year).sort();
     const leagues = franchiseTeams.map(team => seasonsById[team.seasonId]?.leagueId).filter(notNull);
     const leagueIds = [...new Set(leagues)];
@@ -190,7 +216,7 @@ export const buildGraph = async (data: NBAData, config: GraphConfig): Promise<Gr
   });
 
 
-  teams.forEach(team => {
+  data.teams.forEach(team => {
     // 2023 => 2022-23
     const label = `${team.name} (${team.year - 1}-${team.year.toString().slice(2)})`;
 

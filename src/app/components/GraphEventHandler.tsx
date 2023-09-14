@@ -39,7 +39,7 @@ const isHiddenFromFilters = (filters: GraphFilters, data: NodeAttributes): boole
 };
 
 const isWithinYearRange = (filters: GraphFilters, year: number): boolean => {
-  return year - 1 >= filters.minYear && year - 1 <= filters.maxYear;
+  return year >= filters.minYear && year <= filters.maxYear;
 };
 
 const GraphEvents = ({filters}: GraphEventsProps) => {
@@ -111,8 +111,8 @@ const GraphEvents = ({filters}: GraphEventsProps) => {
           // some awards are given to multiple people over multiple years, but don't have nodes differentiating the year (eg. MVP)
           // in the case that year filters are applied, we want to hide the edge if the year is not in the range
           // TODO: this problably signals some sort of problem with the data modeling, maybe later consider tidying this up somehow...
-          if (activeNode.nbaType === 'award' && data.nbaType === 'player') {
-            const edge = graph.edge(node, activeNodeKey);            
+            if ((activeNode.nbaType === 'award' && data.nbaType === 'player') || (activeNode.nbaType === 'player' && data.nbaType === 'award')) {
+            const edge = graph.edge(activeNode.nbaType === 'award' ? node : activeNodeKey, activeNode.nbaType === 'award' ? activeNodeKey : node);            
             const edgeAttrs = graph.getEdgeAttributes(edge);
 
             if (edgeAttrs.year && !isWithinYearRange(filters, edgeAttrs.year as number)) {

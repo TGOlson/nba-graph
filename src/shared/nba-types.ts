@@ -2,12 +2,14 @@ import { AwardImageId } from "../graph/util/assets";
 
 export type NBAType = 
    'league' |
-  //  'season' |
+   'season' |
    'franchise' |
    'team' |
    'player' |
-  //  'player-season' |
+  //  'player-season' | // edge-only type
    'award';
+  //  'multi-winner-award' | // unused; these types are mapped to 'award' later
+  //  'award-recipient'; // edge-only type
  
 
 export type LeagueId = 'NBA' | 'ABA' | 'BAA';
