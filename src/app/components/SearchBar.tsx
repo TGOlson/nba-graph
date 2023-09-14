@@ -9,7 +9,8 @@ import ListItemContent from '@mui/joy/ListItemContent';
 import ListItemDecorator from '@mui/joy/ListItemDecorator';
 import Typography from '@mui/joy/Typography';
 
-import { NodeAttributes, Selection } from '../../shared/types';
+import { NodeAttributes } from '../../shared/types';
+import { multiYearStr } from '../../shared/util';
 
 type SearchBarProps = {
   nodes: SerializedNode[];
@@ -19,25 +20,40 @@ type Option = {
   key: string;
   label: string;
   subLabel: string;
-  image: {
-    src: string;
-    crop: Selection;
-  } | false;
+  searchString: string;
+  attrs: NodeAttributes;
 };
 
+// | {
+//   placeholder: true;
+//   key: string;
+//   label: string;
+//   image: string;
+// };
+
+// type Option = {
+//   key: string;
+//   label: string;
+//   subLabel: string;
+//   image: {
+//     src: string;
+//     crop: Selection;
+//   } | false;
+// };
+
 const getOptionImage = (option: Option) => {
-  if (option.image === false) return null;
+  // if (option.image === false) return null;
 
   return (
     <Box sx={{
       p: 0,
       m: 0,
-      transform: `scale(${40 / option.image.crop.width})`,
+      transform: `scale(${40 / option.attrs.crop.width})`,
       transformOrigin: 'left top',
       borderRadius: '50%',
-      width: `${option.image.crop.width}px`,
-      height: `${option.image.crop.height}px`,
-      background: `url(${option.image.src}) ${getPosition(option.image.crop)}`,
+      width: `${option.attrs.crop.width}px`,
+      height: `${option.attrs.crop.height}px`,
+      background: `url(${option.attrs.image}) ${getPosition(option.attrs.crop)}`,
     }}/>
   );
 };
@@ -65,43 +81,29 @@ const SearchBar = ({nodes}: SearchBarProps) => {
     zIndex: 1000,
   };
 
-  const getLabel = (attrs: NodeAttributes): string => {
-    if (attrs.nbaType === 'team') return attrs.label.match(/.*(?=\s\(\d{4}-\d{2}\))/)?.[0] as string;
-    if (attrs.nbaType === 'award') return attrs.label.match(/.*(?=\s\(\d{4}-\d{2}\))/)?.[0] ?? attrs.label;
-
-    return attrs.label;
-  };
-
   const getSubLabel = (attrs: NodeAttributes): string => {
-    if (attrs.nbaType === 'franchise') return 'Franchise';
-    // TODO: need to parse years like we do for team
-    if (attrs.nbaType === 'award') return attrs.label.match(/\d{4}-\d{2}/)?.[0] ?? 'Award';
-    if (attrs.nbaType === 'team') return attrs.label.match(/\d{4}-\d{2}/)?.[0] as string;
-    
-    // player
-    const years = attrs.years;
-    const n = years.length;
-
-    const start = years[0] as number - 1;
-    const end = years[n - 1] as number;
-
-    return `${start}-${end.toString().slice(2)}`;
+    switch (attrs.nbaType) {
+      case 'league': return 'League';
+      case 'franchise': return 'Franchise';
+      case 'award': return attrs.years.length > 1 ? 'Award' : multiYearStr(attrs.years);
+      case 'team': return multiYearStr(attrs.years);
+      case 'player': return multiYearStr(attrs.years);
+      case 'season': return multiYearStr(attrs.years);
+    }
   };
 
   // TODO: sort
   // 1. player by name
   // 2. franchise by name
   // 3. team by name / year
-  const options = nodes.map((node) => {
+  const options: Option[] = nodes.map((node) => {
     const attrs = node.attributes as NodeAttributes;
     return {
       key: node.key,
-      label: getLabel(attrs),
+      label: attrs.name ? attrs.name : attrs.label,
       subLabel: getSubLabel(attrs),
-      image: {
-        src: attrs.image,
-        crop: attrs.crop,
-      },
+      searchString: attrs.label, // TODO: maybe add year, type, etc?
+      attrs,
     };
   });
 
@@ -150,9 +152,11 @@ const SearchBar = ({nodes}: SearchBarProps) => {
           const res = createFilterOptions<Option>()(options, state);
           
           const limit = 10;
+          // const placeholder = {key: 'more_results', label: `...and ${res.length} more...`, image: false} as Option;
           return res.length > limit
             // slice to limit to first N results
-            ? [...res.slice(0, limit), {key: 'more_results', label: `...and ${res.length} more...`, image: false} as Option] 
+            // ? [...res.slice(0, limit), placeholder] 
+            ? [...res.slice(0, limit)] 
             : res;
         }}
       />

@@ -49,7 +49,7 @@ const parse = ($: cheerio.CheerioAPI, seasonId: string): AllStarParseResult => {
 
   const mutliWinnerAward: MultiWinnerAward = {
     id: `ALL_STAR_${seasonId}`,
-    name: `${leagueId} All-Star Team (${year})`,
+    name: `${leagueId} All-Star Team`,
     awardId: `ALL_STAR_${leagueId}`,
     image: {type: 'award', id: leagueId === 'NBA' ? 'allstar' : 'allstar_aba'},
     year,

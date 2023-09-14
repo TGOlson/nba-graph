@@ -78,7 +78,7 @@ const parse = ($: cheerio.CheerioAPI, config: AwardConfig): AwardParseResult => 
     const year = parseInt(yearP) + 1;
     
     const seasonAwardId = `${awardId}_${year}`;
-    const name = `${config.makeName(leagueId)} (${year - 1}-${year.toString().slice(2)})`;
+    const name = `${config.makeName(leagueId)}`;
     
     multiWinnerAwards[seasonAwardId] = {
       id: seasonAwardId,

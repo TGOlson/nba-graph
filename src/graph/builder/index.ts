@@ -8,7 +8,7 @@ import { NodeAttributes, SpriteNodeAttributes } from "../../shared/types";
 import { assets } from "../util/assets";
 import { GraphConfig } from "./config";
 import { loadSpriteColors, loadSpriteMapping } from "../storage";
-import { notNull } from "../../shared/util";
+import { notNull, singleYearStr } from "../../shared/util";
 
 // TODO: things that would be nice to add (that we already have the data for, but need to stitch together):
 // - years active for players
@@ -110,8 +110,6 @@ export const buildGraph = async (rawData: NBAData, config: GraphConfig): Promise
     const yearsAll = seasons.map(season => season.year).sort();
     const years = [...new Set(yearsAll)];
 
-    console.log('league', league.id, years);
-
     const attrs: NodeAttributes = {
       nbaType: 'league',
       label: league.id, 
@@ -139,7 +137,7 @@ export const buildGraph = async (rawData: NBAData, config: GraphConfig): Promise
 
     const attrs: NodeAttributes = {
       nbaType: 'season',
-      label: `${season.leagueId} Season (${season.year - 1}-${season.year.toString().slice(2)})` , 
+      label: `${season.leagueId} Season (${singleYearStr(season.year)})` , 
       size: config.sizes.season, 
       years: [season.year],
       color: config.nodeColors.default, 
@@ -217,8 +215,7 @@ export const buildGraph = async (rawData: NBAData, config: GraphConfig): Promise
 
 
   data.teams.forEach(team => {
-    // 2023 => 2022-23
-    const label = `${team.name} (${team.year - 1}-${team.year.toString().slice(2)})`;
+    const label = `${team.name} (${singleYearStr(team.year)})}`;
 
     const imgCoords = teamImgLocations[team.id];
     const fallbackImgCoords = franchiseImgLocations[team.franchiseId];
@@ -246,6 +243,7 @@ export const buildGraph = async (rawData: NBAData, config: GraphConfig): Promise
 
     const attrs: NodeAttributes = { 
       nbaType: 'team',
+      name: team.name,
       label, 
       size: config.sizes.team, 
       color: config.nodeColors.default, 
@@ -292,6 +290,7 @@ export const buildGraph = async (rawData: NBAData, config: GraphConfig): Promise
 
     const attrs: NodeAttributes = {
       nbaType: 'award',
+      name: award.name,
       label: award.name,
       color: config.nodeColors.award,
       borderColor: borderColor ?? config.borderColors.award,
@@ -323,9 +322,12 @@ export const buildGraph = async (rawData: NBAData, config: GraphConfig): Promise
     
     const edgeColor = Color(borderColor).lighten(0.3).hex();
 
+    const label = award.name.includes('All-Star') ? `${award.name} (${award.year})` : `${award.name} (${singleYearStr(award.year)})`;
+
     const attrs: NodeAttributes = {
       nbaType: 'award',
-      label: award.name,
+      name: award.name,
+      label: label,
       color: config.nodeColors.award,
       borderColor: borderColor,
       size: config.sizes.awardDefault,

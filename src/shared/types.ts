@@ -18,10 +18,11 @@ export type CustomNodeAttributes = {muted?: boolean, borderColor: string} & Spri
 // used in graph building & rendering
 export type NodeAttributes = {
   nbaType: NBAType;
+  name?: string; // use this for entities that have a different display name than the graph label
+  label: string; // for graph
   color: string;
   borderColor: string;
   size: number;
-  label: string;
   leagues: string[];
   years: number[];
 } & SpriteNodeAttributes;
