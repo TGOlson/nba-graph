@@ -2,7 +2,7 @@
 // specifically a modified version of the node program to render using triangles for better resolution
 // => https://github.com/jacomyal/sigma.js/pull/1206/files#diff-dcd59c129b10e8a7369ea98a6d576d8a40fbf150e06ca94e5177ee4e531a4987
 
-import { Coordinates, NodeDisplayData } from 'sigma/types';
+import { NodeDisplayData } from 'sigma/types';
 import { floatColor } from 'sigma/utils';
 import { AbstractNodeProgram } from 'sigma/rendering/webgl/programs/common/node';
 import { RenderParams } from 'sigma/rendering/webgl/programs/common/program';
@@ -10,6 +10,7 @@ import Sigma from 'sigma';
 
 import { FRAGMENT_SHADER_GLSL, VERTEX_SHADER_GLSL } from './shaders-triangles';
 import { CustomNodeAttributes } from '../../shared/types';
+import { Sprite } from '../util/image';
 
 const POINTS = 3;
   //  atttributes sizing in floats:
@@ -30,7 +31,7 @@ const MUTED_COLOR = floatColor('#E2E2E2');
 
 const R_CONST = (8 / 3) * (1 - Math.sin((2 * Math.PI) / 3));
 
-export default function makeNodeSpriteProgramTriangles(sprite: {offsets: {[key: string]: Coordinates}, img: ImageData}) {
+export default function makeNodeSpriteProgramTriangles(sprite: Sprite) {
   const textureImage = sprite.img;
 
   console.log('Texture image array length:', textureImage.data.length, `(${textureImage.data.length / 1000/ 1000}M)`);
@@ -138,18 +139,19 @@ export default function makeNodeSpriteProgramTriangles(sprite: {offsets: {[key: 
       }
 
       const { width, height } = textureImage;
-
+      
+      const crop = data.crop;
       const color = data.muted ? MUTED_COLOR : floatColor(data.color);
       const borderColor = data.muted ? MUTED_COLOR : floatColor(data.borderColor);
-      const crop = data.crop;
 
-      // let spr
       const spriteOffset = sprite.offsets[data.image];
 
-      if (crop && !data.image) throw new Error(`Unexpected no image url for node: ${JSON.stringify(data)}`);
-      if (crop && !spriteOffset) throw new Error(`Unexpected no sprite offset for node: ${JSON.stringify(data)}`);
-      
-      const hasImage = crop && spriteOffset;
+      // Note: `hasImage` is not actually required here
+      // The below line actually errors if `spriteOffset` is null
+      // However, in the future it might be nice to support nodes without images, so leave this here
+      const hasImage = !!spriteOffset;
+
+      if (!spriteOffset) throw new Error(`Unexpected no sprite offset for node: ${JSON.stringify(data)}`);      
 
       // POINT 1
       array[i++] = data.x;
@@ -160,7 +162,7 @@ export default function makeNodeSpriteProgramTriangles(sprite: {offsets: {[key: 
       // inscribing circle at (x,y): r=2/3*h, texture (0,0) is top-left
       // texture width is scaled by 2/3 from full triangle width -> uv *1.5
       array[i++] = hasImage ? (crop.x + spriteOffset.x) / width + (1.5 * crop.width) / width : 0;
-      array[i++] = hasImage ? (crop.y + spriteOffset.y) / height + (0.5 * crop.height) / height: 0;
+      array[i++] = hasImage ? (crop.y + spriteOffset.y) / height + (0.5 * crop.height) / height : 0;
       array[i++] = hasImage ? 1 : 0;
       array[i++] = ANGLE_1;
       array[i++] = borderColor;

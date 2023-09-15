@@ -10,10 +10,11 @@ import { Palette } from '../../shared/types';
 import { spritePath } from '../storage/paths';
 
 const MAX_WIDTH = 3072;
-const TEAM_IMAGE_SIZE = 180;
-const TEAM_IMAGE_PADDING = 60; // TEAM_IMAGE_SIZE / 3;
+const TEAM_IMAGE_SIZE = 205;
+const TEAM_IMAGE_PADDING = 40;
 const PLAYER_IMAGE_SIZE = 120;
-const PLAYER_IMAGE_TOP_PADDING = 5;
+const PLAYER_IMAGE_X_PADDING = 15;
+const PLAYER_IMAGE_TOP_PADDING = 10;
 
 export const noopTransform = (_key: string, image: Jimp): Jimp => image;
 
@@ -21,14 +22,15 @@ export const noopTransform = (_key: string, image: Jimp): Jimp => image;
 // Since they will be rendered within a circle, add extra padding so that none of the base image is clipped
 export const teamTransform = (_key: string, image: Jimp): Jimp => {
   const base = new Jimp(TEAM_IMAGE_SIZE, TEAM_IMAGE_SIZE, '#ffffff');
-  const resized = image.resize(TEAM_IMAGE_SIZE - TEAM_IMAGE_PADDING, Jimp.AUTO);
+  const resized = image.resize(TEAM_IMAGE_SIZE - (TEAM_IMAGE_PADDING * 2), Jimp.AUTO);
 
-  return base.composite(resized, TEAM_IMAGE_PADDING / 2, TEAM_IMAGE_PADDING / 2);
+  return base.composite(resized, TEAM_IMAGE_PADDING, TEAM_IMAGE_PADDING);
 };
 
 // Note: player images are 120x180 rectangles
 // Resize to 90px wide, then add 15px padding to the left and right
 // We could keep at higher res, but player pictures don't need that much detail, and this saves space
+// TODO: maybe find a way to keep most important player images larger (based on award?)
 export const playerTransform = (_key: string, image: Jimp): Jimp => {
   const base = new Jimp(PLAYER_IMAGE_SIZE, PLAYER_IMAGE_SIZE, '#ffffff');
 
@@ -42,9 +44,9 @@ export const playerTransform = (_key: string, image: Jimp): Jimp => {
       east: true,
       west: true,
     }
-  }).resize(Jimp.AUTO, PLAYER_IMAGE_SIZE);
+  }).resize(PLAYER_IMAGE_SIZE - (PLAYER_IMAGE_X_PADDING * 2), Jimp.AUTO);
 
-  return base.composite(resized, (PLAYER_IMAGE_SIZE - resized.getWidth()) / 2, PLAYER_IMAGE_TOP_PADDING);
+  return base.composite(resized, PLAYER_IMAGE_X_PADDING, PLAYER_IMAGE_TOP_PADDING);
 };
 
 export async function createSpriteImage(inputDir: string, imagePath: string, mappingPath: string, transform?: (_key: string, image: Jimp) => Jimp): Promise<void> {
@@ -71,7 +73,7 @@ export async function createSpriteImage(inputDir: string, imagePath: string, map
 
 export async function parseColorPalette(img: Jimp): Promise<Partial<Palette>> {
   const buffer = await img.getBufferAsync(Jimp.MIME_PNG);
-  const palette = await Vibrant.from(buffer).quality(3).getPalette();
+  const palette = await Vibrant.from(buffer).quality(1).getPalette();
 
   return {
     primary: palette.Vibrant?.hex,
@@ -81,12 +83,12 @@ export async function parseColorPalette(img: Jimp): Promise<Partial<Palette>> {
 }
 
 export async function parseSpriteColorPallette(typ: NBAType): Promise<{[key: string]: Palette}> {
-  const franchiseSprite = await Jimp.read(spritePath(typ));
-  const franchiseSpriteMapping = await loadSpriteMapping(typ);
+  const sprite = await Jimp.read(spritePath(typ));
+  const spriteMapping = await loadSpriteMapping(typ);
   const res: {[key: string]: Palette} = {};
 
-  for (const [key, coords] of Object.entries(franchiseSpriteMapping)) {
-    const img = franchiseSprite.clone().crop(coords.x, coords.y, coords.width, coords.height);
+  for (const [key, coords] of Object.entries(spriteMapping)) {
+    const img = sprite.clone().crop(coords.x, coords.y, coords.width, coords.height);
 
     const palette = await parseColorPalette(img);
 

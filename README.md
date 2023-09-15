@@ -132,6 +132,7 @@ The output graph data is stored in `./data/graph/graph.json`. The graph is built
   * adjust player node size for awards
   * compress graph json?
   * fun AI logo
+  * larger league images
 * deploy
  * setup github page (TODO: where to store data?)
  * deploy assets to aws/cloudflair

@@ -29,7 +29,6 @@ const float bias = 255.0 / 254.0;
 const float marginRatio = 1.05;
 
 const float border_factor = 1.0;
-const float border_width_factor = 1.105;
 
 void main() {
   float size = a_size * u_correctionRatio * u_sqrtZoomRatio * 4.0;
@@ -49,12 +48,9 @@ void main() {
   v_diffVector = diffVector;
   v_softborder = 0.0001 / u_ratio;
   v_radius = size / 2.0 / marginRatio;
-  
-  // Test?
-  v_border = v_radius * 1.075;
 
   // Previous value, but this seems to clip some pictures on the top
-  // v_border = v_radius * 1.105;
+  v_border = v_radius * 1.105;
 
   v_color = a_color;
   v_color.a *= bias;
