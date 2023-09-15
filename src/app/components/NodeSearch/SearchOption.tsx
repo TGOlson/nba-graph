@@ -53,7 +53,7 @@ const SearchOption = ({option, onSubItemSelect, autocompleteOptionProps}: Search
         </ListItemContent>
         {option.subItems && 
           <IconButton
-            variant="outlined"
+            variant="plain"
             color='primary'
             size="sm"
             sx={{borderRadius: '50%'}}
