@@ -125,9 +125,9 @@ The output graph data is stored in `./data/graph/graph.json`. The graph is built
     * ~~when filtering down to just 2022 season should all MVPs be shown?~~
   * ~~more fun logos for awards~~
   * search
+    * ~~a way to collapse team/award years in search?~~
     * sort by last name in search bar
-    * search is a little laggy?
-    * a way to collapse team/award years in search?
+    * search is a little laggy? (try loading images async)
     * when nodes are filtered from graph, remove from search results
   * adjust player node size for awards
   * compress graph json?

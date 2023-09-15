@@ -7,6 +7,9 @@ import ListItemDecorator from '@mui/joy/ListItemDecorator';
 import Typography from '@mui/joy/Typography';
 import Link from '@mui/joy/Link';
 import Table from '@mui/joy/Table';
+import IconButton from '@mui/joy/IconButton';
+import KeyboardDoubleArrowDownIcon from '@mui/icons-material/KeyboardDoubleArrowDown';
+import KeyboardDoubleArrowUpIcon from '@mui/icons-material/KeyboardDoubleArrowUp';
 
 import SearchOptionImage from './SearchOptionImage';
 import { NodeAttributes } from '../../../shared/types';
@@ -22,7 +25,7 @@ export type Option = {
 
 type SearchOptionProps = {
   option: Option;
-  onSelect: (id: string) => void;
+  onSubItemSelect: (id: string) => void;
   // Note: this is a hacky way to pass props to the underlying AutocompleteOption props
   autocompleteOptionProps: any; // eslint-disable-line
 };
@@ -70,7 +73,7 @@ const SubItemTable = ({subItems, onSelect}: SubItemTableProps) => {
   );
 };
 
-const SearchOption = ({option, onSelect, autocompleteOptionProps}: SearchOptionProps) => {
+const SearchOption = ({option, onSubItemSelect, autocompleteOptionProps}: SearchOptionProps) => {
   const [showSubItems, setShowSubItems] = useState(false);
 
   return (
@@ -85,20 +88,22 @@ const SearchOption = ({option, onSelect, autocompleteOptionProps}: SearchOptionP
           {option.label}
           <Typography level="body-xs">{option.subLabel}</Typography>
         </ListItemContent>
-      {option.subItems && <Link 
-        sx={{mt: -2}}
-        color="neutral"
-        level="body-xs"
-        underline="hover"
-        variant="plain"
-        onClick={(e) => {
-          setShowSubItems(!showSubItems);
-          e.stopPropagation();
-        }}>
-        <Typography level="body-xs">{showSubItems ? 'Hide seasons' : 'Show seasons'}</Typography>
-      </Link>}
+      {option.subItems && 
+        <IconButton
+          variant="outlined"
+          color='primary'
+          size="sm"
+          sx={{borderRadius: '50%'}}
+          onClick={(e) => {
+            setShowSubItems(!showSubItems);
+            e.stopPropagation();
+          }}
+        >
+          {showSubItems ? <KeyboardDoubleArrowUpIcon /> : <KeyboardDoubleArrowDownIcon />}
+        </IconButton>
+      }
       </AutocompleteOption>
-      {option.subItems && showSubItems ? <SubItemTable subItems={option.subItems} onSelect={onSelect} /> : null}
+      {option.subItems && showSubItems ? <SubItemTable subItems={option.subItems} onSelect={onSubItemSelect} /> : null}
     </Box>
   );
 };

@@ -10,8 +10,13 @@ type SearchBarBaseProps = {
 };
 
 const SearchBarBase = ({options, onSelect}: SearchBarBaseProps) => {
-  const [value, setValue] = useState<Option | null>(null);
   const [inputValue, setInputValue] = useState('');
+
+  const onSubItemSelect = (option: Option, subItemId: string) => {
+    // set input to parent name, acting kinda like we selected the subitem (even thought it's not a real option)
+    setInputValue(option.attrs.label);
+    onSelect(subItemId);
+  };
 
   return (
     <Autocomplete 
@@ -22,23 +27,32 @@ const SearchBarBase = ({options, onSelect}: SearchBarBaseProps) => {
       open={inputValue.length > 1}
       forcePopupIcon={false}
       options={options}
-      getOptionLabel={({label}) => label}
+      getOptionLabel={(option) => option.label}
       renderOption={(props, option) => 
-        <SearchOption key={option.key} option={option} onSelect={onSelect} autocompleteOptionProps={props} />
+        <SearchOption 
+          key={option.key} 
+          option={option} 
+          autocompleteOptionProps={props} 
+          onSubItemSelect={(id: string) => onSubItemSelect(option, id)} 
+        />
       }
-      // Note: this is a managed component, both for the raw input value, and the selected value
-      // we have to do this only because it's a nicer UI to clear the search on blur,
-      // and there is not an API to do this with the uncontrolled component
-      value={value}
+      // A couple things to note here...
+      // 1. this is a managed component, both for the raw input value, and the selected value
+      //    we do this only because it's a nicer UI to clear the search on blur
+      //    and there is not an API to do this with the uncontrolled component
+      // 2. value is always set to null, so there is never a "selected value" (but there is a free text input string)
+      //    this is done solely to provide a better UI for subitem selections
+      //    if we actually used a selected value, it would be confusing when toggeling between parent and sub items
+      value={null}
       onChange={(_event, value) => {
-        setValue(value);
         if (value !== null) onSelect(value.key);
       }}
       inputValue={inputValue}
       onInputChange={(_event, newInputValue) => setInputValue(newInputValue)}
-      onBlur={() => setValue(null)}
       isOptionEqualToValue={(option, value) => option.key === value.key}
-      getOptionDisabled={(option) => option.key === 'more_results'}
+      // Not used right now
+      // TODO: add back a placeholder?
+      // getOptionDisabled={(option) => option.key === 'more_results'}
 
       // Note: special filter options optimize search a 'lil bit
       filterOptions={(options, state) => {
