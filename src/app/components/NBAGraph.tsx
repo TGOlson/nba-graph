@@ -11,7 +11,7 @@ import { Sprite } from '../util/image';
 
 import GraphEvents from './GraphEventHandler';
 import HeaderMenu, { DEFAULT_FILTERS } from './HeaderMenu';
-import SearchBar from './SearchBar';
+import NodeSearch from './NodeSearch';
 import { GraphFilters } from '../util/types';
 
 type DisplayGraphProps = {
@@ -87,7 +87,7 @@ const NBAGraph = (props: DisplayGraphProps) => {
       settings={settings}
     >
       <HeaderMenu filters={filters} onFilterChange={onFilterChange}/>
-      <SearchBar nodes={props.data.nodes} />
+      <NodeSearch nodes={props.data.nodes} />
       <GraphEvents filters={filters}/>
       <ControlsContainer position={"bottom-right"}>
         <ZoomControl />
