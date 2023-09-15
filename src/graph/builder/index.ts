@@ -137,11 +137,12 @@ export const buildGraph = async (rawData: NBAData, config: GraphConfig): Promise
 
     const attrs: NodeAttributes = {
       nbaType: 'season',
-      label: `${season.leagueId} Season (${singleYearStr(season.year)})` , 
+      label: `${singleYearStr(season.year)} ${season.leagueId} Season`, 
       size: config.sizes.season, 
       years: [season.year],
       color: config.nodeColors.default, 
       borderColor,
+      rollupId: season.leagueId,
       leagues: [season.leagueId],
       type: 'sprite',
       image: assets.img.leagueSprite,
@@ -215,7 +216,7 @@ export const buildGraph = async (rawData: NBAData, config: GraphConfig): Promise
 
 
   data.teams.forEach(team => {
-    const label = `${team.name} (${singleYearStr(team.year)})}`;
+    const label = `${team.name} (${singleYearStr(team.year)})`;
 
     const imgCoords = teamImgLocations[team.id];
     const fallbackImgCoords = franchiseImgLocations[team.franchiseId];
@@ -248,6 +249,7 @@ export const buildGraph = async (rawData: NBAData, config: GraphConfig): Promise
       size: config.sizes.team, 
       color: config.nodeColors.default, 
       borderColor,
+      rollupId: team.franchiseId,
       leagues: [leagueId],
       years: [team.year],
       ...imgProps,
@@ -325,7 +327,7 @@ export const buildGraph = async (rawData: NBAData, config: GraphConfig): Promise
     const label = award.name.includes('All-Star') ? `${award.name} (${award.year})` : `${award.name} (${singleYearStr(award.year)})`;
 
     const attrs: NodeAttributes = {
-      nbaType: 'award',
+      nbaType: 'multi-winner-award',
       name: award.name,
       label: label,
       color: config.nodeColors.award,
@@ -333,6 +335,7 @@ export const buildGraph = async (rawData: NBAData, config: GraphConfig): Promise
       size: config.sizes.awardDefault,
       type: 'sprite',
       image,
+      rollupId: baseAward.id,
       leagues: [baseAward.leagueId],
       years: [award.year],
       crop,

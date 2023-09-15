@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useSigma } from '@react-sigma/core';
-import { SerializedNode } from 'graphology-types';
 
 import Box from '@mui/joy/Box';
 import Autocomplete, {createFilterOptions} from '@mui/joy/Autocomplete';
@@ -9,11 +8,12 @@ import ListItemContent from '@mui/joy/ListItemContent';
 import ListItemDecorator from '@mui/joy/ListItemDecorator';
 import Typography from '@mui/joy/Typography';
 
-import { NodeAttributes } from '../../shared/types';
+import { NBAGraphNode, NodeAttributes } from '../../shared/types';
 import { multiYearStr } from '../../shared/util';
+import { Link, Table } from '@mui/joy';
 
 type SearchBarProps = {
-  nodes: SerializedNode[];
+  nodes: NBAGraphNode[];
 };
 
 type Option = {
@@ -21,6 +21,7 @@ type Option = {
   label: string;
   subLabel: string;
   searchString: string;
+  subItems?: {key: string, label: string}[];
   attrs: NodeAttributes;
 };
 
@@ -60,6 +61,27 @@ const getOptionImage = (option: Option) => {
 
 const getPosition = ({x, y}: {x: number, y: number}): string => `${-1 * x}px ${-1 * y}px`;
 
+
+const getSubLabel = (attrs: NodeAttributes): string => {
+  switch (attrs.nbaType) {
+    case 'league': return 'League';
+    case 'franchise': return 'Franchise';
+    case 'award': return 'Award';
+    case 'team': return multiYearStr(attrs.years);
+    case 'player': return multiYearStr(attrs.years);
+    case 'season': return multiYearStr(attrs.years);
+    case 'multi-winner-award': return attrs.label.includes('All-Star') ? (attrs.years[0] as number).toString() : multiYearStr(attrs.years);
+  }
+};
+
+function chunks<T>(arr: T[], size: number): T[][] {
+  const res = [];
+  for (let i = 0; i < arr.length; i += size) {
+    res.push(arr.slice(i, i + size));
+  }
+  return res;
+}
+
 const SearchBar = ({nodes}: SearchBarProps) => {
   const sigma = useSigma();
 
@@ -70,6 +92,7 @@ const SearchBar = ({nodes}: SearchBarProps) => {
   
   const [value, setValue] = useState<Option | null>(null);
   const [inputValue, setInputValue] = useState('');
+  const [openSubItems, setOpenSubItems] = useState<{[key: string]: boolean}>({});
 
   const sx = {
     top: 0,
@@ -81,28 +104,56 @@ const SearchBar = ({nodes}: SearchBarProps) => {
     zIndex: 1000,
   };
 
-  const getSubLabel = (attrs: NodeAttributes): string => {
-    switch (attrs.nbaType) {
-      case 'league': return 'League';
-      case 'franchise': return 'Franchise';
-      case 'award': return attrs.years.length > 1 ? 'Award' : multiYearStr(attrs.years);
-      case 'team': return multiYearStr(attrs.years);
-      case 'player': return multiYearStr(attrs.years);
-      case 'season': return multiYearStr(attrs.years);
-    }
-  };
+  const subItemsByRollupId = nodes.reduce<{[key: string]: {key: string, label: string}[]}>((acc, node) => {
+    const attrs = node.attributes;
+    if (attrs.rollupId) {
+      const prev = acc[attrs.rollupId] ?? [];
 
-  // TODO: sort
-  // 1. player by name
-  // 2. franchise by name
-  // 3. team by name / year
-  const options: Option[] = nodes.map((node) => {
-    const attrs = node.attributes as NodeAttributes;
+      prev.push({
+        key: node.key,
+        label: getSubLabel(attrs),
+      });
+      acc[attrs.rollupId] = prev;
+    }
+    return acc;
+  }, {});
+
+  const SubItemDisplay = (subItems: {key: string, label: string}[]) => (
+    <Box sx={{ml: 4, borderLeft: '2px solid #CCCCCC'}}>
+      <Table 
+        borderAxis='none' 
+        sx={{"--TableCell-paddingY": "2px", "--TableCell-height": "20px", pl: 1, pr: 2}}
+      >
+        <tbody>
+          {chunks(subItems, 3).map((chunk, i) => (
+            <tr key={i}>{chunk.map((subItem) => (
+              <td key={subItem.key}>
+                <Link
+                  color="neutral"
+                  level="body-xs"
+                  underline="hover"
+                  variant="plain"
+                  onClick={() => onSelect(subItem.key)}
+                >
+                  {subItem.label}
+                </Link>
+              </td>
+            ))}
+            </tr>
+          ))}
+        </tbody>
+      </Table>
+    </Box>
+  );
+    
+  const options: Option[] = nodes.filter(x => !x.attributes.rollupId).map((node) => {
+    const attrs = node.attributes;
     return {
       key: node.key,
       label: attrs.name ? attrs.name : attrs.label,
       subLabel: getSubLabel(attrs),
       searchString: attrs.label, // TODO: maybe add year, type, etc?
+      subItems: subItemsByRollupId[node.key],
       attrs,
     };
   });
@@ -119,17 +170,35 @@ const SearchBar = ({nodes}: SearchBarProps) => {
         options={options}
         getOptionLabel={({label}) => label}
         renderOption={(props, option) => (
-          <AutocompleteOption {...props} key={option.key}>
-            <ListItemDecorator>
-              <Box sx={{ width: '40px', height: '40px'}}>
-                {getOptionImage(option)}
-              </Box>
-            </ListItemDecorator>
-            <ListItemContent sx={{ fontSize: 'md', ml: 1 }}>
-              {option.label}
-              <Typography level="body-xs">{option.subLabel}</Typography>
-            </ListItemContent>
-          </AutocompleteOption>
+          <Box key={option.key}>
+            <AutocompleteOption {...props} >
+              <ListItemDecorator>
+                <Box sx={{ width: '40px', height: '40px'}}>
+                  {getOptionImage(option)}
+                </Box>
+              </ListItemDecorator>
+              <ListItemContent sx={{ fontSize: 'md', ml: 1 }}>
+                {option.label}
+                <Typography level="body-xs">{option.subLabel}</Typography>
+              </ListItemContent>
+            </AutocompleteOption>
+            {option.subItems && <Link 
+              sx={{mt: -2}}
+              color="neutral"
+              level="body-xs"
+              underline="hover"
+              variant="plain"
+              onClick={(e) => {
+                setOpenSubItems({...openSubItems, [option.key]: !openSubItems[option.key]});
+                e.preventDefault();
+              }}
+            >
+              <Typography level="body-xs">
+                {openSubItems[option.key] ? 'Hide seasons' : 'Show seasons'}
+              </Typography>
+            </Link>}
+            {option.subItems && openSubItems[option.key] ? SubItemDisplay(option.subItems) : null}
+          </Box>
         )}
         // Note: this is a managed component, both for the raw input value, and the selected value
         // we have to do this only because it's a nicer UI to clear the search on blur,
@@ -137,7 +206,7 @@ const SearchBar = ({nodes}: SearchBarProps) => {
         value={value}
         onChange={(_event, value) => {
           setValue(value);
-          if (value !== null) onSelect(value.key);
+          if (value !== null && !_event.isDefaultPrevented()) onSelect(value.key);
         }}
         inputValue={inputValue}
         onInputChange={(_event, newInputValue) => setInputValue(newInputValue)}
