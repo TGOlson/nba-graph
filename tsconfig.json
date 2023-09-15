@@ -17,6 +17,9 @@
     "noUnusedParameters": true,
     "noUncheckedIndexedAccess": true,
     "moduleResolution": "node",
-    "allowSyntheticDefaultImports": true
+    "allowSyntheticDefaultImports": true,
+    "paths": {
+      "@mui/material": ["./node_modules/@mui/joy"]
+    }
   }
 }

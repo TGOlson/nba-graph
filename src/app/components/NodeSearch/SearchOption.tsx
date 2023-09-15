@@ -85,7 +85,6 @@ const SearchOption = ({option, onSelect, autocompleteOptionProps}: SearchOptionP
           {option.label}
           <Typography level="body-xs">{option.subLabel}</Typography>
         </ListItemContent>
-      </AutocompleteOption>
       {option.subItems && <Link 
         sx={{mt: -2}}
         color="neutral"
@@ -94,10 +93,11 @@ const SearchOption = ({option, onSelect, autocompleteOptionProps}: SearchOptionP
         variant="plain"
         onClick={(e) => {
           setShowSubItems(!showSubItems);
-          e.preventDefault();
+          e.stopPropagation();
         }}>
         <Typography level="body-xs">{showSubItems ? 'Hide seasons' : 'Show seasons'}</Typography>
       </Link>}
+      </AutocompleteOption>
       {option.subItems && showSubItems ? <SubItemTable subItems={option.subItems} onSelect={onSelect} /> : null}
     </Box>
   );

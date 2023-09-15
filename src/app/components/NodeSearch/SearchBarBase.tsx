@@ -32,7 +32,7 @@ const SearchBarBase = ({options, onSelect}: SearchBarBaseProps) => {
       value={value}
       onChange={(_event, value) => {
         setValue(value);
-        if (value !== null && !_event.isDefaultPrevented()) onSelect(value.key);
+        if (value !== null) onSelect(value.key);
       }}
       inputValue={inputValue}
       onInputChange={(_event, newInputValue) => setInputValue(newInputValue)}

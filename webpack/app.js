@@ -21,7 +21,10 @@ module.exports = {
     fallback: {
       console: false,
       url: require.resolve('url/')
-    }
+    },
+    alias: {
+      '@mui/material': '@mui/joy',
+    },
   },
   devServer: {
     static: [
