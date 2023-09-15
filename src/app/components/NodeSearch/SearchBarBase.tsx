@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 
 import Autocomplete, {createFilterOptions} from '@mui/joy/Autocomplete';
 
-import SearchOption, { Option } from './SearchOption';
+import SearchOption, { Option, OptionSubItem } from './SearchOption';
 
 type SearchBarBaseProps = {
   options: Option[];
@@ -12,10 +12,10 @@ type SearchBarBaseProps = {
 const SearchBarBase = ({options, onSelect}: SearchBarBaseProps) => {
   const [inputValue, setInputValue] = useState('');
 
-  const onSubItemSelect = (option: Option, subItemId: string) => {
+  const onSubItemSelect = (subItem: OptionSubItem) => {
     // set input to parent name, acting kinda like we selected the subitem (even thought it's not a real option)
-    setInputValue(option.attrs.label);
-    onSelect(subItemId);
+    setInputValue(subItem.label);
+    onSelect(subItem.key);
   };
 
   return (
@@ -27,13 +27,13 @@ const SearchBarBase = ({options, onSelect}: SearchBarBaseProps) => {
       open={inputValue.length > 1}
       forcePopupIcon={false}
       options={options}
-      getOptionLabel={(option) => option.label}
+      getOptionLabel={(option) => option.searchString}
       renderOption={(props, option) => 
         <SearchOption 
           key={option.key} 
           option={option} 
           autocompleteOptionProps={props} 
-          onSubItemSelect={(id: string) => onSubItemSelect(option, id)} 
+          onSubItemSelect={onSubItemSelect} 
         />
       }
       // A couple things to note here...
@@ -45,6 +45,7 @@ const SearchBarBase = ({options, onSelect}: SearchBarBaseProps) => {
       //    if we actually used a selected value, it would be confusing when toggeling between parent and sub items
       value={null}
       onChange={(_event, value) => {
+        if (value) setInputValue(value.label);
         if (value !== null) onSelect(value.key);
       }}
       inputValue={inputValue}
@@ -60,7 +61,7 @@ const SearchBarBase = ({options, onSelect}: SearchBarBaseProps) => {
 
         const res = createFilterOptions<Option>()(options, state);
         
-        const limit = 10;
+        const limit = 100;
         // const placeholder = {key: 'more_results', label: `...and ${res.length} more...`, image: false} as Option;
         return res.length > limit
           // slice to limit to first N results

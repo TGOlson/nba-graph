@@ -137,6 +137,7 @@ export const buildGraph = async (rawData: NBAData, config: GraphConfig): Promise
 
     const attrs: NodeAttributes = {
       nbaType: 'season',
+      name: `${season.leagueId} Season`,
       label: `${singleYearStr(season.year)} ${season.leagueId} Season`, 
       size: config.sizes.season, 
       years: [season.year],

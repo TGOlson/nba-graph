@@ -5,7 +5,7 @@ import Box from '@mui/joy/Box';
 
 import { NBAGraphNode, NodeAttributes } from '../../../shared/types';
 import { multiYearStr } from '../../../shared/util';
-import { Option } from './SearchOption';
+import { Option, OptionSubItem } from './SearchOption';
 import SearchBarBase from './SearchBarBase';
 
 type NodeSearchProps = {
@@ -32,14 +32,15 @@ const NodeSearch = ({nodes}: NodeSearchProps) => {
     (sigma as any)._events.clickNode({node: id, syntheticClickEventFromSearch: true}); // eslint-disable-line
   };
 
-  const subItemsByRollupId = nodes.reduce<{[key: string]: {key: string, label: string}[]}>((acc, node) => {
+  const subItemsByRollupId = nodes.reduce<{[key: string]: OptionSubItem[]}>((acc, node) => {
     const attrs = node.attributes;
     if (attrs.rollupId) {
       const prev = acc[attrs.rollupId] ?? [];
 
       prev.push({
         key: node.key,
-        label: getSubLabel(attrs),
+        label: node.attributes.name ?? node.attributes.label,
+        subLabel: getSubLabel(attrs),
       });
       acc[attrs.rollupId] = prev;
     }
@@ -47,12 +48,18 @@ const NodeSearch = ({nodes}: NodeSearchProps) => {
   }, {});
     
   const options: Option[] = nodes.filter(x => !x.attributes.rollupId).map((node) => {
+    const subItems = subItemsByRollupId[node.key];
+
+    const subItemsSearchArr = subItems?.map(x => x.label) ?? [];
+    const searchString = [...new Set([node.attributes.label, ...subItemsSearchArr])].join(' ');
+
     const attrs = node.attributes;
     return {
       key: node.key,
       label: attrs.name ?? attrs.label,
       subLabel: getSubLabel(attrs),
-      subItems: subItemsByRollupId[node.key],
+      searchString,
+      subItems,
       attrs,
     };
   });
