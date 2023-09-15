@@ -37,7 +37,7 @@ export default function makeNodeSpriteProgramTriangles(sprite: {offsets: {[key: 
   console.log('Texture image array size:', textureImage.data.length / 4, 'bytes', `(${(textureImage.data.length / 4 / 1024 / 1024).toFixed(1)}MB)`);
 
   return class NodeImageProgram extends AbstractNodeProgram {
-texture: WebGLTexture;
+    texture: WebGLTexture;
     textureLocation: GLint;
     atlasLocation: WebGLUniformLocation;
     sqrtZoomRatioLocation: WebGLUniformLocation;

@@ -23,7 +23,8 @@ export type Option = {
 type SearchOptionProps = {
   option: Option;
   onSelect: (id: string) => void;
-  autocompleteOptionProps: any;
+  // Note: this is a hacky way to pass props to the underlying AutocompleteOption props
+  autocompleteOptionProps: any; // eslint-disable-line
 };
 
 function chunks<T>(arr: T[], size: number): T[][] {
