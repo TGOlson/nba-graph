@@ -160,8 +160,8 @@ const HeaderMenu = ({filters, onFilterChange}: HeaderProps) => {
         }}
       >
         <Divider sx={{width: '100%'}} />
-        <IconButton onClick={() => setExpanded(!expanded)} sx={{"--IconButton-size": "20px"}}>
-          {expanded ? <KeyboardDoubleArrowUpIcon  /> : <KeyboardDoubleArrowDownIcon />}
+        <IconButton sx={{"--IconButton-size": "20px"}} onClick={() => setExpanded(!expanded)}>
+          {expanded ? <KeyboardDoubleArrowUpIcon color='inherit' /> : <KeyboardDoubleArrowDownIcon color='inherit' />}
         </IconButton>
       </CardOverflow>
     </Card>
