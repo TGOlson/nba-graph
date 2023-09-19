@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 
 import Autocomplete, {createFilterOptions} from '@mui/joy/Autocomplete';
+import SearchIcon from '@mui/icons-material/Search';
 
 import SearchOption, { Option, OptionSubItem } from './SearchOption';
 
@@ -11,6 +12,8 @@ type SearchBarBaseProps = {
 
 const SearchBarBase = ({options, onSelect}: SearchBarBaseProps) => {
   const [inputValue, setInputValue] = useState('');
+  const [hovered, setHovered] = useState(false);
+  const [focused, setFocused] = useState(false);
 
   const onSubItemSelect = (subItem: OptionSubItem) => {
     // set input to parent name, acting kinda like we selected the subitem (even thought it's not a real option)
@@ -20,8 +23,16 @@ const SearchBarBase = ({options, onSelect}: SearchBarBaseProps) => {
 
   return (
     <Autocomplete 
-      sx={{ width: 300 }}
-      placeholder="Search..."
+      sx={{ 
+        width: (focused || hovered) ? 300 : 200, 
+        transition: 'width 0.15s ease-in-out',
+      }}
+      onFocus={() => setFocused(true)}
+      onBlur={() => setFocused(false)}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      startDecorator={<SearchIcon />}
+      placeholder='Search'
       noOptionsText="No results found"
       clearOnEscape
       open={inputValue.length > 1}

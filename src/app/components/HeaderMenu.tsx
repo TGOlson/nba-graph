@@ -152,7 +152,6 @@ const HeaderMenu = ({filters, onFilterChange}: HeaderProps) => {
       <CardOverflow 
         variant="soft" 
         sx={{ 
-          bgcolor: 'background.level1', 
           display: 'flex',
           padding: 0,
           mt: expanded ? 1 : undefined, 
@@ -161,12 +160,7 @@ const HeaderMenu = ({filters, onFilterChange}: HeaderProps) => {
         }}
       >
         <Divider sx={{width: '100%'}} />
-        <IconButton 
-          onClick={() => setExpanded(!expanded)}
-          sx={{
-            "--IconButton-size": "20px"
-          }}
-        >
+        <IconButton onClick={() => setExpanded(!expanded)} sx={{"--IconButton-size": "20px"}}>
           {expanded ? <KeyboardDoubleArrowUpIcon  /> : <KeyboardDoubleArrowDownIcon />}
         </IconButton>
       </CardOverflow>
