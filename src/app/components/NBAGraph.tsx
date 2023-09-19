@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
-import { ControlsContainer, SigmaContainer, ZoomControl } from "@react-sigma/core";
 import Graph from 'graphology';
+import { SigmaContainer } from "@react-sigma/core";
 import { Settings } from 'sigma/settings';
 
 import "@react-sigma/core/lib/react-sigma.min.css";
@@ -8,11 +8,12 @@ import "@react-sigma/core/lib/react-sigma.min.css";
 import { GraphData } from '../api';
 import makeNodeSpriteProgramTriangles from '../program/node-sprite-triangles';
 import { Sprite } from '../util/image';
+import { GraphFilters } from '../util/types';
 
 import GraphEvents from './GraphEventHandler';
 import HeaderMenu, { DEFAULT_FILTERS } from './HeaderMenu';
 import NodeSearch from './NodeSearch';
-import { GraphFilters } from '../util/types';
+import ZoomControl from './ZoomControl';
 
 type DisplayGraphProps = {
   data: GraphData;
@@ -86,12 +87,10 @@ const NBAGraph = (props: DisplayGraphProps) => {
       graph={graph}
       settings={settings}
     >
+      <GraphEvents filters={filters}/>
       <HeaderMenu filters={filters} onFilterChange={onFilterChange}/>
       <NodeSearch nodes={props.data.nodes} />
-      <GraphEvents filters={filters}/>
-      <ControlsContainer position={"bottom-right"}>
-        <ZoomControl />
-      </ControlsContainer>
+      <ZoomControl />
     </SigmaContainer>
   );
 };

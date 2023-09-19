@@ -3,12 +3,14 @@ import React, { useState } from 'react';
 import Typography from '@mui/joy/Typography';
 import Card from '@mui/joy/Card';
 import Checkbox from '@mui/joy/Checkbox';
-
-import { GraphFilters } from '../util/types';
 import Box from '@mui/joy/Box';
 import Divider from '@mui/joy/Divider';
 import Input from '@mui/joy/Input';
 import Slider from '@mui/joy/Slider';
+import Tooltip from '@mui/joy/Tooltip';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+
+import { GraphFilters } from '../util/types';
 
 type HeaderProps = {
   filters: GraphFilters;
@@ -34,27 +36,27 @@ const leagueLabel = (league: string, years: string): React.ReactNode => {
   );
 };
 
-const GraphFilters = ({filters, onFilterChange}: HeaderProps) => {
+const HeaderMenu = ({filters, onFilterChange}: HeaderProps) => {
   const [minYear, setMinYear] = useState<number>(filters.minYear);
   const [maxYear, setMaxYear] = useState<number>(filters.maxYear);
 
-  const sx = {
-    top: 0,
-    m: 1,
-    ml: 2,
-    mr: 2,
-    position: 'absolute', 
-    zIndex: 1000,
-    "--Card-radius": "6px",
-    width: 300,
-    boxShadow: 'none'
-  };
-
   return (
-    <Card variant='outlined' sx={sx}>
+    <Card variant='outlined' sx={{
+      top: 0,
+      m: 1,
+      position: 'absolute', 
+      width: 300,
+      boxShadow: 'none',
+      "--Card-radius": "6px",
+    }}>
       <Typography level="title-lg">NBA Graph</Typography>
       <Divider inset="none" />
-      <Typography level="body-sm">Years</Typography>
+      <Box sx={{display: 'flex', alignItems: 'center'}}>
+        <Typography level="body-sm">Years</Typography>
+        <Tooltip size='sm' sx={{ml: '2px'}} arrow title="Basketball reference league year (eg. 2023 is 2022/23 NBA season)" placement='right'>
+          <InfoOutlinedIcon fontSize='small' />
+        </Tooltip>
+      </Box>
       <Box sx={{display: 'flex'}}>
         <Input 
           size="sm" 
@@ -113,7 +115,7 @@ const GraphFilters = ({filters, onFilterChange}: HeaderProps) => {
       <Checkbox 
         size="sm" 
         sx={{mb: '-4px'}}
-        label={leagueLabel('NBA', '1950-present')} 
+        label={leagueLabel('NBA', '1950-2023')} 
         checked={filters.showNBA} 
         onChange={() => onFilterChange({showNBA: !filters.showNBA})} 
       />
@@ -133,9 +135,15 @@ const GraphFilters = ({filters, onFilterChange}: HeaderProps) => {
       />
       <Typography level="body-sm" sx={{mt: 1}}>Misc.</Typography>
       <Checkbox size="sm" label="Awards" checked={filters.showAwards} onChange={() => onFilterChange({showAwards: !filters.showAwards})} />
+      <Box sx={{display: 'flex', alignItems: 'center'}}>
+
       <Checkbox size="sm" label="Short career players" checked={filters.showShortCareerPlayers} onChange={() => onFilterChange({showShortCareerPlayers: !filters.showShortCareerPlayers})} />
+        <Tooltip size='sm' sx={{ml: '2px'}} arrow title="Players that played in three or less seasons" placement='right'>
+          <InfoOutlinedIcon fontSize='small' />
+        </Tooltip>
+      </Box>
     </Card>
   );
 };
 
-export default GraphFilters;
+export default HeaderMenu;
