@@ -14,6 +14,7 @@ import GraphEvents, { isHiddenFromFilters } from './GraphEventHandler';
 import HeaderMenu, { DEFAULT_FILTERS } from './HeaderMenu';
 import NodeSearch from './NodeSearch';
 import ZoomControl from './ZoomControl';
+import { logDebug } from '../util/logger';
 
 type DisplayGraphProps = {
   data: GraphData;
@@ -25,7 +26,7 @@ const NBAGraph = ({data, sprite}: DisplayGraphProps) => {
   const [filters, setFilters] = React.useState<GraphFilters>(DEFAULT_FILTERS);
 
   useEffect(() => {
-    console.log('Registering graph');
+    logDebug('Registering graph');
 
     const graph = new Graph(data.options);
     graph.import(data);

@@ -11,6 +11,7 @@ import Sigma from 'sigma';
 import { FRAGMENT_SHADER_GLSL, VERTEX_SHADER_GLSL } from './shaders-triangles';
 import { CustomNodeAttributes } from '../../shared/types';
 import { Sprite } from '../util/image';
+import { logDebug } from '../util/logger';
 
 const POINTS = 3;
   //  atttributes sizing in floats:
@@ -34,8 +35,9 @@ const R_CONST = (8 / 3) * (1 - Math.sin((2 * Math.PI) / 3));
 export default function makeNodeSpriteProgramTriangles(sprite: Sprite) {
   const textureImage = sprite.img;
 
-  console.log('Texture image array length:', textureImage.data.length, `(${textureImage.data.length / 1000/ 1000}M)`);
-  console.log('Texture image array size:', textureImage.data.length / 4, 'bytes', `(${(textureImage.data.length / 4 / 1024 / 1024).toFixed(1)}MB)`);
+  // logDebug('Texture image array length:', textureImage.data.length, `(${textureImage.data.length / 1000/ 1000}M)`);
+  logDebug('Creating node sprite program');
+  logDebug('Texture image array size:', textureImage.data.length / 4, 'bytes', `(${(textureImage.data.length / 4 / 1024 / 1024).toFixed(1)}MB)`);
 
   return class NodeImageProgram extends AbstractNodeProgram {
     texture: WebGLTexture;

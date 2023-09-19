@@ -11,6 +11,7 @@ import { combineImages, fetchImage, Sprite } from './util/image';
 
 import "./App.css";
 import { notNull } from '../shared/util';
+import { logDebug } from './util/logger';
 
 const loading = (
   <Box sx={{textAlign: 'center', mt: -4}}>
@@ -25,14 +26,14 @@ const App = () => {
   const [graphLoaded, setGraphLoaded] = useState<boolean>(false);
   
   useEffect(() => {
-    console.log('fetching graph data...');
+    logDebug('Fetching graph data');
     void fetchGraphData().then((data) => { 
       setData(data);
 
       const urls = data.nodes.map((node) => node.attributes.image).filter(notNull);
       const uniqueUrls = [...new Set(urls)];
       
-      console.log('fetching images...', uniqueUrls);
+      logDebug('Fetching images', uniqueUrls);
       return Promise.all(uniqueUrls.map(fetchImage));
     }).then((images) => {
       const sprite = combineImages(images);
