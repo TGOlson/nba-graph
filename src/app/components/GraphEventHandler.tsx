@@ -12,7 +12,7 @@ type GraphEventsProps = {
   filters: GraphFilters;
 };
 
-const isHiddenFromFilters = (filters: GraphFilters, data: NodeAttributes): boolean => {
+export const isHiddenFromFilters = (filters: GraphFilters, data: NodeAttributes): boolean => {
   if (!filters.showAwards && data.nbaType === 'award') return true;
   if (!filters.showShortCareerPlayers && data.nbaType === 'player') {
     const n = data.years.length;

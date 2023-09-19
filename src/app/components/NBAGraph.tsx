@@ -10,7 +10,7 @@ import makeNodeSpriteProgramTriangles from '../program/node-sprite-triangles';
 import { Sprite } from '../util/image';
 import { GraphFilters } from '../util/types';
 
-import GraphEvents from './GraphEventHandler';
+import GraphEvents, { isHiddenFromFilters } from './GraphEventHandler';
 import HeaderMenu, { DEFAULT_FILTERS } from './HeaderMenu';
 import NodeSearch from './NodeSearch';
 import ZoomControl from './ZoomControl';
@@ -20,14 +20,15 @@ type DisplayGraphProps = {
   sprite: Sprite;
 };
 
-const NBAGraph = (props: DisplayGraphProps) => {
+const NBAGraph = ({data, sprite}: DisplayGraphProps) => {
   const [graph, setGraph] = React.useState<Graph | undefined>(undefined);
   const [filters, setFilters] = React.useState<GraphFilters>(DEFAULT_FILTERS);
 
   useEffect(() => {
-    console.log('registering graph');
-    const graph = new Graph(props.data.options);
-    graph.import(props.data);
+    console.log('Registering graph');
+
+    const graph = new Graph(data.options);
+    graph.import(data);
     setGraph(graph);
   }, []);
 
@@ -73,13 +74,15 @@ const NBAGraph = (props: DisplayGraphProps) => {
     maxCameraRatio: 1.5,
     
     nodeProgramClasses: {
-      sprite: makeNodeSpriteProgramTriangles(props.sprite),
+      sprite: makeNodeSpriteProgramTriangles(sprite),
     },
   };
 
   const onFilterChange = (change: Partial<GraphFilters>) => {
     setFilters({ ...filters, ...change });
   };
+
+  const nodes = data.nodes.filter((node) => !isHiddenFromFilters(filters, node.attributes));
 
   return (
     <SigmaContainer 
@@ -89,7 +92,7 @@ const NBAGraph = (props: DisplayGraphProps) => {
     >
       <GraphEvents filters={filters}/>
       <HeaderMenu filters={filters} onFilterChange={onFilterChange}/>
-      <NodeSearch nodes={props.data.nodes} />
+      <NodeSearch nodes={nodes} />
       <ZoomControl />
     </SigmaContainer>
   );

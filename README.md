@@ -126,13 +126,14 @@ The output graph data is stored in `./data/graph/graph.json`. The graph is built
   * ~~more fun logos for awards~~
   * search
     * ~~a way to collapse team/award years in search?~~
+    * ~~when nodes are filtered from graph, remove from search results~~
     * sort by last name in search bar
     * search is a little laggy? (try loading images async)
-    * when nodes are filtered from graph, remove from search results
   * adjust player node size for awards
   * compress graph json?
   * fun AI logo
   * larger league images
+  * bug when player matches year filter, but not league filter (eg. played in ABA & 1950, but no matching teams)
 * deploy
  * setup github page (TODO: where to store data?)
  * deploy assets to aws/cloudflair
