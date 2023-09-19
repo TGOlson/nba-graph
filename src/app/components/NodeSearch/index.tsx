@@ -68,11 +68,8 @@ const NodeSearch = ({nodes}: NodeSearchProps) => {
     <Box sx={{
       top: 0,
       right: 0,
-      p: 1,
-      pl: 2,
-      pr: 2,
+      m: 1,
       position: 'absolute', 
-      zIndex: 1000,
     }}>
       <SearchBarBase options={options} onSelect={onSelect} />
     </Box>
