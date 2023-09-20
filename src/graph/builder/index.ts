@@ -3,7 +3,7 @@ import { circular } from "graphology-layout";
 import forceAtlas2 from "graphology-layout-forceatlas2";
 import Color from "color";
 
-import { Award, NBAData, Season, Team } from "../../shared/nba-types";
+import { NBAData, Season } from "../../shared/nba-types";
 import { NodeAttributes, SpriteNodeAttributes } from "../../shared/types";
 import { assets } from "../util/assets";
 import { GraphConfig } from "./config";
@@ -48,6 +48,13 @@ const filterYears = (data: NBAData, config: GraphConfig): NBAData => {
   };
 };
 
+const toMap = <T>(key: (t: T) => string, arr: T[]): {[key: string]: T} => {
+  return arr.reduce<{[key: string]: T}>((acc, x) => {
+    acc[key(x)] = x;
+    return acc;
+  }, {});
+};
+
 export const buildGraph = async (rawData: NBAData, config: GraphConfig): Promise<Graph> => {
   console.log('Building graph');
   const graph = new DirectedGraph();
@@ -65,20 +72,10 @@ export const buildGraph = async (rawData: NBAData, config: GraphConfig): Promise
   const leagueColors = await loadSpriteColors('league');
   const awardColors = await loadSpriteColors('award');
 
-  const seasonsById = data.seasons.reduce<{[id: string]: Season}>((acc, season) => {
-    acc[season.id] = season;
-    return acc;
-  }, {});
-
-  const teamsById = data.teams.reduce<{[id: string]: Team}>((acc, team) => {
-    acc[team.id] = team;
-    return acc;
-  }, {});
-
-  const awardsById = data.awards.reduce<{[id: string]: Award}>((acc, award) => {
-    acc[award.id] = award;
-    return acc;
-  }, {});
+  const seasonsById = toMap(x => x.id, data.seasons);
+  const teamsById = toMap(x => x.id, data.teams);
+  const awardsById = toMap(x => x.id, data.awards);  
+  const multiWinnerAwardsById = toMap(x => x.id, data.multiWinnerAwards);
 
   const playerSeasons: {[playerId: string]: Season[]} = data.playerSeasons.reduce<{[playerId: string]: Season[]}>((acc, ps) => {
     const prev = acc[ps.playerId] ?? [];
@@ -367,7 +364,18 @@ export const buildGraph = async (rawData: NBAData, config: GraphConfig): Promise
     // in the future maybe it would be nice to add a weight to the edge to distinguish between multiple wins
     // (or add an edge label, but that isn't used elsewhere and I think would be too busy)
     if (!graph.hasEdge(recipient.recipientId, recipient.awardId)) {
-      graph.addEdge(recipient.recipientId, recipient.awardId, {color: config.edgeColors.award, hidden: true, year: recipient.year, nbaType: 'award'});
+      const award = awardsById[recipient.awardId] ?? multiWinnerAwardsById[recipient.awardId];
+      if (!award) throw new Error(`Unexpected error: no award for recipient ${recipient.recipientId} ${recipient.awardId}`);
+
+      const borderColor = award.image.type === 'award' 
+      ? awardColors[award.image.id]?.primary 
+      : leagueColors[award.image.id]?.primary;
+
+      if (!borderColor) throw new Error(`Unexpected error: no color for award ${award.name}`);
+      
+      const edgeColor = Color(borderColor).lighten(0.3).hex();
+
+      graph.addEdge(recipient.recipientId, recipient.awardId, {color: edgeColor, hidden: true, year: recipient.year, nbaType: 'award'});
     }
   });
 
