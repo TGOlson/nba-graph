@@ -245,7 +245,7 @@ async function main() {
     case commands.misc.ConvertImagesTwo: {
       return await execSeq([
         {typ: 'award' as NBAType, transform: noopTransform},
-        {typ: 'league' as NBAType, transform: teamTransform},
+        {typ: 'league' as NBAType, transform: noopTransform},
       ].map(({typ, transform}) => 
         () => {
           console.log('Building sprite for: ', typ);
