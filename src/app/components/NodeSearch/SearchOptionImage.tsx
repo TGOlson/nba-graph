@@ -31,8 +31,6 @@ const SearchOptionImage = ({option}: SearchOptionImageProps) => {
         borderRadius: '50%',
         width: `${width}px`,
         height: `${height}px`,
-        // objectFit: 'none',
-        // objectPosition: `${-1 * x}px ${-1 * y}px`,
         background: `url(${image}) ${-1 * x}px ${-1 * y}px`,
       }}
     />

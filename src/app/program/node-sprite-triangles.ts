@@ -53,6 +53,8 @@ export default function makeNodeSpriteProgramTriangles(sprite: Sprite) {
     constructor(gl: WebGLRenderingContext, _renderer: Sigma) {
       super(gl, VERTEX_SHADER_GLSL, FRAGMENT_SHADER_GLSL, POINTS, ATTRIBUTES);
 
+      console.log('gl.MAX_TEXTURE_SIZE', gl.getParameter(gl.MAX_TEXTURE_SIZE));
+
       // Attribute Location
       this.textureLocation = gl.getAttribLocation(this.program, "a_texture");
       this.angleLocation = gl.getAttribLocation(this.program, "a_angle");
