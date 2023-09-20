@@ -16,14 +16,13 @@ import { GRAPH_CONFIG } from "./builder/config";
 
 import { makeDelayedFetch, makeFetch } from "./util/fetch";
 import { execSeq } from "./util/promise";
-import { createSpriteImage, noopTransform, parseSpriteColorPallette, playerTransform, teamTransform } from "./util/image";
+import { compressImage, createSpriteImage, noopTransform, parseSpriteColorPallette, playerTransform, teamTransform } from "./util/image";
 import { NBAType } from "../shared/nba-types";
 import { allStarUrl, awardUrls, LEAGUE_CHAMP_URL } from "./util/bref-url";
 import { validAllStarSeasons } from "./parsers/awards/all-star";
 import { runAwardsParsers } from "./parsers/awards";
 import Jimp from "jimp";
 import path from "path";
-import { decode, encode, toRGBA8 } from "upng-js";
 import { writeFile } from "fs/promises";
 
 const VERBOSE_FETCH = true;
@@ -269,16 +268,15 @@ async function main() {
 
     // for testing, debugging, etc
     case commands.misc.Test: {
-      const image = await Jimp.read(path.resolve(__dirname, '../data/sprites/franchise.png'));
-      const buffer = await image.getBufferAsync(Jimp.MIME_PNG);
-      const img = decode(buffer);
-      const frames = toRGBA8(img)[0];
+      const image = await Jimp.read(path.resolve(__dirname, '../data/sprites/player.png'));
+      const width = image.getWidth();
 
-      if (!frames) throw new Error('No frames found');
+      console.log('width: ', width);
 
-      const png = encode([frames], image.getWidth(), image.getHeight(), 255);
+      image.resize(width / 2, Jimp.AUTO, Jimp.RESIZE_BILINEAR);
+      const compressed = await compressImage(image);
 
-      return await writeFile('./franchise_test.png', new Uint8Array(png));
+      return await writeFile(path.resolve(__dirname, '../data/sprites/player_small.png'), new Uint8Array(compressed));
     }
 
     default: 

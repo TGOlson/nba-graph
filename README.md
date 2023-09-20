@@ -132,8 +132,8 @@ The output graph data is stored in `./data/graph/graph.json`. The graph is built
   * ~~larger league images~~
   * images
     * ~~compress sprites images~~
-    * try smaller thumbnail images for search
     * consider breaking up player sprite by last name
+  * infinite scroll?
   * adjust player node size for awards
   * compress graph json
   * fun AI logo
