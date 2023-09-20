@@ -16,12 +16,15 @@ import { GRAPH_CONFIG } from "./builder/config";
 
 import { makeDelayedFetch, makeFetch } from "./util/fetch";
 import { execSeq } from "./util/promise";
-import { createSpriteImage, eachSpriteImage, noopTransform, parseSpriteColorPallette, playerTransform, teamTransform } from "./util/image";
+import { createSpriteImage, noopTransform, parseSpriteColorPallette, playerTransform, teamTransform } from "./util/image";
 import { NBAType } from "../shared/nba-types";
 import { allStarUrl, awardUrls, LEAGUE_CHAMP_URL } from "./util/bref-url";
 import { validAllStarSeasons } from "./parsers/awards/all-star";
 import { runAwardsParsers } from "./parsers/awards";
 import Jimp from "jimp";
+import path from "path";
+import { decode, encode, toRGBA8 } from "upng-js";
+import { writeFile } from "fs/promises";
 
 const VERBOSE_FETCH = true;
 const FETCH_DELAY_MS = 6000; // basketball-reference seems to get mad at >~30 req/m
@@ -266,36 +269,16 @@ async function main() {
 
     // for testing, debugging, etc
     case commands.misc.Test: {
-      // potrace
-      // trace(path.resolve(__dirname, '../data/img/league/NBA.png'), function(err, svg) {
-      //   if (err) throw err;
-      //   writeFileSync('./output.svg', svg);
-      // });
-      await eachSpriteImage('league', async (key, image) => {
-        const resized = image.resize(40, Jimp.AUTO, Jimp.RESIZE_BEZIER);
+      const image = await Jimp.read(path.resolve(__dirname, '../data/sprites/franchise.png'));
+      const buffer = await image.getBufferAsync(Jimp.MIME_PNG);
+      const img = decode(buffer);
+      const frames = toRGBA8(img)[0];
 
-        await resized.writeAsync(`./test/${key}.png`);
-        // const buffer = await resized.getBufferAsync(Jimp.MIME_PNG);
-        // const base64 = buffer.toString('base64');
-        // const dataUri = `data:image/png;base64,${base64}`;
+      if (!frames) throw new Error('No frames found');
 
-        // console.log(key, dataUri.length, dataUri);
-      });
+      const png = encode([frames], image.getWidth(), image.getHeight(), 255);
 
-      // const byName = franchises.sort((a, b) => a.name.length - b.name.length);
-
-      // console.log(byName.map(x => x.name));
-
-      // loadGraph
-      // loadGraph
-      // loadN
-      // const res = await Promise.all(
-      //   lifetimeAwardParser.map(parser => runHtmlParser(parser))
-      // );
-
-      // console.log(res.map(x => x.award));
-      // console.log(res.map(x => x.awardRecipients).flat());
-      return;
+      return await writeFile('./franchise_test.png', new Uint8Array(png));
     }
 
     default: 

@@ -130,8 +130,12 @@ The output graph data is stored in `./data/graph/graph.json`. The graph is built
     * ~~sort by last name in search bar~~
     * ~~search is a little laggy? (try loading images async)~~
   * ~~larger league images~~
+  * images
+    * ~~compress sprites images~~
+    * try smaller thumbnail images for search
+    * consider breaking up player sprite by last name
   * adjust player node size for awards
-  * compress graph json / sprite image?
+  * compress graph json
   * fun AI logo
   * bug when player matches year filter, but not league filter (eg. played in ABA & 1950, but no matching teams)
 * deploy

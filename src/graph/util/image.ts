@@ -1,4 +1,4 @@
-import { readdir } from 'fs/promises';
+import { readdir, writeFile } from 'fs/promises';
 import Jimp from 'jimp';
 import path from 'path';
 import Vibrant from 'node-vibrant';
@@ -8,6 +8,7 @@ import {createSprite, ImageSource, Sprite} from 'quick-sprite';
 import { NBAType } from '../../shared/nba-types';
 import { Palette } from '../../shared/types';
 import { spritePath } from '../storage/paths';
+import { decode, encode, toRGBA8 } from 'upng-js';
 
 const MAX_WIDTH = 3072;
 const TEAM_IMAGE_SIZE = 205;
@@ -16,9 +17,13 @@ const PLAYER_IMAGE_SIZE = 120;
 const PLAYER_IMAGE_X_PADDING = 15;
 const PLAYER_IMAGE_TOP_PADDING = 10;
 
+// 0 for lossless / 256 for lossy
+// 255 is a ~20% improvement over 256, nothing below 255 seems worth it in terms of quality/size
+const DEFAULT_COMPRESSION_CNUM = 255;
+
 export const noopTransform = (_key: string, image: Jimp): Jimp => image;
 
-// Note: team and franchise photos are downlaoaded as 125x125 squares
+// Note: team and franchise photos are downloaded as 125x125 squares
 // Since they will be rendered within a circle, add extra padding so that none of the base image is clipped
 export const teamTransform = (_key: string, image: Jimp): Jimp => {
   const base = new Jimp(TEAM_IMAGE_SIZE, TEAM_IMAGE_SIZE, '#ffffff');
@@ -66,9 +71,20 @@ export async function createSpriteImage(inputDir: string, imagePath: string, map
     debug: true,
   });
 
-  await image.writeAsync(imagePath);
-
+  const compressed = await compressImage(image);
+  
+  await writeFile(imagePath, new Uint8Array(compressed));
   await persistJSON(mappingPath)(mapping);
+}
+
+export async function compressImage(image: Jimp, cnum = DEFAULT_COMPRESSION_CNUM): Promise<ArrayBuffer> {
+  const buffer = await image.getBufferAsync(Jimp.MIME_PNG);
+  const img = decode(buffer);
+  const frames = toRGBA8(img)[0];
+
+  if (!frames) throw new Error('No frames found');
+
+  return encode([frames], image.getWidth(), image.getHeight(), cnum);
 }
 
 export async function parseColorPalette(img: Jimp): Promise<Partial<Palette>> {
