@@ -1,7 +1,5 @@
 import React from 'react';
 
-import Box from '@mui/joy/Box';
-
 import { Option } from "./SearchOption";
 
 type SearchOptionImageProps = {
@@ -11,20 +9,22 @@ type SearchOptionImageProps = {
 const SearchOptionImage = ({option}: SearchOptionImageProps) => {
   // TODO: initial load seems slow, maybe add placeholder image?
 
+  const {image, crop: {width, height, x, y}} = option.attrs;
+
   return (
-    <Box sx={{
-      p: 0,
-      m: 0,
-      transform: `scale(${40 / option.attrs.crop.width})`,
-      transformOrigin: 'left top',
-      borderRadius: '50%',
-      width: `${option.attrs.crop.width}px`,
-      height: `${option.attrs.crop.height}px`,
-      background: `url(${option.attrs.image}) ${getPosition(option.attrs.crop)}`,
-    }}/>
+    <img 
+      src={image}
+      style={{
+        transform: `scale(${40 / width})`,
+        transformOrigin: 'left top',
+        borderRadius: '50%',
+        width: `${width}px`,
+        height: `${height}px`,
+        objectFit: 'none',
+        objectPosition: `${-1 * x}px ${-1 * y}px`,
+      }}
+    />
   );
 };
-
-const getPosition = ({x, y}: {x: number, y: number}): string => `${-1 * x}px ${-1 * y}px`;
 
 export default SearchOptionImage;
