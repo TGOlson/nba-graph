@@ -60,7 +60,7 @@ const HeaderMenu = ({filters, onFilterChange}: HeaderProps) => {
         <Divider inset="none" />
         <Box sx={{display: 'flex', alignItems: 'center'}}>
           <Typography level="body-sm">Years</Typography>
-          <Tooltip size='sm' sx={{ml: '2px'}} arrow title="Basketball reference league year (eg. 2023 is 2022/23 NBA season)" placement='right'>
+          <Tooltip size='sm' sx={{ml: '2px'}} arrow title="Basketball reference league year (eg. 2023 is the 2022-23 NBA season)" placement='right'>
             <InfoOutlinedIcon fontSize='small' />
           </Tooltip>
         </Box>
