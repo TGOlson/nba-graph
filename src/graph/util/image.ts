@@ -82,22 +82,26 @@ export async function parseColorPalette(img: Jimp): Promise<Partial<Palette>> {
   };
 }
 
-export async function parseSpriteColorPallette(typ: NBAType): Promise<{[key: string]: Palette}> {
+export async function eachSpriteImage(typ: NBAType, fn: (key: string, img: Jimp) => Promise<void>): Promise<void> {
   const sprite = await Jimp.read(spritePath(typ));
   const spriteMapping = await loadSpriteMapping(typ);
-  const res: {[key: string]: Palette} = {};
 
   for (const [key, coords] of Object.entries(spriteMapping)) {
     const img = sprite.clone().crop(coords.x, coords.y, coords.width, coords.height);
+    await fn(key, img);
+  }
+}
 
+export async function parseSpriteColorPallette(typ: NBAType): Promise<{[key: string]: Palette}> {
+  const res: {[key: string]: Palette} = {};
+
+  await eachSpriteImage(typ, async (key, img) => {
     const palette = await parseColorPalette(img);
 
-    if (!isFullPallette(palette)) {
-      throw new Error(`Unexpected partial palette for: ${key}`);
-    }
+    if (!isFullPallette(palette)) throw new Error(`Unexpected partial palette for: ${key}`);
 
     res[key] = palette;
-  }
+  });
 
   return res;
 }

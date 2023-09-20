@@ -24,7 +24,7 @@ const SearchBarBase = ({options, onSelect}: SearchBarBaseProps) => {
   return (
     <Autocomplete 
       sx={{ 
-        width: (focused || hovered) ? 300 : 200, 
+        width: (focused || hovered) ? 300 : 240, 
         transition: 'width 0.15s ease-in-out',
       }}
       onFocus={() => setFocused(true)}
