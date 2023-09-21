@@ -1,11 +1,11 @@
 import * as React from 'react';
-import { FixedSizeList, ListChildComponentProps, areEqual } from 'react-window';
+import { FixedSizeList } from 'react-window';
 
 import { Popper } from '@mui/base/Popper';
 import AutocompleteListbox from '@mui/joy/AutocompleteListbox';
 
 import SearchOption, { Option, OptionSubItem } from './SearchOption';
-import { AutocompleteOption } from '@mui/joy';
+import { getIndex } from '../../../shared/util';
 
 // ***
 // Note: all this tom-foolerly below is to make adapters between JoyUI and react-window
@@ -13,19 +13,22 @@ import { AutocompleteOption } from '@mui/joy';
 // ***
 
 const LISTBOX_PADDING = 6; // px
+const ITEM_SIZE = 58; // px
+
+export type RowData = [
+  Omit<React.HTMLAttributes<HTMLLIElement>, 'color'>, 
+  Option, 
+  (subItem: OptionSubItem) => void
+] & React.ReactNode;
 
 export type RenderRowProps = {
-  data: [
-    Omit<React.HTMLAttributes<HTMLLIElement>, 'color'>, 
-    Option, 
-    (subItem: OptionSubItem) => void
-  ][];
+  data: RowData[];
   index: number;
   style: React.CSSProperties;
 };
 
 const RenderRow = ({ data, index, style }: RenderRowProps) => {
-  const [props, option, onSubItemSelect] = data[index] as RenderRowProps['data'][0];
+  const [props, option, onSubItemSelect] = data[index] as RowData;
 
   const autocompleteOptionProps = {
     ...props,
@@ -44,7 +47,7 @@ const RenderRow = ({ data, index, style }: RenderRowProps) => {
 
 const OuterElementContext = React.createContext({});
 
-const OuterElementType = React.forwardRef<HTMLDivElement>(function JoyUIAutocompleteListbox(props, ref) {
+const OuterElementType = React.forwardRef<HTMLDivElement>(function OuterElementTypeComponent(props, ref) {
   const outerProps = React.useContext(OuterElementContext);
   return (
     <AutocompleteListbox
@@ -64,41 +67,30 @@ const OuterElementType = React.forwardRef<HTMLDivElement>(function JoyUIAutocomp
 });
 
 // Adapter for react-window
-export const ListboxComponent = React.forwardRef<
-  HTMLDivElement,
-  {
-    anchorEl: any;
-    open: boolean;
-    modifiers: any[];
-  } & React.HTMLAttributes<HTMLElement>
->(function ListboxComponent(props, ref) {
-  const { children, anchorEl, open, modifiers, ...other } = props;
-  const itemData: Array<any> = [];
-  (
-    children as [Array<{ children: Array<React.ReactElement> | undefined }>]
-  )[0].forEach((item) => {
-    if (item) {
-      itemData.push(item);
-      itemData.push(...(item.children || []));
-    }
-  });
+type ListboxComponentProps = {
+  anchorEl: React.ComponentProps<typeof Popper>['anchorEl'];
+  open: boolean;
+  modifiers: React.ComponentProps<typeof Popper>['modifiers'];
+} & React.HTMLAttributes<HTMLElement>;
 
-  const itemCount = itemData.length;
-  const itemSize = 58;
+export const ListboxComponent = React.forwardRef<HTMLDivElement, ListboxComponentProps>(function ListboxComponent(props, ref) {
+  const { children, anchorEl, open, modifiers, ...other } = props;
+
+  const itemData = (children as RowData[][])[0] as RowData[];
 
   return (
     <Popper ref={ref} anchorEl={anchorEl} open={open} modifiers={modifiers}>
       <OuterElementContext.Provider value={other}>
         <FixedSizeList
           itemData={itemData}
-          itemKey={index => itemData[index][1].key}
-          height={itemSize * 8}
+          itemKey={index => getIndex(index, itemData)[1].key}
+          height={ITEM_SIZE * 8}
           width="100%"
           outerElementType={OuterElementType}
           innerElementType="ul"
-          itemSize={itemSize}
+          itemSize={ITEM_SIZE}
           overscanCount={5}
-          itemCount={itemCount}
+          itemCount={itemData.length}
         >
           {RenderRow}
         </FixedSizeList>
