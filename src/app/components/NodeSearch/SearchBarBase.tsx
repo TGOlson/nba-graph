@@ -3,7 +3,8 @@ import React, { useState } from 'react';
 import Autocomplete, {createFilterOptions} from '@mui/joy/Autocomplete';
 import SearchIcon from '@mui/icons-material/Search';
 
-import SearchOption, { Option, OptionSubItem } from './SearchOption';
+import { Option, OptionSubItem } from './SearchOption';
+import { ListboxComponent } from './ReactWindowAdapters';
 
 type SearchBarBaseProps = {
   options: Option[];
@@ -35,18 +36,17 @@ const SearchBarBase = ({options, onSelect}: SearchBarBaseProps) => {
       placeholder='Search'
       noOptionsText="No results found"
       clearOnEscape
+      disableListWrap
       open={inputValue.length > 1}
       forcePopupIcon={false}
       options={options}
       getOptionLabel={(option) => option.searchString}
-      renderOption={(props, option) => 
-        <SearchOption 
-          key={option.key} 
-          option={option} 
-          autocompleteOptionProps={props} 
-          onSubItemSelect={onSubItemSelect} 
-        />
-      }
+      slots={{
+        listbox: ListboxComponent,
+      }}
+      // renderOption={(props, option) => [props, option, onSubItemSelect] as [any, Option, (subItem: OptionSubItem) => void]}
+      renderOption={(props, option) => ([props, option, onSubItemSelect] as [any, Option, (subItem: OptionSubItem) => void])}
+      // }
       // A couple things to note here...
       // 1. this is a managed component, both for the raw input value, and the selected value
       //    we do this only because it's a nicer UI to clear the search on blur
@@ -67,19 +67,19 @@ const SearchBarBase = ({options, onSelect}: SearchBarBaseProps) => {
       // getOptionDisabled={(option) => option.key === 'more_results'}
 
       // Note: special filter options optimize search a 'lil bit
-      filterOptions={(options, state) => {
-        if (state.inputValue.length <= 1) return [];
+      // filterOptions={(options, state) => {
+      //   if (state.inputValue.length <= 1) return [];
 
-        const res = createFilterOptions<Option>()(options, state);
+      //   const res = createFilterOptions<Option>()(options, state);
         
-        const limit = 100;
-        // const placeholder = {key: 'more_results', label: `...and ${res.length} more...`, image: false} as Option;
-        return res.length > limit
-          // slice to limit to first N results
-          // ? [...res.slice(0, limit), placeholder] 
-          ? [...res.slice(0, limit)] 
-          : res;
-      }}
+      //   const limit = 100;
+      //   // const placeholder = {key: 'more_results', label: `...and ${res.length} more...`, image: false} as Option;
+      //   return res.length > limit
+      //     // slice to limit to first N results
+      //     // ? [...res.slice(0, limit), placeholder] 
+      //     ? [...res.slice(0, limit)] 
+      //     : res;
+      // }}
     />
   );
 };

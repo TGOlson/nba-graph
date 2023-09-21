@@ -29,7 +29,7 @@ export type OptionSubItem = {
   subLabel: string;
 };
 
-type SearchOptionProps = {
+export type SearchOptionProps = {
   option: Option;
   onSubItemSelect: (subItem: OptionSubItem) => void;
   // Note: this is a hacky way to pass props to the underlying AutocompleteOption props
