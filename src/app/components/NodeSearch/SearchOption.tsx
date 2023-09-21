@@ -66,21 +66,18 @@ const SearchOption = ({option, onSubItemSelect, autocompleteOptionProps}: Search
           </IconButton>
         }
       </AutocompleteOption>
-      {option.subItems && showSubItems 
-        ? <Box sx={{ml: 4, borderLeft: '2px solid #DDD'}}>
-            <List sx={{pl: 1, pr: 2}} size="sm">
-              {option.subItems.map((subItem) => (
-                <ListItemButton sx={{"--ListItem-paddingY": "0px", "--ListDivider-gap": "0px"}} key={subItem.key} onClick={() => onSubItemSelect(subItem)}>
-                  <Box sx={{width: 60, flexShrink: 0}}>
-                    <Typography level="body-xs">{subItem.subLabel}</Typography>
-                  </Box>
-                  <Typography noWrap level="body-xs">{subItem.label}</Typography>
-                </ListItemButton>
-              ))}
-            </List>
-          </Box> 
-        : null
-      }
+      {option.subItems && showSubItems ? <Box sx={{ml: 4, borderLeft: '2px solid #DDD'}}>
+        <List sx={{pl: 1, pr: 2}} size="sm">
+          {option.subItems.map((subItem) => (
+            <ListItemButton sx={{"--ListItem-paddingY": "0px", "--ListDivider-gap": "0px"}} key={subItem.key} onClick={() => onSubItemSelect(subItem)}>
+              <Box sx={{width: 60, flexShrink: 0}}>
+                <Typography level="body-xs">{subItem.subLabel}</Typography>
+              </Box>
+              <Typography noWrap level="body-xs">{subItem.label}</Typography>
+            </ListItemButton>
+          ))}
+        </List>
+      </Box> : null}
     </Box>
   );
 };

@@ -8,8 +8,8 @@ import SearchOption, { Option, OptionSubItem } from './SearchOption';
 import { getIndex } from '../../../shared/util';
 
 // ***
-// Note: all this tom-foolerly below is to make adapters between JoyUI and react-window
-// Mostly all copied w/ slight modification from https://mui.com/joy-ui/react-autocomplete/#virtualization
+// Note: all this tomfoolery below is to make adapters between JoyUI Autocomplete and react-window
+// Mostly copied modifications from https://mui.com/joy-ui/react-autocomplete/#virtualization
 // ***
 
 const LISTBOX_PADDING = 6; // px

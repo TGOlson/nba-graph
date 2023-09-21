@@ -3,10 +3,10 @@ import { useSigma } from '@react-sigma/core';
 
 import Box from '@mui/joy/Box';
 
-import { NBAGraphNode, NodeAttributes } from '../../../shared/types';
-import { multiYearStr } from '../../../shared/util';
-import { Option, OptionSubItem } from './SearchOption';
-import SearchBarBase from './SearchBarBase';
+import { NBAGraphNode, NodeAttributes } from '../../shared/types';
+import { multiYearStr } from '../../shared/util';
+import { Option, OptionSubItem } from './NodeSearch/SearchOption';
+import SearchBarBase from './NodeSearch/SearchBarBase';
 
 type NodeSearchProps = {
   nodes: NBAGraphNode[];
@@ -24,6 +24,8 @@ const getSubLabel = (attrs: NodeAttributes): string => {
   }
 };
 
+// Note: this component is seperate from the base component 
+// to avoid re-computing options and filters on every input change
 const NodeSearch = ({nodes}: NodeSearchProps) => {
   const sigma = useSigma();
 
