@@ -1,10 +1,10 @@
-import * as React from 'react';
-import { FixedSizeList } from 'react-window';
+import React, { useEffect } from 'react';
+import { VariableSizeList } from 'react-window';
 
 import { Popper } from '@mui/base/Popper';
 import AutocompleteListbox from '@mui/joy/AutocompleteListbox';
 
-import SearchOption, { Option, OptionSubItem } from './SearchOption';
+import SearchOption, { OPTION_HEIGHT, OPTION_SUBITEM_HEIGHT, SearchOptionProps } from './SearchOption';
 import { getIndex } from '../../../shared/util';
 
 // ***
@@ -13,13 +13,8 @@ import { getIndex } from '../../../shared/util';
 // ***
 
 const LISTBOX_PADDING = 6; // px
-const ITEM_SIZE = 58; // px
 
-export type RowData = [
-  Omit<React.HTMLAttributes<HTMLLIElement>, 'color'>, 
-  Option, 
-  (subItem: OptionSubItem) => void
-] & React.ReactNode;
+export type RowData = SearchOptionProps & React.ReactNode;
 
 export type RenderRowProps = {
   data: RowData[];
@@ -28,20 +23,15 @@ export type RenderRowProps = {
 };
 
 const RenderRow = ({ data, index, style }: RenderRowProps) => {
-  const [props, option, onSubItemSelect] = data[index] as RowData;
+  const props = data[index] as SearchOptionProps;
 
-  const autocompleteOptionProps = {
-    ...props,
-    style: {...style, top: (style.top as number) + LISTBOX_PADDING},
-  };
+  const wrapperStyle = {
+    ...style, 
+    top: (style.top as number) + LISTBOX_PADDING
+  }; 
 
   return (
-    <SearchOption
-      key={option.key}
-      option={option}
-      autocompleteOptionProps={autocompleteOptionProps}
-      onSubItemSelect={onSubItemSelect}
-    />
+    <SearchOption {...props} wrapperStyle={wrapperStyle} />
   );
 };
 
@@ -76,24 +66,44 @@ type ListboxComponentProps = {
 export const ListboxComponent = React.forwardRef<HTMLDivElement, ListboxComponentProps>(function ListboxComponent(props, ref) {
   const { children, anchorEl, open, modifiers, ...other } = props;
 
-  const itemData = (children as RowData[][])[0] as RowData[];
+  const listRef = React.useRef<VariableSizeList>(null);
+  const rowData = (children as RowData[][])[0] as RowData[];
+  
+  // By default react-window does a lot of aggressive caching.
+  // Since our list can change in size frequently (options expanding),
+  // as well as the number of results from a search, just reset the cache every time row data change.
+  // This is pretty frequent, but doesn't seem to cause any performance issues.
+  useEffect(() => {
+    listRef.current?.resetAfterIndex(0);
+  }, [rowData]);
+  
+  const getRow = (index: number): RowData => getIndex(index, rowData);
+
+  const getRowHeight = (index: number): number => {
+    const {expanded, option} = getRow(index);
+
+    const subItemHeight = expanded ? (option.subItems?.length ?? 0) * OPTION_SUBITEM_HEIGHT : 0;
+
+    return OPTION_HEIGHT + subItemHeight;
+  };
 
   return (
     <Popper ref={ref} anchorEl={anchorEl} open={open} modifiers={modifiers}>
       <OuterElementContext.Provider value={other}>
-        <FixedSizeList
-          itemData={itemData}
-          itemKey={index => getIndex(index, itemData)[1].key}
-          height={ITEM_SIZE * 8}
+        <VariableSizeList
+          ref={listRef}
+          itemData={rowData}
+          itemKey={index => getRow(index).option.key}
+          height={OPTION_HEIGHT * 8}
           width="100%"
           outerElementType={OuterElementType}
           innerElementType="ul"
-          itemSize={ITEM_SIZE}
+          itemSize={getRowHeight}
           overscanCount={5}
-          itemCount={itemData.length}
+          itemCount={rowData.length}
         >
           {RenderRow}
-        </FixedSizeList>
+        </VariableSizeList>
       </OuterElementContext.Provider>
     </Popper>
   );

@@ -15,11 +15,17 @@ const SearchBarBase = ({options, onSelect}: SearchBarBaseProps) => {
   const [inputValue, setInputValue] = useState('');
   const [hovered, setHovered] = useState(false);
   const [focused, setFocused] = useState(false);
+  const [expandedOptions, setExpandedOptions] = useState<{[key: string]: boolean}>({});
 
   const onSubItemSelect = (subItem: OptionSubItem) => {
     // set input to parent name, acting kinda like we selected the subitem (even thought it's not a real option)
     setInputValue(subItem.label);
     onSelect(subItem.key);
+  };
+
+  const onBlur = () => {
+    setFocused(false);
+    setExpandedOptions({});
   };
 
   return (
@@ -33,7 +39,7 @@ const SearchBarBase = ({options, onSelect}: SearchBarBaseProps) => {
       }}
       
       onFocus={() => setFocused(true)}
-      onBlur={() => setFocused(false)}
+      onBlur={() => onBlur()}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
 
@@ -46,7 +52,13 @@ const SearchBarBase = ({options, onSelect}: SearchBarBaseProps) => {
       forcePopupIcon={false}
       
       options={options}
-      renderOption={(props, option) => ([props, option, onSubItemSelect] as RowData)}
+      renderOption={(autocompleteOptionProps, option) => ({
+        option, 
+        expanded: expandedOptions[option.key] ?? false,
+        setExpanded: (expanded: boolean) => setExpandedOptions({...expandedOptions, [option.key]: expanded}),
+        onSubItemSelect,
+        autocompleteOptionProps, 
+      } as RowData)}
       getOptionLabel={(option) => option.searchString}
       isOptionEqualToValue={(option, value) => option.key === value.key}
 

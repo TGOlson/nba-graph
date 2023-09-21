@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 
 import Box from '@mui/joy/Box';
 import AutocompleteOption from '@mui/joy/AutocompleteOption';
@@ -7,12 +7,16 @@ import ListItemDecorator from '@mui/joy/ListItemDecorator';
 import Typography from '@mui/joy/Typography';
 import IconButton from '@mui/joy/IconButton';
 import List from '@mui/joy/List';
+import ListItem from '@mui/joy/ListItem';
 import ListItemButton from '@mui/joy/ListItemButton';
 import KeyboardDoubleArrowDownIcon from '@mui/icons-material/KeyboardDoubleArrowDown';
 import KeyboardDoubleArrowUpIcon from '@mui/icons-material/KeyboardDoubleArrowUp';
 
 import SearchOptionImage from './SearchOptionImage';
 import { NodeAttributes } from '../../../shared/types';
+
+export const OPTION_HEIGHT = 58; // px
+export const OPTION_SUBITEM_HEIGHT = 32; // px
 
 export type Option = {
   key: string;
@@ -31,17 +35,26 @@ export type OptionSubItem = {
 
 export type SearchOptionProps = {
   option: Option;
-  onSubItemSelect: (subItem: OptionSubItem) => void;
-  // Note: this is a hacky way to pass props to the underlying AutocompleteOption props
-  autocompleteOptionProps: any; // eslint-disable-line
+  expanded: boolean,
+  setExpanded: (expanded: boolean) => void,
+  onSubItemSelect: (subItem: OptionSubItem) => void,
+  wrapperStyle: React.CSSProperties & {top: number},
+  autocompleteOptionProps: Omit<React.HTMLAttributes<HTMLLIElement>, 'color'>, 
 };
 
-const SearchOption = ({option, onSubItemSelect, autocompleteOptionProps}: SearchOptionProps) => {
-  const [showSubItems, setShowSubItems] = useState(false);
+const SearchOption = (props: SearchOptionProps) => {
+  const {
+    option, 
+    expanded, 
+    setExpanded, 
+    onSubItemSelect, 
+    wrapperStyle,
+    autocompleteOptionProps
+  } = props;
 
   return (
-    <Box>
-      <AutocompleteOption {...autocompleteOptionProps} >
+    <Box style={{height: wrapperStyle.height}}>
+      <AutocompleteOption style={{...wrapperStyle, height: OPTION_HEIGHT}} {...autocompleteOptionProps}>
         <ListItemDecorator>
           <Box sx={{ width: '40px', height: '40px'}}>
             <SearchOptionImage option={option}/>
@@ -59,22 +72,24 @@ const SearchOption = ({option, onSubItemSelect, autocompleteOptionProps}: Search
             sx={{borderRadius: '50%'}}
             onClick={(e) => {
               e.stopPropagation();
-              setShowSubItems(!showSubItems);
+              setExpanded(!expanded);
             }}
           >
-            {showSubItems ? <KeyboardDoubleArrowUpIcon /> : <KeyboardDoubleArrowDownIcon />}
+            {expanded ? <KeyboardDoubleArrowUpIcon /> : <KeyboardDoubleArrowDownIcon />}
           </IconButton>
         }
       </AutocompleteOption>
-      {option.subItems && showSubItems ? <Box sx={{ml: 4, borderLeft: '2px solid #DDD'}}>
+      {option.subItems && expanded ? <Box sx={{ml: 4, borderLeft: '2px solid #DDD', position: wrapperStyle.position, top: wrapperStyle.top + OPTION_HEIGHT}}>
         <List sx={{pl: 1, pr: 2}} size="sm">
           {option.subItems.map((subItem) => (
-            <ListItemButton sx={{"--ListItem-paddingY": "0px", "--ListDivider-gap": "0px"}} key={subItem.key} onClick={() => onSubItemSelect(subItem)}>
-              <Box sx={{width: 60, flexShrink: 0}}>
-                <Typography level="body-xs">{subItem.subLabel}</Typography>
-              </Box>
-              <Typography noWrap level="body-xs">{subItem.label}</Typography>
-            </ListItemButton>
+            <ListItem sx={{"--ListItem-paddingY": "0px", "--ListDivider-gap": "0px"}} key={subItem.key}>
+              <ListItemButton onClick={() => onSubItemSelect(subItem)}>
+                <Box sx={{width: 60, flexShrink: 0}}>
+                  <Typography level="body-xs">{subItem.subLabel}</Typography>
+                </Box>
+                <Typography noWrap level="body-xs">{subItem.label}</Typography>
+              </ListItemButton>
+            </ListItem>
           ))}
         </List>
       </Box> : null}

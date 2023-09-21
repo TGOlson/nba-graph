@@ -14,8 +14,8 @@ type NodeSearchProps = {
 
 const getSubLabel = (attrs: NodeAttributes): string => {
   switch (attrs.nbaType) {
-    case 'league': return 'League';
-    case 'franchise': return 'Franchise';
+    case 'league': return multiYearStr(attrs.years);
+    case 'franchise': return multiYearStr(attrs.years);
     case 'award': return 'Award';
     case 'team': return multiYearStr(attrs.years);
     case 'player': return multiYearStr(attrs.years);
@@ -50,10 +50,16 @@ const NodeSearch = ({nodes}: NodeSearchProps) => {
   }, {});
     
   const options: Option[] = nodes.filter(x => !x.attributes.rollupId).map((node) => {
+    const isPlayer = node.attributes.nbaType === 'player';
     const subItems = subItemsByRollupId[node.key];
 
     const subItemsSearchArr = subItems?.map(x => x.label) ?? [];
-    const searchString = [...new Set([node.attributes.label, ...subItemsSearchArr])].join(' ');
+    const searchString = [...new Set([
+      node.attributes.label, 
+      isPlayer ? '' : node.key, 
+      isPlayer ? '' : node.attributes.nbaType, 
+      ...subItemsSearchArr
+    ])].join(' ');
 
     const attrs = node.attributes;
     return {
