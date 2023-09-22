@@ -12,16 +12,19 @@ type SearchOptionImageProps = {
 
 const SearchOptionImage = ({option}: SearchOptionImageProps) => {
   const [loaded, setLoaded] = useState(false);
+  const isPlayer = option.attrs.nbaType === 'player';
+  const hasImage = !option.attrs.image.includes('default');
 
   // small optimization, force loading the image into memory before trying to render the image
   // this avoids a little bit of lag when the results are first rendered in the search bar
+  // note: only do this for player images since it's such a large sprite, all other images are fine
   useEffect(() => {
-    void fetchImage(option.attrs.image).then(() => setLoaded(true));
+    if (isPlayer && hasImage) void fetchImage(option.attrs.image).then(() => setLoaded(true));
   }, []);
 
   const {image, crop: {width, height, x, y}} = option.attrs;
 
-  if (!loaded) return <Skeleton variant="circular" width={40} height={40} />;
+  if (isPlayer && hasImage && !loaded) return <Skeleton variant="circular" width={40} height={40} />;
 
   return (
     <Box 

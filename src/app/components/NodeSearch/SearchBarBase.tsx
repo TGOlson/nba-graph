@@ -47,7 +47,6 @@ const SearchBarBase = ({options, onSelect}: SearchBarBaseProps) => {
       disableListWrap
       placeholder='Search'
       startDecorator={<SearchIcon />}
-      // noOptionsText="No results found" // Note: this doesn't seem to work with react-window
       open={inputValue.length > 1}
       forcePopupIcon={false}
       

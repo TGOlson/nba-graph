@@ -3,6 +3,7 @@ import { VariableSizeList } from 'react-window';
 
 import { Popper } from '@mui/base/Popper';
 import AutocompleteListbox from '@mui/joy/AutocompleteListbox';
+import AutocompleteOption from '@mui/joy/AutocompleteOption';
 
 import SearchOption, { OPTION_HEIGHT, OPTION_SUBITEM_HEIGHT, SearchOptionProps } from './SearchOption';
 import { getIndex } from '../../../shared/util';
@@ -14,8 +15,17 @@ import { getIndex } from '../../../shared/util';
 
 const LISTBOX_PADDING = 6; // px
 
+type NoResults = {
+  key: string;
+  message: string;
+};
+
+const isNoResults = (item: SearchOptionProps | NoResults): item is NoResults => {
+  return 'message' in item;
+};
+
 export type RenderRowProps = {
-  data: SearchOptionProps[];
+  data: (SearchOptionProps | NoResults)[];
   index: number;
   style: React.CSSProperties;
 };
@@ -28,9 +38,9 @@ const RenderRow = ({ data, index, style }: RenderRowProps) => {
     top: (style.top as number) + LISTBOX_PADDING
   }; 
 
-  return (
-    <SearchOption {...props} wrapperStyle={wrapperStyle} />
-  );
+  return isNoResults(props) 
+    ? <AutocompleteOption sx={{...wrapperStyle}} className="searchbar-no-options">{props.message}</AutocompleteOption>
+    : <SearchOption {...props} wrapperStyle={wrapperStyle} />;
 };
 
 const OuterElementContext = React.createContext({});
@@ -65,7 +75,8 @@ export const ListboxComponent = React.forwardRef<HTMLDivElement, ListboxComponen
   const { children, anchorEl, open, modifiers, ...other } = props;
 
   const listRef = React.useRef<VariableSizeList>(null);
-  const rowData = getIndex(0, (children as SearchOptionProps[][]));
+  const rowDataBase = getIndex(0, (children as (SearchOptionProps | NoResults)[][]));
+  const rowData = rowDataBase.length > 0 ? rowDataBase : [{ key: 'no-results', message: 'No results found'}];
   
   // By default react-window does a lot of aggressive caching.
   // Since our list can change in size frequently (options expanding),
@@ -75,11 +86,19 @@ export const ListboxComponent = React.forwardRef<HTMLDivElement, ListboxComponen
     listRef.current?.resetAfterIndex(0);
   }, [rowData]);
   
-  const getRow = (index: number): SearchOptionProps => getIndex(index, rowData);
+  const getRow = (index: number): SearchOptionProps | NoResults => getIndex(index, rowData);
+
+  const getKey = (index: number): string => {
+    const res = getRow(index);
+    return isNoResults(res) ? res.key : res.option.key;
+  };
 
   const getRowHeight = (index: number): number => {
-    const {expanded, option} = getRow(index);
+    const res = getRow(index);
 
+    if (isNoResults(res)) return OPTION_HEIGHT;
+
+    const { option, expanded } = res;
     const subItemHeight = expanded ? (option.subItems?.length ?? 0) * OPTION_SUBITEM_HEIGHT : 0;
 
     return OPTION_HEIGHT + subItemHeight;
@@ -91,11 +110,12 @@ export const ListboxComponent = React.forwardRef<HTMLDivElement, ListboxComponen
         <VariableSizeList
           ref={listRef}
           itemData={rowData}
-          itemKey={index => getRow(index).option.key}
+          itemKey={getKey}
           height={OPTION_HEIGHT * 8}
           width="100%"
           outerElementType={OuterElementType}
           innerElementType="ul"
+          estimatedItemSize={OPTION_HEIGHT}
           itemSize={getRowHeight}
           overscanCount={5}
           itemCount={rowData.length}

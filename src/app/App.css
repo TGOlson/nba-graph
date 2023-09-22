@@ -3,3 +3,8 @@ body {
   height: 100vh;
   background-color: #fcfcfc !important;
 }
+
+.searchbar-no-options:hover {
+  cursor: auto;
+  background-color: inherit !important;
+}
