@@ -3,8 +3,8 @@ import { circular } from "graphology-layout";
 import forceAtlas2 from "graphology-layout-forceatlas2";
 import Color from "color";
 
-import { NBAData, Season } from "../../shared/nba-types";
-import { NodeAttributes, SpriteNodeAttributes } from "../../shared/types";
+import { NBAData } from "../../shared/nba-types";
+import { NodeAttributes, SeasonToken, SpriteNodeAttributes } from "../../shared/types";
 import { assets } from "../util/assets";
 import { GraphConfig } from "./config";
 import { loadSpriteColors, loadSpriteMapping } from "../storage";
@@ -77,7 +77,7 @@ export const buildGraph = async (rawData: NBAData, config: GraphConfig): Promise
   const awardsById = toMap(x => x.id, data.awards);  
   const multiWinnerAwardsById = toMap(x => x.id, data.multiWinnerAwards);
 
-  const playerSeasons: {[playerId: string]: Season[]} = data.playerSeasons.reduce<{[playerId: string]: Season[]}>((acc, ps) => {
+  const playerSeasons = data.playerSeasons.reduce<{[playerId: string]: SeasonToken[]}>((acc, ps) => {
     const prev = acc[ps.playerId] ?? [];
 
     const team = teamsById[ps.teamId];
@@ -86,7 +86,11 @@ export const buildGraph = async (rawData: NBAData, config: GraphConfig): Promise
     const season = seasonsById[team.seasonId];
     if (!season) throw new Error(`Unexpected error: no season for player ${ps.playerId} ${ps.year}`);
 
-    prev.push(season);
+    prev.push({
+      leagueId: season.leagueId,
+      year: season.year,
+    });
+
     acc[ps.playerId] = prev;
 
     return acc;
@@ -107,17 +111,22 @@ export const buildGraph = async (rawData: NBAData, config: GraphConfig): Promise
     const yearsAll = seasons.map(season => season.year).sort();
     const years = [...new Set(yearsAll)];
 
+    const seasonTokens = years.map(year => ({leagueId: league.id, year}));
+
+    const imgProps: SpriteNodeAttributes = {
+      type: 'sprite',
+      image: assets.img.leagueSprite,
+      crop: imgCoords,
+    };
+
     const attrs: NodeAttributes = {
       nbaType: 'league',
       label: league.id, 
       size: config.sizes.league, 
-      years,
+      seasons: seasonTokens,
       color: config.nodeColors.default, 
       borderColor,
-      leagues: [league.id],
-      type: 'sprite',
-      image: assets.img.leagueSprite,
-      crop: imgCoords, 
+      ...imgProps, 
     };
 
     graph.addNode(league.id, attrs);
@@ -132,19 +141,22 @@ export const buildGraph = async (rawData: NBAData, config: GraphConfig): Promise
 
     const edgeColor = Color(borderColor).lighten(0.3).hex();
 
+    const imgProps: SpriteNodeAttributes = {
+      type: 'sprite',
+      image: assets.img.leagueSprite,
+      crop: imgCoords,
+    };
+
     const attrs: NodeAttributes = {
       nbaType: 'season',
       name: `${season.leagueId} Season`,
       label: `${singleYearStr(season.year)} ${season.leagueId} Season`, 
-      size: config.sizes.season, 
-      years: [season.year],
+      rollupId: season.leagueId,
+      seasons: [{leagueId: season.leagueId, year: season.year}],
       color: config.nodeColors.default, 
       borderColor,
-      rollupId: season.leagueId,
-      leagues: [season.leagueId],
-      type: 'sprite',
-      image: assets.img.leagueSprite,
-      crop: imgCoords, 
+      size: config.sizes.season, 
+      ...imgProps, 
     };
 
     graph.addNode(season.id, attrs);
@@ -163,8 +175,8 @@ export const buildGraph = async (rawData: NBAData, config: GraphConfig): Promise
 
     const imgCoords = playerImgLocations[player.id];
 
-    const leagues = seasons.map(season => season.leagueId);
-    const leagueIds = [...new Set(leagues)];
+    // TODO: will contain dupes, is that a problem?
+    // const seasonTokens = seasons.map(season => ({leagueId: season.leagueId, year: season.year}));
     
     const imgProps: SpriteNodeAttributes = imgCoords 
       ? {type: 'sprite', image: assets.img.playerSprite, crop: imgCoords}
@@ -173,11 +185,10 @@ export const buildGraph = async (rawData: NBAData, config: GraphConfig): Promise
     const attrs: NodeAttributes = {
       nbaType: 'player',
       label: player.name, 
+      seasons,
       size, 
-      years,
       color: config.nodeColors.default, 
       borderColor: config.borderColors.player,
-      leagues: leagueIds,
       ...imgProps, 
     };
 
@@ -194,18 +205,16 @@ export const buildGraph = async (rawData: NBAData, config: GraphConfig): Promise
     const borderColor = franchiseColors[franchise.id]?.primary ?? config.borderColors.franchise;
     
     const franchiseTeams = data.teams.filter(team => team.franchiseId === franchise.id);
-    const years = franchiseTeams.map(team => team.year).sort();
-    const leagues = franchiseTeams.map(team => seasonsById[team.seasonId]?.leagueId).filter(notNull);
-    const leagueIds = [...new Set(leagues)];
+    const seasons = franchiseTeams.map(team => seasonsById[team.seasonId]).filter(notNull);
+    const seasonTokens = seasons.map(season => ({leagueId: season.leagueId, year: season.year}));
 
     const attrs: NodeAttributes = { 
       nbaType: 'franchise',
       label: franchise.name, 
+      seasons: seasonTokens,
       size: config.sizes.franchise, 
       color: config.nodeColors.default, 
       borderColor,
-      leagues: leagueIds,
-      years,
       ...imgProps, 
     };
 
@@ -244,12 +253,11 @@ export const buildGraph = async (rawData: NBAData, config: GraphConfig): Promise
       nbaType: 'team',
       name: team.name,
       label, 
+      rollupId: team.franchiseId,
+      seasons: [{leagueId, year: team.year}],
       size: config.sizes.team, 
       color: config.nodeColors.default, 
       borderColor,
-      rollupId: team.franchiseId,
-      leagues: [leagueId],
-      years: [team.year],
       ...imgProps,
     };
 
@@ -263,20 +271,17 @@ export const buildGraph = async (rawData: NBAData, config: GraphConfig): Promise
     const recipients = data.awardRecipients.filter(x => x.awardId === award.id);
 
     const potentialYearsAll = [...multiWinner, ...recipients].map(x => x.year).filter(notNull).sort();
+    const years = [...new Set(potentialYearsAll)];
 
-    let years = [...new Set(potentialYearsAll)];
-    let leagues = [award.leagueId];
+    let seasons = years.map(year => ({leagueId: award.leagueId, year}));
     
     // this will be the case for lifetime awards that don't have years
     // in this case just use the cumulative career years of all the recipients
-    if (years.length === 0) {
+    if (seasons.length === 0) {
       const recipientSeasons = recipients.map(x => playerSeasons[x.recipientId]).flat().filter(notNull);
-      const recipientYears = recipientSeasons.map(x => x.year).sort();
-      years = [...new Set(recipientYears)];
 
-      // also kind of hacky, but for lifetime awards just use the cumulative leagues of all the recipients
-      // other awards know their league at parse time, but lifetime awards don't have easy access to that info
-      leagues = [...new Set(recipientSeasons.map(x => x.leagueId))];
+      // TODO: dedupe
+      seasons = recipientSeasons;
     }
 
     const image = award.image.type === 'award' ? assets.img.awardSprite : assets.img.leagueSprite;
@@ -288,18 +293,22 @@ export const buildGraph = async (rawData: NBAData, config: GraphConfig): Promise
       ? awardColors[award.image.id]?.primary 
       : leagueColors[award.image.id]?.primary;
 
+
+    const imgProps: SpriteNodeAttributes = {
+      type: 'sprite',
+      image,
+      crop,
+    };
+
     const attrs: NodeAttributes = {
       nbaType: 'award',
       name: award.name,
       label: award.name,
+      seasons,
       color: config.nodeColors.award,
       borderColor: borderColor ?? config.borderColors.award,
       size: config.sizes.awardMax, // TODO: maybe filter by mvp, hof for max, others are default size?
-      type: 'sprite',
-      image,
-      leagues,
-      years,
-      crop
+      ...imgProps,
     };
 
     graph.addNode(award.id, attrs);
@@ -324,19 +333,22 @@ export const buildGraph = async (rawData: NBAData, config: GraphConfig): Promise
 
     const label = award.name.includes('All-Star') ? `${award.name} (${award.year})` : `${award.name} (${singleYearStr(award.year)})`;
 
+    const imgProps: SpriteNodeAttributes = {
+      type: 'sprite',
+      image,
+      crop,
+    };
+
     const attrs: NodeAttributes = {
       nbaType: 'multi-winner-award',
       name: award.name,
       label: label,
+      rollupId: baseAward.id,
+      seasons: [{leagueId: baseAward.leagueId, year: award.year}],
       color: config.nodeColors.award,
       borderColor: borderColor,
       size: config.sizes.awardDefault,
-      type: 'sprite',
-      image,
-      rollupId: baseAward.id,
-      leagues: [baseAward.leagueId],
-      years: [award.year],
-      crop,
+      ...imgProps,
     };
     
     graph.addNode(award.id, attrs);

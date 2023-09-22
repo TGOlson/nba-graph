@@ -23,11 +23,13 @@ type HeaderProps = {
 };
 
 export const DEFAULT_FILTERS: GraphFilters = {
-  showAwards: true,
-  showShortCareerPlayers: true,
-  showNBA: true,
-  showABA: true,
-  showBAA: true,
+  awards: true,
+  shortCareerPlayers: true,
+  leagues: {
+    NBA: true,
+    ABA: true,
+    BAA: true,
+  },
   minYear: 1947,
   maxYear: 2023,
 };
@@ -120,30 +122,30 @@ const HeaderMenu = ({filters, onFilterChange}: HeaderProps) => {
         </Box>
         <Typography level="body-sm">Leagues</Typography>
         <Checkbox 
-        size="sm" 
-        sx={{mb: '-4px'}}
-        label={leagueLabel('NBA', '1950-2023')} 
-        checked={filters.showNBA} 
-        onChange={() => onFilterChange({showNBA: !filters.showNBA})} 
-        />
+          size="sm" 
+          sx={{mb: '-4px'}}
+          label={leagueLabel('NBA', '1950-2023')} 
+          checked={filters.leagues.NBA} 
+          onChange={(e) => onFilterChange({leagues: {...filters.leagues, NBA: e.target.checked}})} 
+          />
         <Checkbox 
-        size="sm" 
-        sx={{mb: '-4px'}}
-        label={leagueLabel('ABA', '1968-1976')} 
-        checked={filters.showABA} 
-        onChange={() => onFilterChange({showABA: !filters.showABA})} 
-        />
+          size="sm" 
+          sx={{mb: '-4px'}}
+          label={leagueLabel('ABA', '1968-1976')} 
+          checked={filters.leagues.ABA} 
+          onChange={(e) => onFilterChange({leagues: {...filters.leagues, ABA: e.target.checked}})} 
+          />
         <Checkbox 
-        size="sm" 
-        sx={{mb: '-4px'}}
-        label={leagueLabel('BAA', '1947-1949')} 
-        checked={filters.showBAA} 
-        onChange={() => onFilterChange({showBAA: !filters.showBAA})} 
+          size="sm" 
+          sx={{mb: '-4px'}}
+          label={leagueLabel('BAA', '1947-1949')} 
+          checked={filters.leagues.BAA} 
+          onChange={(e) => onFilterChange({leagues: {...filters.leagues, BAA: e.target.checked}})} 
         />
         <Typography level="body-sm" sx={{mt: 1}}>Misc.</Typography>
-        <Checkbox size="sm" label="Awards" checked={filters.showAwards} onChange={() => onFilterChange({showAwards: !filters.showAwards})} />
+        <Checkbox size="sm" label="Awards" checked={filters.awards} onChange={() => onFilterChange({awards: !filters.awards})} />
         <Box sx={{display: 'flex', alignItems: 'center'}}>
-          <Checkbox size="sm" label="Short career players" checked={filters.showShortCareerPlayers} onChange={() => onFilterChange({showShortCareerPlayers: !filters.showShortCareerPlayers})} />
+          <Checkbox size="sm" label="Short career players" checked={filters.shortCareerPlayers} onChange={() => onFilterChange({shortCareerPlayers: !filters.shortCareerPlayers})} />
           <Tooltip size='sm' sx={{ml: '2px'}} arrow title="Players that played in three or less seasons" placement='right'>
             <InfoOutlinedIcon fontSize='small' />
           </Tooltip>

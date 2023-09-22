@@ -8,35 +8,24 @@ import { CustomNodeAttributes, NodeAttributes } from '../../shared/types';
 import { GraphFilters } from '../util/types';
 import { SigmaNodeEventPayload } from 'sigma/sigma';
 import { logDebug } from '../util/logger';
+import { getIndex } from '../../shared/util';
 
 type GraphEventsProps = {
   filters: GraphFilters;
 };
 
-export const isHiddenFromFilters = (filters: GraphFilters, data: NodeAttributes): boolean => {
-  if (!filters.showAwards && data.nbaType === 'award') return true;
-  if (!filters.showShortCareerPlayers && data.nbaType === 'player') {
-    const n = data.years.length;
-    const shortCareer = n <= 3 && data.years[n - 1] !== 2023;
-    if (shortCareer) return true;
+export const isVisibleNode = (filters: GraphFilters, data: NodeAttributes): boolean => {
+  if (!filters.awards && data.nbaType === 'award') return false;
+
+  if (!filters.shortCareerPlayers && data.nbaType === 'player') {
+    const n = data.seasons.length;
+    const shortCareer = n <= 3 && getIndex(n - 1, data.seasons).year !== 2023;
+    if (shortCareer) return false;
   }
 
-  const leagues = new Set(data.leagues);
-
-  if (!filters.showNBA) leagues.delete('NBA');
-  if (!filters.showABA) leagues.delete('ABA');
-  if (!filters.showBAA) leagues.delete('BAA');
-
-  if (leagues.size === 0) return true;
-
-  // this is the case only for lifetime awards (e.g. HOF)
-  // for these nba types, never filter out based on years
-  if (data.years.length === 0) return false;
-
-  const yearsInRange = data.years.some((year) => isWithinYearRange(filters, year));
-  if (!yearsInRange) return true;
-
-  return false;
+  return data.seasons.some((season) => {
+    return filters.leagues[season.leagueId] && isWithinYearRange(filters, season.year);
+  });
 };
 
 const isWithinYearRange = (filters: GraphFilters, year: number): boolean => {
@@ -66,7 +55,7 @@ const GraphEvents = ({filters}: GraphEventsProps) => {
           setSelectedNode(null);
         } else {
           setSelectedNode(event.node);
-          gotoNode(event.node);
+          gotoNode(event.node, {duration: 200});
         }
         setHoveredNode(null);
       },
@@ -81,9 +70,9 @@ const GraphEvents = ({filters}: GraphEventsProps) => {
         // a little type cohersion to make typescript happy
         const data = baseData as NodeAttributes;
 
-        const isHidden = isHiddenFromFilters(filters, data);
+        const isVisible = isVisibleNode(filters, data);
 
-        if (isHidden) {
+        if (!isVisible) {
           if (selectedNode === node) setSelectedNode(null);
           return { ...data, hidden: true };
         }

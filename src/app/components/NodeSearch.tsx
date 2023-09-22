@@ -13,14 +13,16 @@ type NodeSearchProps = {
 };
 
 const getSubLabel = (attrs: NodeAttributes): string => {
+  const years = attrs.seasons.map(x => x.year);
+
   switch (attrs.nbaType) {
-    case 'league': return multiYearStr(attrs.years);
-    case 'franchise': return multiYearStr(attrs.years);
-    case 'team': return multiYearStr(attrs.years);
-    case 'player': return multiYearStr(attrs.years);
-    case 'season': return multiYearStr(attrs.years);
+    case 'league': return multiYearStr(years);
+    case 'franchise': return multiYearStr(years);
+    case 'team': return multiYearStr(years);
+    case 'player': return multiYearStr(years);
+    case 'season': return multiYearStr(years);
     case 'award': return 'Award';
-    case 'multi-winner-award': return attrs.label.includes('All-Star') ? (attrs.years[0] as number).toString() : multiYearStr(attrs.years);
+    case 'multi-winner-award': return attrs.label.includes('All-Star') ? (years[0] as number).toString() : multiYearStr(years);
   }
 };
 

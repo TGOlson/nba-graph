@@ -1,5 +1,5 @@
 import { SerializedNode } from "graphology-types";
-import { NBAType } from "./nba-types";
+import { LeagueId, NBAType } from "./nba-types";
 
 export type Coordinates = {x: number, y: number};
 export type Dimensions = {width: number, height: number};
@@ -18,6 +18,11 @@ export type CustomNodeAttributes = {muted?: boolean, borderColor: string} & Spri
 
 export type NBAGraphNode = SerializedNode & {attributes: NodeAttributes};
 
+export type SeasonToken = {
+  leagueId: LeagueId;
+  year: number;
+};
+
 // used in graph building & rendering
 export type NodeAttributes = {
   // general
@@ -26,8 +31,7 @@ export type NodeAttributes = {
   label: string; // used for graph label
 
   // search/filter props
-  leagues: string[];
-  years: number[];
+  seasons: SeasonToken[];
   rollupId?: string; // used for search result grouping
 
   // display props

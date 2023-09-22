@@ -135,10 +135,10 @@ The output graph data is stored in `./data/graph/graph.json`. The graph is built
     * consider breaking up player sprite by last name
   * ~~infinite scroll~~
   * ~~fix no results popup on search~~
+  * ~~bug when player matches year filter, but not league filter (eg. played in ABA & 1950, but no matching teams)~~
   * adjust player node size for awards
   * compress graph json
   * fun AI logo
-  * bug when player matches year filter, but not league filter (eg. played in ABA & 1950, but no matching teams)
 * deploy
  * setup github page (TODO: where to store data?)
  * deploy assets to aws/cloudflair
