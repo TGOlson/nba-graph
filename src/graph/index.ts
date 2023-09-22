@@ -8,7 +8,7 @@ import { seasonParser } from "./parsers/season";
 import { makeTeamParser } from "./parsers/team";
 import { makePlayerSeasonParser } from "./parsers/player-season";
 
-import { loadFranchises, loadNBAData, loadPlayers, loadTeams, persistAwards, persistFranchises, persistGraph, persistJSON, persistLeagues, persistPlayers, persistPlayerSeasons, persistMultiWinnerAwards, persistAwardRecipients, persistSeasons, persistTeams } from "./storage";
+import { loadFranchises, loadNBAData, loadPlayers, loadTeams, persistAwards, persistFranchises, persistGraph, persistJSON, persistLeagues, persistPlayers, persistPlayerSeasons, persistMultiWinnerAwards, persistAwardRecipients, persistSeasons, persistTeams, readJSON } from "./storage";
 import { imageDir, spriteColorsPath, spriteMappingPath, spritePath } from "./storage/paths";
 
 import { buildGraph } from "./builder";
@@ -16,14 +16,13 @@ import { GRAPH_CONFIG } from "./builder/config";
 
 import { makeDelayedFetch, makeFetch } from "./util/fetch";
 import { execSeq } from "./util/promise";
-import { compressImage, createSpriteImage, noopTransform, parseSpriteColorPallette, playerTransform, teamTransform } from "./util/image";
+import { createSpriteImage, noopTransform, parseSpriteColorPallette, playerTransform, teamTransform } from "./util/image";
 import { NBAType } from "../shared/nba-types";
 import { allStarUrl, awardUrls, LEAGUE_CHAMP_URL } from "./util/bref-url";
 import { validAllStarSeasons } from "./parsers/awards/all-star";
 import { runAwardsParsers } from "./parsers/awards";
-import Jimp from "jimp";
 import path from "path";
-import { writeFile } from "fs/promises";
+import { NBAGraphNode } from "../shared/types";
 
 const VERBOSE_FETCH = true;
 const FETCH_DELAY_MS = 6000; // basketball-reference seems to get mad at >~30 req/m
@@ -268,15 +267,12 @@ async function main() {
 
     // for testing, debugging, etc
     case commands.misc.Test: {
-      const image = await Jimp.read(path.resolve(__dirname, '../data/sprites/player.png'));
-      const width = image.getWidth();
+      const nodes = await readJSON<NBAGraphNode[]>(path.resolve(__dirname, '../data/graph/nodes.json'))();
+      const labels = nodes.map(x => x.attributes.name).sort((a, b) => (b?.length ?? 0) - (a?.length ?? 0));
 
-      console.log('width: ', width);
+      console.log('labels: ', labels.slice(0, 100).map(x => [x, x?.length]));
 
-      image.resize(width / 2, Jimp.AUTO, Jimp.RESIZE_BILINEAR);
-      const compressed = await compressImage(image);
-
-      return await writeFile(path.resolve(__dirname, '../data/sprites/player_small.png'), new Uint8Array(compressed));
+      return;
     }
 
     default: 

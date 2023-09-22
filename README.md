@@ -133,7 +133,8 @@ The output graph data is stored in `./data/graph/graph.json`. The graph is built
   * images
     * ~~compress sprites images~~
     * consider breaking up player sprite by last name
-  * infinite scroll?
+  * ~~infinite scroll~~
+  * fix no results popup on search
   * adjust player node size for awards
   * compress graph json
   * fun AI logo

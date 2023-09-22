@@ -53,15 +53,15 @@ const SearchOption = (props: SearchOptionProps) => {
   } = props;
 
   return (
-    <Box style={{height: wrapperStyle.height}}>
+    <Box>
       <AutocompleteOption style={{...wrapperStyle, height: OPTION_HEIGHT}} {...autocompleteOptionProps}>
         <ListItemDecorator>
           <Box sx={{ width: '40px', height: '40px'}}>
             <SearchOptionImage option={option}/>
           </Box>
         </ListItemDecorator>
-        <ListItemContent sx={{ fontSize: 'md', ml: 1 }}>
-          {option.label}
+        <ListItemContent sx={{ fontSize: option.label.length > 25 ? 'sm' : 'md', ml: 1 }}>
+          <Typography level='inherit' noWrap>{option.label}</Typography>
           <Typography level="body-xs">{option.subLabel}</Typography>
         </ListItemContent>
         {option.subItems && 
@@ -79,7 +79,13 @@ const SearchOption = (props: SearchOptionProps) => {
           </IconButton>
         }
       </AutocompleteOption>
-      {option.subItems && expanded ? <Box sx={{ml: 4, borderLeft: '2px solid #DDD', position: wrapperStyle.position, top: wrapperStyle.top + OPTION_HEIGHT}}>
+      {option.subItems && expanded ? <Box sx={{
+        ml: 4, 
+        width: '250px', // 300 search bar - 32 margin left - 18 margin right
+        borderLeft: '2px solid #DDD', 
+        position: wrapperStyle.position, 
+        top: wrapperStyle.top + OPTION_HEIGHT
+        }}>
         <List sx={{pl: 1, pr: 2}} size="sm">
           {option.subItems.map((subItem) => (
             <ListItem sx={{"--ListItem-paddingY": "0px", "--ListDivider-gap": "0px"}} key={subItem.key}>

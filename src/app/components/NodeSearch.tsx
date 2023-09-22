@@ -16,10 +16,10 @@ const getSubLabel = (attrs: NodeAttributes): string => {
   switch (attrs.nbaType) {
     case 'league': return multiYearStr(attrs.years);
     case 'franchise': return multiYearStr(attrs.years);
-    case 'award': return 'Award';
     case 'team': return multiYearStr(attrs.years);
     case 'player': return multiYearStr(attrs.years);
     case 'season': return multiYearStr(attrs.years);
+    case 'award': return 'Award';
     case 'multi-winner-award': return attrs.label.includes('All-Star') ? (attrs.years[0] as number).toString() : multiYearStr(attrs.years);
   }
 };
