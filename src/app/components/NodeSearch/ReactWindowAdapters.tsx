@@ -14,16 +14,14 @@ import { getIndex } from '../../../shared/util';
 
 const LISTBOX_PADDING = 6; // px
 
-export type RowData = SearchOptionProps & React.ReactNode;
-
 export type RenderRowProps = {
-  data: RowData[];
+  data: SearchOptionProps[];
   index: number;
   style: React.CSSProperties;
 };
 
 const RenderRow = ({ data, index, style }: RenderRowProps) => {
-  const props = data[index] as SearchOptionProps;
+  const props = getIndex(index, data);
 
   const wrapperStyle = {
     ...style, 
@@ -67,7 +65,7 @@ export const ListboxComponent = React.forwardRef<HTMLDivElement, ListboxComponen
   const { children, anchorEl, open, modifiers, ...other } = props;
 
   const listRef = React.useRef<VariableSizeList>(null);
-  const rowData = (children as RowData[][])[0] as RowData[];
+  const rowData = getIndex(0, (children as SearchOptionProps[][]));
   
   // By default react-window does a lot of aggressive caching.
   // Since our list can change in size frequently (options expanding),
@@ -77,7 +75,7 @@ export const ListboxComponent = React.forwardRef<HTMLDivElement, ListboxComponen
     listRef.current?.resetAfterIndex(0);
   }, [rowData]);
   
-  const getRow = (index: number): RowData => getIndex(index, rowData);
+  const getRow = (index: number): SearchOptionProps => getIndex(index, rowData);
 
   const getRowHeight = (index: number): number => {
     const {expanded, option} = getRow(index);

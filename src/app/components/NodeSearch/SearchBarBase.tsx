@@ -3,8 +3,8 @@ import React, { useState } from 'react';
 import Autocomplete from '@mui/joy/Autocomplete';
 import SearchIcon from '@mui/icons-material/Search';
 
-import { Option, OptionSubItem } from './SearchOption';
-import { ListboxComponent, RowData } from './ReactWindowAdapters';
+import { Option, OptionSubItem, SearchOptionProps } from './SearchOption';
+import { ListboxComponent } from './ReactWindowAdapters';
 
 type SearchBarBaseProps = {
   options: Option[];
@@ -47,18 +47,23 @@ const SearchBarBase = ({options, onSelect}: SearchBarBaseProps) => {
       disableListWrap
       placeholder='Search'
       startDecorator={<SearchIcon />}
-      noOptionsText="No results found" // Note: this doesn't seem to work with react-window
+      // noOptionsText="No results found" // Note: this doesn't seem to work with react-window
       open={inputValue.length > 1}
       forcePopupIcon={false}
       
       options={options}
-      renderOption={(autocompleteOptionProps, option) => ({
-        option, 
-        expanded: expandedOptions[option.key] ?? false,
-        setExpanded: (expanded: boolean) => setExpandedOptions({...expandedOptions, [option.key]: expanded}),
-        onSubItemSelect,
-        autocompleteOptionProps, 
-      } as RowData)}
+      renderOption={(props, option) => {
+        const searchOptionProps: Omit<SearchOptionProps, 'wrapperStyle'> = {
+          option, 
+          expanded: expandedOptions[option.key] ?? false,
+          setExpanded: (expanded: boolean) => setExpandedOptions({...expandedOptions, [option.key]: expanded}),
+          onSubItemSelect,
+          autocompleteOptionProps: props,
+        };
+
+        // Funky type cohersion to allow for passing props to adapter functions (as opposed to a true component)
+        return searchOptionProps as unknown as React.ReactNode;
+      }}
       getOptionLabel={(option) => option.searchString}
       isOptionEqualToValue={(option, value) => option.key === value.key}
 
