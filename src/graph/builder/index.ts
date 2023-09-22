@@ -55,6 +55,21 @@ const toMap = <T>(key: (t: T) => string, arr: T[]): {[key: string]: T} => {
   }, {});
 };
 
+const dedupeSeasonTokens = (seasons: SeasonToken[]): SeasonToken[] => {
+  const seen = new Set<string>();
+  const deduped: SeasonToken[] = [];
+
+  seasons.forEach(season => {
+    const key = `${season.leagueId}-${season.year}`;
+    if (!seen.has(key)) {
+      deduped.push(season);
+      seen.add(key);
+    }
+  });
+
+  return deduped;
+};
+
 export const buildGraph = async (rawData: NBAData, config: GraphConfig): Promise<Graph> => {
   console.log('Building graph');
   const graph = new DirectedGraph();
@@ -165,8 +180,10 @@ export const buildGraph = async (rawData: NBAData, config: GraphConfig): Promise
 
   data.players.forEach(player => {
     // TODO: more sophisticated size calculation, using seasons, awards, etc.
-    const seasons = playerSeasons[player.id];
-    if (!seasons) throw new Error(`Unexpected error: no years active for player ${player.name}`);
+    const seasonsAll = playerSeasons[player.id];
+    if (!seasonsAll) throw new Error(`Unexpected error: no years active for player ${player.name}`);
+    const seasons = dedupeSeasonTokens(seasonsAll).sort((a, b) => a.year - b.year);
+
     const yearsAll = seasons.map(x => x.year).sort();
     const years = [...new Set(yearsAll)];
     const end = years[years.length - 1];
@@ -174,10 +191,6 @@ export const buildGraph = async (rawData: NBAData, config: GraphConfig): Promise
     const size = (years.length <= 3 && end !== 2023) ? config.sizes.playerMin : config.sizes.playerDefault;
 
     const imgCoords = playerImgLocations[player.id];
-
-    // TODO: will contain dupes, is that a problem?
-    // const seasonTokens = seasons.map(season => ({leagueId: season.leagueId, year: season.year}));
-    
     const imgProps: SpriteNodeAttributes = imgCoords 
       ? {type: 'sprite', image: assets.img.playerSprite, crop: imgCoords}
       : {type: 'sprite', image: assets.img.playerDefault, crop: DEFAULT_IMAGE_CROP};
@@ -279,9 +292,7 @@ export const buildGraph = async (rawData: NBAData, config: GraphConfig): Promise
     // in this case just use the cumulative career years of all the recipients
     if (seasons.length === 0) {
       const recipientSeasons = recipients.map(x => playerSeasons[x.recipientId]).flat().filter(notNull);
-
-      // TODO: dedupe
-      seasons = recipientSeasons;
+      seasons = dedupeSeasonTokens(recipientSeasons).sort((a, b) => a.year - b.year);
     }
 
     const image = award.image.type === 'award' ? assets.img.awardSprite : assets.img.leagueSprite;
