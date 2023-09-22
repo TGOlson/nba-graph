@@ -101,7 +101,6 @@ The output graph data is stored in `./data/graph/graph.json`. The graph is built
   * ~~download player images + create sprite~~
   * ~~improve player parser to use players/x/xxx.html files for better info (seasons, all-stars, etc)~~
   * ~~add other interesting nodes (MVP, champion, X time all star, YY year all-star, YY year all-nba)~~
-  * improve locations (do this last after adding more node types)
 * UI 
   * ~~improve / fix search to move to current node~~
   * ~~add years active / type to search results~~
@@ -130,13 +129,14 @@ The output graph data is stored in `./data/graph/graph.json`. The graph is built
     * ~~sort by last name in search bar~~
     * ~~search is a little laggy? (try loading images async)~~
   * ~~larger league images~~
-  * images
+  * ~~images~~
     * ~~compress sprites images~~
-    * consider breaking up player sprite by last name
   * ~~infinite scroll~~
   * ~~fix no results popup on search~~
   * ~~bug when player matches year filter, but not league filter (eg. played in ABA & 1950, but no matching teams)~~
+  * consider breaking up player sprite by last name
   * adjust player node size for awards
+  * improve locations (do this last after adding more node types)
   * compress graph json
   * fun AI logo
 * deploy
