@@ -21,7 +21,7 @@ const AWARD_CONFIG: AwardConfig[] = [
     url: awardUrls.nba_75th_anniversary,
   },
   {
-    name: '50 Greatest Players in NBA History',
+    name: 'NBA 50 Greatest Players',
     awardId: 'NBA_50_GREATEST',
     playerSelector: 'table#stats tbody tr th[data-stat="player"] a',
     image: {type: 'league', id: 'NBA'},

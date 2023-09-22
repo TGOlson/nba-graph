@@ -18,35 +18,35 @@ const SINGLE_WINNER_PLAYER_SELECTOR = 'td[data-stat="player"] a';
 
 const AWARD_CONFIG: AwardConfig[] = [
   {
-    makeName: (leagueId: string) => `${leagueId} Most Valuable Player (MVP)`,
+    makeName: (leagueId: string) => `${leagueId} Most Valuable Player`,
     baseAwardId: 'MVP_',
     baseTableSelector: 'mvp_',
     imageId: 'mvp',
     url: awardUrls.mvp,
   },
   {
-    makeName: (leagueId: string) => `${leagueId} Defensive Player of the Year (DPOY)`,
+    makeName: (leagueId: string) => `${leagueId} Defensive Player of the Year`,
     baseAwardId: 'DPOY_',
     baseTableSelector: 'dpoy_',
     imageId: 'trophy',
     url: awardUrls.dpoy,
   },
   {
-    makeName: (leagueId: string) => `${leagueId} Rookie of the Year (ROY)`,
+    makeName: (leagueId: string) => `${leagueId} Rookie of the Year`,
     baseAwardId: 'ROY_',
     baseTableSelector: 'roy_',
     imageId: 'trophy',
     url: awardUrls.roy,
   },
   {
-    makeName: (leagueId: string) => `${leagueId} Sixth Man of the Year (SMOY)`,
+    makeName: (leagueId: string) => `${leagueId} Sixth Man of the Year`,
     baseAwardId: 'SMOY_',
     baseTableSelector: 'smoy_',
     imageId: 'trophy',
     url: awardUrls.smoy,
   },
   {
-    makeName: (leagueId: string) => `${leagueId} Most Improved Player (MIP)`,
+    makeName: (leagueId: string) => `${leagueId} Most Improved Player`,
     baseAwardId: 'MIP_',
     baseTableSelector: 'mip_',
     imageId: 'trophy',

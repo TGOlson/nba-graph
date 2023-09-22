@@ -3,10 +3,10 @@ import { useSigma } from '@react-sigma/core';
 
 import Box from '@mui/joy/Box';
 
-import { NBAGraphNode, NodeAttributes } from '../../../shared/types';
-import { multiYearStr } from '../../../shared/util';
-import { Option, OptionSubItem } from './SearchOption';
-import SearchBarBase from './SearchBarBase';
+import { NBAGraphNode, NodeAttributes } from '../../shared/types';
+import { multiYearStr } from '../../shared/util';
+import { Option, OptionSubItem } from './NodeSearch/SearchOption';
+import SearchBarBase from './NodeSearch/SearchBarBase';
 
 type NodeSearchProps = {
   nodes: NBAGraphNode[];
@@ -14,16 +14,18 @@ type NodeSearchProps = {
 
 const getSubLabel = (attrs: NodeAttributes): string => {
   switch (attrs.nbaType) {
-    case 'league': return 'League';
-    case 'franchise': return 'Franchise';
-    case 'award': return 'Award';
+    case 'league': return multiYearStr(attrs.years);
+    case 'franchise': return multiYearStr(attrs.years);
     case 'team': return multiYearStr(attrs.years);
     case 'player': return multiYearStr(attrs.years);
     case 'season': return multiYearStr(attrs.years);
+    case 'award': return 'Award';
     case 'multi-winner-award': return attrs.label.includes('All-Star') ? (attrs.years[0] as number).toString() : multiYearStr(attrs.years);
   }
 };
 
+// Note: this component is seperate from the base component 
+// to avoid re-computing options and filters on every input change
 const NodeSearch = ({nodes}: NodeSearchProps) => {
   const sigma = useSigma();
 
@@ -48,10 +50,16 @@ const NodeSearch = ({nodes}: NodeSearchProps) => {
   }, {});
     
   const options: Option[] = nodes.filter(x => !x.attributes.rollupId).map((node) => {
+    const isPlayer = node.attributes.nbaType === 'player';
     const subItems = subItemsByRollupId[node.key];
 
     const subItemsSearchArr = subItems?.map(x => x.label) ?? [];
-    const searchString = [...new Set([node.attributes.label, ...subItemsSearchArr])].join(' ');
+    const searchString = [...new Set([
+      node.attributes.label, 
+      isPlayer ? '' : node.key, 
+      isPlayer ? '' : node.attributes.nbaType, 
+      ...subItemsSearchArr
+    ])].join(' ');
 
     const attrs = node.attributes;
     return {
