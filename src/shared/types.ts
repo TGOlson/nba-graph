@@ -12,7 +12,7 @@ export type Palette = {primary: string, light: string, dark: string};
 export type EmptyObject = Record<string, never>;
 
 export type SpriteNodeAttributes = {
-  type: Exclude<NBAType, 'season' | 'multi-winner-award'>, 
+  type: 'sprite', 
   image: string, 
   crop: Selection
 };

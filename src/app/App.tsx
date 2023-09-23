@@ -6,17 +6,16 @@ import CircularProgress from '@mui/joy/CircularProgress';
 import Typography from '@mui/joy/Typography';
 
 import NBAGraph from './components/NBAGraph';
-import { fetchGraphData, fetchSprites, GraphData, SpriteMap } from './api';
+import { fetchGraphData, GraphData } from './api';
 import { combineImages, fetchImage, Sprite } from './util/image';
 
 import "./App.css";
 import { logDebug } from './util/logger';
+import { notNull } from '../shared/util';
 
 const App = () => {
   const [data, setData] = useState<GraphData | null>(null);
-  const [sprites, setSprites] = useState<SpriteMap | null>(null);
-  // const [sprite, setSprite] = useState<Sprite | null>(null);
-  // const [player, setPlayer] = useState<Sprite | null>(null);
+  const [sprite, setSprite] = useState<Sprite | null>(null);
   const [graphLoaded, setGraphLoaded] = useState<boolean>(false);
   
   useEffect(() => {
@@ -24,21 +23,17 @@ const App = () => {
     void fetchGraphData().then((data) => { 
       setData(data);
 
-      // const urls = data.nodes.map((node) => node.attributes.image).filter(notNull);
-      // const uniqueUrls = [...new Set(urls)];
+      const urls = data.nodes.map((node) => node.attributes.image).filter(notNull);
+      const uniqueUrls = [...new Set(urls)];
       
-      logDebug('Fetching sprites');
-      return fetchSprites();
-      // return Promise.all(uniqueUrls.map(fetchImage));
-    }).then((sprites) => {
-      // const player = combineImages(images.filter((image) => image.src.includes('player')));
-      // const sprite = combineImages(images.filter((image) => !image.src.includes('player')));
-      // setPlayer(player);
-      // setSprite(sprite);
-      setSprites(sprites);
+      logDebug('Fetching urls', uniqueUrls);
+      return Promise.all(uniqueUrls.map(fetchImage));
+    }).then((images) => {
+      const sprite = combineImages(images);
+      setSprite(sprite);
 
-      // // set an extra timeout to avoid flickering on graph load
-      // // TODO: might actually work better to load the graph offscreen first 
+      // set an extra timeout to avoid flickering on graph load
+      // TODO: might actually work better to load the graph offscreen first 
       setTimeout(() => {
         console.log('Graph loaded');
         setGraphLoaded(true);
@@ -69,8 +64,7 @@ const App = () => {
             </Box>
           )}
       </Stack>}
-      {data && sprites ? <NBAGraph data={data} sprites={sprites} /> : null}
-      {/* {data && sprite && player ? <NBAGraph data={data} sprite={sprite} player={player}/> : null} */}
+      {data && sprite ? <NBAGraph data={data} sprite={sprite} /> : null}
     </React.Fragment>
   );
 };

@@ -5,7 +5,7 @@ import { Settings } from 'sigma/settings';
 
 import "@react-sigma/core/lib/react-sigma.min.css";
 
-import { GraphData, SpriteMap } from '../api';
+import { GraphData } from '../api';
 import makeNodeSpriteProgramTriangles from '../program/node-sprite-triangles';
 import { GraphFilters } from '../util/types';
 
@@ -14,25 +14,20 @@ import HeaderMenu, { DEFAULT_FILTERS } from './HeaderMenu';
 import NodeSearch from './NodeSearch';
 import ZoomControl from './ZoomControl';
 import { logDebug } from '../util/logger';
-import mapObjIndexed from 'ramda/src/mapObjIndexed';
+import { Sprite } from '../util/image';
 
 type DisplayGraphProps = {
   data: GraphData;
-  sprites: SpriteMap;
-  // player: Sprite;
+  sprite: Sprite;
 };
 
-const NBAGraph = ({data, sprites}: DisplayGraphProps) => {
+const NBAGraph = ({data, sprite}: DisplayGraphProps) => {
   const [graph, setGraph] = useState<Graph | undefined>(undefined);
   const [filters, setFilters] = useState<GraphFilters>(DEFAULT_FILTERS);
   const [settings, setSettings] = useState<Partial<Settings>>({});
 
   // Note: put settings in a setup function so we don't re-instantiate the program class on each render
   useEffect(() => {
-    const nodeProgramClasses = mapObjIndexed((sprite: HTMLImageElement, key: string) => 
-      makeNodeSpriteProgramTriangles(sprite, key)
-    , sprites);
-
     // availble options:
     // https://github.com/jacomyal/sigma.js/blob/154408adf4d5df12df88b8d137609327c99fada8/src/settings.ts
     setSettings({
@@ -76,7 +71,9 @@ const NBAGraph = ({data, sprites}: DisplayGraphProps) => {
       
       // TODO: not sure it's optimal to make so many program classes
       // might be better to pass in multiple sprites and attempt to switch textures on render
-      nodeProgramClasses,
+      nodeProgramClasses: {
+        sprite: makeNodeSpriteProgramTriangles(sprite, 'sprite'),
+      },
     });
   }, []);
 
@@ -86,7 +83,11 @@ const NBAGraph = ({data, sprites}: DisplayGraphProps) => {
 
     const graph = new Graph(data.options);
     
-    graph.import(data);
+    const nodes = data.nodes.map((node) => {
+      return {...node, attributes: {...node.attributes, type: 'sprite'}};
+    });
+
+    graph.import({...data, nodes});
     setGraph(graph);
   }, []);
 
