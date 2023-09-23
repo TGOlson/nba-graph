@@ -10,7 +10,6 @@ import Sigma from 'sigma';
 
 import { FRAGMENT_SHADER_GLSL, VERTEX_SHADER_GLSL } from './shaders-triangles';
 import { CustomNodeAttributes } from '../../shared/types';
-import { Sprite } from '../util/image';
 import { logDebug } from '../util/logger';
 
 const POINTS = 3;
@@ -32,12 +31,13 @@ const MUTED_COLOR = floatColor('#E2E2E2');
 
 const R_CONST = (8 / 3) * (1 - Math.sin((2 * Math.PI) / 3));
 
-export default function makeNodeSpriteProgramTriangles(sprite: Sprite) {
-  const textureImage = sprite.img;
+export default function makeNodeSpriteProgramTriangles(sprite: HTMLImageElement, debugKey: string) {
+  const textureImage = sprite;
+  const size = textureImage.width * textureImage.height;
 
   // logDebug('Texture image array length:', textureImage.data.length, `(${textureImage.data.length / 1000/ 1000}M)`);
-  logDebug('Creating node sprite program');
-  logDebug('Texture image array size:', textureImage.data.length / 4, 'bytes', `(${(textureImage.data.length / 4 / 1024 / 1024).toFixed(1)}MB)`);
+  logDebug(`[node-program] [${debugKey}] Creating node sprite program`);
+  logDebug(`[node-program] [${debugKey}] Texture image array size:`, size / 4, 'bytes', `(${(size / 4 / 1024 / 1024).toFixed(1)}MB)`);
 
   return class NodeImageProgram extends AbstractNodeProgram {
     texture: WebGLTexture;
@@ -53,7 +53,8 @@ export default function makeNodeSpriteProgramTriangles(sprite: Sprite) {
     constructor(gl: WebGLRenderingContext, _renderer: Sigma) {
       super(gl, VERTEX_SHADER_GLSL, FRAGMENT_SHADER_GLSL, POINTS, ATTRIBUTES);
 
-      console.log('gl.MAX_TEXTURE_SIZE', gl.getParameter(gl.MAX_TEXTURE_SIZE));
+      logDebug(`[node-program] [${debugKey}]`, 'gl.MAX_TEXTURE_SIZE', gl.getParameter(gl.MAX_TEXTURE_SIZE));
+      logDebug(`[node-program] [${debugKey}]`, 'gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS)', gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS));
 
       // Attribute Location
       this.textureLocation = gl.getAttribLocation(this.program, "a_texture");
@@ -76,44 +77,18 @@ export default function makeNodeSpriteProgramTriangles(sprite: Sprite) {
 
       // Initialize WebGL texture:
       this.texture = gl.createTexture() as WebGLTexture;
+
+      // console.log('this.texture', this.texture)
       gl.bindTexture(gl.TEXTURE_2D, this.texture);
       gl.enableVertexAttribArray(this.textureLocation);
       gl.enableVertexAttribArray(this.angleLocation);
       gl.enableVertexAttribArray(this.borderColorLocation);
       gl.enableVertexAttribArray(this.mutedImageLocation);
 
-      gl.vertexAttribPointer(
-        this.textureLocation,
-        3,
-        gl.FLOAT,
-        false,
-        this.attributes * Float32Array.BYTES_PER_ELEMENT,
-        16,
-      );
-      gl.vertexAttribPointer(
-        this.angleLocation,
-        1,
-        gl.FLOAT,
-        false,
-        this.attributes * Float32Array.BYTES_PER_ELEMENT,
-        28,
-      );
-      gl.vertexAttribPointer(
-        this.borderColorLocation,
-        4,
-        gl.UNSIGNED_BYTE,
-        true,
-        this.attributes * Float32Array.BYTES_PER_ELEMENT,
-        32,
-      );
-      gl.vertexAttribPointer(
-        this.mutedImageLocation,
-        1,
-        gl.FLOAT,
-        false,
-        this.attributes * Float32Array.BYTES_PER_ELEMENT,
-        36,
-      );
+      gl.vertexAttribPointer(this.textureLocation, 3, gl.FLOAT, false, this.attributes * Float32Array.BYTES_PER_ELEMENT, 16,);
+      gl.vertexAttribPointer(this.angleLocation, 1, gl.FLOAT, false, this.attributes * Float32Array.BYTES_PER_ELEMENT, 28,);
+      gl.vertexAttribPointer(this.borderColorLocation, 4, gl.UNSIGNED_BYTE, true, this.attributes * Float32Array.BYTES_PER_ELEMENT, 32,);
+      gl.vertexAttribPointer(this.mutedImageLocation, 1, gl.FLOAT, false, this.attributes * Float32Array.BYTES_PER_ELEMENT, 36,);
 
       gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, textureImage);
       gl.generateMipmap(gl.TEXTURE_2D);
@@ -148,15 +123,6 @@ export default function makeNodeSpriteProgramTriangles(sprite: Sprite) {
       const color = data.muted ? MUTED_COLOR : floatColor(data.color);
       const borderColor = data.muted ? MUTED_COLOR : floatColor(data.borderColor);
 
-      const spriteOffset = sprite.offsets[data.image];
-
-      // Note: `hasImage` is not actually required here
-      // The below line actually errors if `spriteOffset` is null
-      // However, in the future it might be nice to support nodes without images, so leave this here
-      const hasImage = !!spriteOffset;
-
-      if (!spriteOffset) throw new Error(`Unexpected no sprite offset for node: ${JSON.stringify(data)}`);      
-
       // POINT 1
       array[i++] = data.x;
       array[i++] = data.y;
@@ -165,9 +131,9 @@ export default function makeNodeSpriteProgramTriangles(sprite: Sprite) {
       // ANGLE_1: center right UV coordinates
       // inscribing circle at (x,y): r=2/3*h, texture (0,0) is top-left
       // texture width is scaled by 2/3 from full triangle width -> uv *1.5
-      array[i++] = hasImage ? (crop.x + spriteOffset.x) / width + (1.5 * crop.width) / width : 0;
-      array[i++] = hasImage ? (crop.y + spriteOffset.y) / height + (0.5 * crop.height) / height : 0;
-      array[i++] = hasImage ? 1 : 0;
+      array[i++] = crop.x / width + (1.5 * crop.width) / width;
+      array[i++] = crop.y / height + (0.5 * crop.height) / height;
+      array[i++] = 1;
       array[i++] = ANGLE_1;
       array[i++] = borderColor;
       array[i++] = data.muted ? 1 : 0;
@@ -178,9 +144,9 @@ export default function makeNodeSpriteProgramTriangles(sprite: Sprite) {
       array[i++] = data.size;
       array[i++] = color;
       // ANGLE_2: top left UV coordinates
-      array[i++] = hasImage ? (crop.x + spriteOffset.x) / width : 0;
-      array[i++] = hasImage ? (crop.y + spriteOffset.y) / height - (R_CONST * crop.height) / height : 0;
-      array[i++] = hasImage ? 1 : 0;
+      array[i++] = crop.x / width;
+      array[i++] = crop.y / height - (R_CONST * crop.height) / height;
+      array[i++] = 1;
       array[i++] = ANGLE_2;
       array[i++] = borderColor;
       array[i++] = data.muted ? 1 : 0;
@@ -191,9 +157,9 @@ export default function makeNodeSpriteProgramTriangles(sprite: Sprite) {
       array[i++] = data.size;
       array[i++] = color;
       // ANGLE_3: bottom left UV coordinates
-      array[i++] = hasImage ? (crop.x + spriteOffset.x) / width : 0;
-      array[i++] = hasImage ? (crop.y + spriteOffset.y) / height + (1 + R_CONST) * (crop.height / height) : 0;
-      array[i++] = hasImage ? 1 : 0;
+      array[i++] = crop.x / width;
+      array[i++] = crop.y / height + (1 + R_CONST) * (crop.height / height);
+      array[i++] = 1;
       array[i++] = ANGLE_3;
       array[i++] = borderColor;
       array[i++] = data.muted ? 1 : 0;
@@ -215,6 +181,9 @@ export default function makeNodeSpriteProgramTriangles(sprite: Sprite) {
       gl.uniform1f(this.sqrtZoomRatioLocation, Math.sqrt(params.ratio));
       gl.uniformMatrix3fv(this.matrixLocation, false, params.matrix);
       gl.uniform1i(this.atlasLocation, 0);
+
+      // TODO: something smarter here like pass all textures to shader then swap?
+      gl.bindTexture(gl.TEXTURE_2D, this.texture);
 
       gl.drawArrays(gl.TRIANGLES, 0, this.array.length / ATTRIBUTES);
     }

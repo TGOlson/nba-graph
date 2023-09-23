@@ -11,10 +11,14 @@ export type Palette = {primary: string, light: string, dark: string};
 
 export type EmptyObject = Record<string, never>;
 
-export type SpriteNodeAttributes = {type: 'sprite', image: string, crop: Selection};
+export type SpriteNodeAttributes = {
+  type: Exclude<NBAType, 'season' | 'multi-winner-award'>, 
+  image: string, 
+  crop: Selection
+};
 
 // used in graph rendering
-export type CustomNodeAttributes = {muted?: boolean, borderColor: string} & SpriteNodeAttributes;
+export type CustomNodeAttributes = {muted?: boolean, borderColor: string} & NodeAttributes;
 
 export type NBAGraphNode = SerializedNode & {attributes: NodeAttributes};
 

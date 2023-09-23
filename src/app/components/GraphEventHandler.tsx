@@ -68,7 +68,7 @@ const GraphEvents = ({filters}: GraphEventsProps) => {
     setSettings({
       nodeReducer: (node: string, baseData: Attributes): Partial<NodeDisplayData & CustomNodeAttributes> => {
         // a little type cohersion to make typescript happy
-        const data = baseData as NodeAttributes;
+        const data = baseData as (NodeDisplayData & CustomNodeAttributes);
 
         const isVisible = isVisibleNode(filters, data);
 
@@ -129,7 +129,6 @@ const GraphEvents = ({filters}: GraphEventsProps) => {
         return {
           ...data, 
           muted: true,
-          label: null,
           highlighted: false,
           zIndex: 0,
         };

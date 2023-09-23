@@ -6,23 +6,17 @@ import CircularProgress from '@mui/joy/CircularProgress';
 import Typography from '@mui/joy/Typography';
 
 import NBAGraph from './components/NBAGraph';
-import { fetchGraphData, GraphData } from './api';
+import { fetchGraphData, fetchSprites, GraphData, SpriteMap } from './api';
 import { combineImages, fetchImage, Sprite } from './util/image';
 
 import "./App.css";
-import { notNull } from '../shared/util';
 import { logDebug } from './util/logger';
-
-const loading = (
-  <Box sx={{textAlign: 'center', mt: -4}}>
-    <Typography sx={{mb: 1}}>Loading graph...</Typography>
-    <CircularProgress />
-  </Box>
-);
 
 const App = () => {
   const [data, setData] = useState<GraphData | null>(null);
-  const [sprite, setSprite] = useState<Sprite | null>(null);
+  const [sprites, setSprites] = useState<SpriteMap | null>(null);
+  // const [sprite, setSprite] = useState<Sprite | null>(null);
+  // const [player, setPlayer] = useState<Sprite | null>(null);
   const [graphLoaded, setGraphLoaded] = useState<boolean>(false);
   
   useEffect(() => {
@@ -30,25 +24,54 @@ const App = () => {
     void fetchGraphData().then((data) => { 
       setData(data);
 
-      const urls = data.nodes.map((node) => node.attributes.image).filter(notNull);
-      const uniqueUrls = [...new Set(urls)];
+      // const urls = data.nodes.map((node) => node.attributes.image).filter(notNull);
+      // const uniqueUrls = [...new Set(urls)];
       
-      logDebug('Fetching images', uniqueUrls);
-      return Promise.all(uniqueUrls.map(fetchImage));
-    }).then((images) => {
-      const sprite = combineImages(images);
-      setSprite(sprite);
+      logDebug('Fetching sprites');
+      return fetchSprites();
+      // return Promise.all(uniqueUrls.map(fetchImage));
+    }).then((sprites) => {
+      // const player = combineImages(images.filter((image) => image.src.includes('player')));
+      // const sprite = combineImages(images.filter((image) => !image.src.includes('player')));
+      // setPlayer(player);
+      // setSprite(sprite);
+      setSprites(sprites);
 
-      // set an extra timeout to avoid flickering on graph load
-      // TODO: might actually work better to load the graph offscreen first 
-      setTimeout(() => setGraphLoaded(true), 500);
+      // // set an extra timeout to avoid flickering on graph load
+      // // TODO: might actually work better to load the graph offscreen first 
+      setTimeout(() => {
+        console.log('Graph loaded');
+        setGraphLoaded(true);
+      }, 1000);
     }).catch((err) => { throw err; });
   }, []);
 
   return (
-    <Stack sx={{height: '100vh', alignItems: 'center', justifyContent: 'center'}}>
-      {graphLoaded && data && sprite ? <NBAGraph data={data} sprite={sprite}/> : loading}
-    </Stack>
+    <React.Fragment>
+      {<Stack sx={{
+        height: '100vh', 
+        alignItems: 'center', 
+        justifyContent: 'center', 
+        position: 'absolute', 
+        top: 0, 
+        left: 0, 
+        width: '100%', 
+        opacity: graphLoaded ? 0 : 1,
+        backgroundColor: '#fcfcfc',
+        zIndex: 1000,
+        display: graphLoaded ? 'none' : 'flex',
+        transition: 'visibility 0s, opacity 0.5s linear',
+        }}>
+          {graphLoaded ? null : (
+            <Box sx={{textAlign: 'center', mt: -4}}>
+              <Typography sx={{mb: 1}}>NBA Graph</Typography>
+              <CircularProgress />
+            </Box>
+          )}
+      </Stack>}
+      {data && sprites ? <NBAGraph data={data} sprites={sprites} /> : null}
+      {/* {data && sprite && player ? <NBAGraph data={data} sprite={sprite} player={player}/> : null} */}
+    </React.Fragment>
   );
 };
 

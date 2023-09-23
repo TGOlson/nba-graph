@@ -137,7 +137,6 @@ The output graph data is stored in `./data/graph/graph.json`. The graph is built
   * consider breaking up player sprite by last name
   * adjust player node size for awards
   * improve locations (do this last after adding more node types)
-  * compress graph json
   * fun AI logo
 * deploy
  * setup github page (TODO: where to store data?)
