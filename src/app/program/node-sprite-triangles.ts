@@ -34,11 +34,9 @@ const R_CONST = (8 / 3) * (1 - Math.sin((2 * Math.PI) / 3));
 
 export default function makeNodeSpriteProgramTriangles(sprite: Sprite, debugKey: string) {
   const textureImage = sprite.img;
-  const size = textureImage.data.length;
 
-  // logDebug('Texture image array length:', textureImage.data.length, `(${textureImage.data.length / 1000/ 1000}M)`);
   logDebug(`[node-image-program/${debugKey}]`, 'Creating node sprite program');
-  logDebug(`[node-image-program/${debugKey}]`, 'Texture image array size:', size / 4, 'bytes', `(${(size / 4 / 1024 / 1024).toFixed(1)}MB)`);
+  logDebug(`[node-image-program/${debugKey}]`, 'Texture image size:', textureImage.width, 'x', textureImage.height);
 
   return class NodeImageProgram extends AbstractNodeProgram {
     texture: WebGLTexture;
@@ -55,7 +53,6 @@ export default function makeNodeSpriteProgramTriangles(sprite: Sprite, debugKey:
       super(gl, VERTEX_SHADER_GLSL, FRAGMENT_SHADER_GLSL, POINTS, ATTRIBUTES);
 
       logDebug(`[node-image-program/${debugKey}]`, 'gl.MAX_TEXTURE_SIZE', gl.getParameter(gl.MAX_TEXTURE_SIZE));
-      logDebug(`[node-image-program/${debugKey}]`, 'gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS)', gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS));
 
       // Attribute Location
       this.textureLocation = gl.getAttribLocation(this.program, "a_texture");

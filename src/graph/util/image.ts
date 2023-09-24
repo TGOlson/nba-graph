@@ -10,7 +10,10 @@ import { Palette } from '../../shared/types';
 import { spritePath } from '../storage/paths';
 import { decode, encode, toRGBA8 } from 'upng-js';
 
-const MAX_WIDTH = 3072;
+// 4096 for iPhone 4S and newer, some older devices may have lower limits
+// modern browsers are much higher...
+const MAX_WIDTH = 4096;
+
 const TEAM_IMAGE_SIZE = 205;
 const TEAM_IMAGE_PADDING = 40;
 const PLAYER_IMAGE_SIZE = 120;

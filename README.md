@@ -134,10 +134,14 @@ The output graph data is stored in `./data/graph/graph.json`. The graph is built
   * ~~infinite scroll~~
   * ~~fix no results popup on search~~
   * ~~bug when player matches year filter, but not league filter (eg. played in ABA & 1950, but no matching teams)~~
+* deploy
+ * ~~setup github page~~
+* last cleanups
+  * better mobile support
   * consider breaking up player sprite by last name
   * adjust player node size for awards
   * improve locations (do this last after adding more node types)
   * fun AI logo
-* deploy
- * setup github page (TODO: where to store data?)
- * deploy assets to aws/cloudflair
+  * update readme, move docs around
+  * about page on graph?
+  * catch errors for too small of texture size support (aim for 4kx4k)
