@@ -23,4 +23,4 @@ git push origin gh-pages
 echo "Cleaning up..."
 npm run clean
 
-git checkout master
+git checkout main
