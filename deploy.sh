@@ -12,7 +12,7 @@ echo "Building production app bundle..."
 npm run clean
 npm run app:build-prod
 
-mkdir -r deploy/deploy/assets/js
+mkdir -p deploy/assets/js
 
 cp public/index.html deploy/
 cp dist/app.* deploy/assets/
