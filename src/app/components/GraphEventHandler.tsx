@@ -55,7 +55,7 @@ const GraphEvents = ({filters}: GraphEventsProps) => {
           setSelectedNode(null);
         } else {
           setSelectedNode(event.node);
-          gotoNode(event.node, {duration: 200});
+          gotoNode(event.node, {duration: 250});
         }
         setHoveredNode(null);
       },

@@ -28,7 +28,9 @@ export const noopTransform = (_key: string, image: Jimp): Jimp => image;
 
 // Note: team and franchise photos are downloaded as 125x125 squares
 // Since they will be rendered within a circle, add extra padding so that none of the base image is clipped
-export const teamTransform = (_key: string, image: Jimp): Jimp => {
+export const teamTransform = (key: string, image: Jimp): Jimp => {
+  if (key.includes('_default')) return image;
+
   const base = new Jimp(TEAM_IMAGE_SIZE, TEAM_IMAGE_SIZE, '#ffffff');
   const resized = image.resize(TEAM_IMAGE_SIZE - (TEAM_IMAGE_PADDING * 2), Jimp.AUTO);
 
@@ -39,7 +41,9 @@ export const teamTransform = (_key: string, image: Jimp): Jimp => {
 // Resize to 90px wide, then add 15px padding to the left and right
 // We could keep at higher res, but player pictures don't need that much detail, and this saves space
 // TODO: maybe find a way to keep most important player images larger (based on award?)
-export const playerTransform = (_key: string, image: Jimp): Jimp => {
+export const playerTransform = (key: string, image: Jimp): Jimp => {
+  if (key.includes('_default')) return image;
+
   const base = new Jimp(PLAYER_IMAGE_SIZE, PLAYER_IMAGE_SIZE, '#ffffff');
 
   const resized = image.autocrop({

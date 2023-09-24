@@ -225,7 +225,7 @@ export const buildGraph = async (rawData: NBAData, config: GraphConfig): Promise
   });
   
   data.franchises.forEach(franchise => {
-    const imgCoords = franchiseImgLocations[franchise.id] ?? teamImgLocations[TEAM_DEFAULT_CROP_ID];
+    const imgCoords = franchiseImgLocations[franchise.id];
     
     const imgProps: SpriteNodeAttributes = imgCoords ? 
       {type: 'sprite', image: assets.img.franchiseSprite, crop: imgCoords}
