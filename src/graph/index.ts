@@ -232,6 +232,13 @@ async function main() {
 
     // *** misc commands
     case commands.misc.ConvertImages: {
+
+      // Quick google on max texture size support:
+      // > 99.9% of devices support 4096x4096
+      // ~80% of devices support 8192x8192
+      // ~70% of devices support 16384x16384
+  
+
       return await execSeq([
         {typ: 'franchise' as NBAType, transform: teamTransform},
         {typ: 'team' as NBAType, transform: teamTransform},

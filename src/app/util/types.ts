@@ -1,3 +1,8 @@
+export type Sprite = {
+  key: string, 
+  image: HTMLImageElement
+};
+
 export type GraphFilters = {
   // implemented
   awards: boolean;

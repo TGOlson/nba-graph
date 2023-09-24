@@ -10,8 +10,8 @@ import Sigma from 'sigma';
 
 import { FRAGMENT_SHADER_GLSL, VERTEX_SHADER_GLSL } from './shaders-triangles';
 import { CustomNodeAttributes } from '../../shared/types';
-import { Sprite } from '../util/image';
 import { logDebug } from '../util/logger';
+import { Sprite } from '../util/types';
 
 const POINTS = 3;
   //  atttributes sizing in floats:
@@ -32,8 +32,9 @@ const MUTED_COLOR = floatColor('#E2E2E2');
 
 const R_CONST = (8 / 3) * (1 - Math.sin((2 * Math.PI) / 3));
 
-export default function makeNodeSpriteProgramTriangles(sprite: Sprite, debugKey: string) {
-  const textureImage = sprite.img;
+export default function makeNodeSpriteProgramTriangles(sprite: Sprite) {
+  const debugKey = sprite.key;
+  const textureImage = sprite.image;
 
   logDebug(`[node-image-program/${debugKey}]`, 'Texture image size:', textureImage.width, 'x', textureImage.height);
 
@@ -120,15 +121,6 @@ export default function makeNodeSpriteProgramTriangles(sprite: Sprite, debugKey:
       const color = data.muted ? MUTED_COLOR : floatColor(data.color);
       const borderColor = data.muted ? MUTED_COLOR : floatColor(data.borderColor);
 
-      const spriteOffset = sprite.offsets[data.image];
-
-      // Note: `hasImage` is not actually required here
-      // The below line actually errors if `spriteOffset` is null
-      // However, in the future it might be nice to support nodes without images, so leave this here
-      const hasImage = !!spriteOffset;
-
-      if (!spriteOffset) throw new Error(`Unexpected no sprite offset for node: ${JSON.stringify(data)}`);      
-
       // POINT 1
       array[i++] = data.x;
       array[i++] = data.y;
@@ -137,9 +129,9 @@ export default function makeNodeSpriteProgramTriangles(sprite: Sprite, debugKey:
       // ANGLE_1: center right UV coordinates
       // inscribing circle at (x,y): r=2/3*h, texture (0,0) is top-left
       // texture width is scaled by 2/3 from full triangle width -> uv *1.5
-      array[i++] = hasImage ? (crop.x + spriteOffset.x) / width + (1.5 * crop.width) / width : 0;
-      array[i++] = hasImage ? (crop.y + spriteOffset.y) / height + (0.5 * crop.height) / height : 0;
-      array[i++] = hasImage ? 1 : 0;
+      array[i++] = crop.x / width + (1.5 * crop.width) / width;
+      array[i++] = crop.y / height + (0.5 * crop.height) / height;
+      array[i++] = 1;
       array[i++] = ANGLE_1;
       array[i++] = borderColor;
       array[i++] = data.muted ? 1 : 0;
@@ -150,9 +142,9 @@ export default function makeNodeSpriteProgramTriangles(sprite: Sprite, debugKey:
       array[i++] = data.size;
       array[i++] = color;
       // ANGLE_2: top left UV coordinates
-      array[i++] = hasImage ? (crop.x + spriteOffset.x) / width : 0;
-      array[i++] = hasImage ? (crop.y + spriteOffset.y) / height - (R_CONST * crop.height) / height : 0;
-      array[i++] = hasImage ? 1 : 0;
+      array[i++] = crop.x / width;
+      array[i++] = crop.y / height - (R_CONST * crop.height) / height;
+      array[i++] = 1;
       array[i++] = ANGLE_2;
       array[i++] = borderColor;
       array[i++] = data.muted ? 1 : 0;
@@ -163,9 +155,9 @@ export default function makeNodeSpriteProgramTriangles(sprite: Sprite, debugKey:
       array[i++] = data.size;
       array[i++] = color;
       // ANGLE_3: bottom left UV coordinates
-      array[i++] = hasImage ? (crop.x + spriteOffset.x) / width : 0;
-      array[i++] = hasImage ? (crop.y + spriteOffset.y) / height + (1 + R_CONST) * (crop.height / height) : 0;
-      array[i++] = hasImage ? 1 : 0;
+      array[i++] = crop.x / width;
+      array[i++] = crop.y / height + (1 + R_CONST) * (crop.height / height);
+      array[i++] = 1;
       array[i++] = ANGLE_3;
       array[i++] = borderColor;
       array[i++] = data.muted ? 1 : 0;
@@ -187,6 +179,9 @@ export default function makeNodeSpriteProgramTriangles(sprite: Sprite, debugKey:
       gl.uniform1f(this.sqrtZoomRatioLocation, Math.sqrt(params.ratio));
       gl.uniformMatrix3fv(this.matrixLocation, false, params.matrix);
       gl.uniform1i(this.atlasLocation, 0);
+
+      // TODO: is there a better way to swap between textures?
+      gl.bindTexture(gl.TEXTURE_2D, this.texture);
 
       gl.drawArrays(gl.TRIANGLES, 0, this.array.length / ATTRIBUTES);
     }

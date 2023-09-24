@@ -4,7 +4,7 @@ import Skeleton from '@mui/joy/Skeleton';
 import Box from '@mui/joy/Box';
 
 import { Option } from "./SearchOption";
-import { fetchImage } from '../../util/image';
+import { fetchImage } from '../../api';
 
 type SearchOptionImageProps = {
   option: Option;

@@ -62,7 +62,7 @@
     "jimp": "^0.22.10",
     "node-fetch": "^3.3.0",
     "node-vibrant": "^3.2.1-alpha.1",
-    "quick-sprite": "^0.0.9",
+    "quick-sprite": "^0.0.11",
     "ramda": "^0.29.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

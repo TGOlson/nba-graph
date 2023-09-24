@@ -71,8 +71,7 @@ export async function createSpriteImage(inputDir: string, imagePath: string, map
   });
 
   const {image, mapping}: Sprite = await createSprite(sources, {
-    fillMode: 'row',
-    maxWidth: MAX_WIDTH,
+    fillMode: {type: 'row', maxWidth: MAX_WIDTH},
     dedupe: {diffPercent: 0},
     transform,
     debug: true,

@@ -5,17 +5,20 @@ import Box from '@mui/joy/Box';
 import CircularProgress from '@mui/joy/CircularProgress';
 import Typography from '@mui/joy/Typography';
 
+import map from 'ramda/src/map';
+import uniqBy from 'ramda/src/uniqBy';
+
 import NBAGraph from './components/NBAGraph';
 import { fetchGraphData, GraphData } from './api';
-import { combineImages, fetchImage, Sprite } from './util/image';
+import { fetchImage } from './api';
+import { logDebug } from './util/logger';
 
 import "./App.css";
-import { logDebug } from './util/logger';
-import { notNull } from '../shared/util';
+import { Sprite } from './util/types';
 
 const App = () => {
   const [data, setData] = useState<GraphData | null>(null);
-  const [sprite, setSprite] = useState<Sprite | null>(null);
+  const [sprites, setSprites] = useState<Sprite[] | null>(null);
   const [graphLoaded, setGraphLoaded] = useState<boolean>(false);
   
   useEffect(() => {
@@ -23,29 +26,15 @@ const App = () => {
     void fetchGraphData().then((data) => { 
       setData(data);
 
-      const urls = data.nodes.map((node) => node.attributes.image).filter(notNull);
-      const uniqueUrls = [...new Set(urls)];
-      
-      logDebug('Fetching urls', uniqueUrls);
-      return Promise.all(uniqueUrls.map(fetchImage));
-    }).then((images) => {
-      const canvas = document.createElement('canvas');
-      const gl = canvas.getContext('webgl') as WebGLRenderingContext;
-      const maxTextureSize = gl.getParameter(gl.MAX_TEXTURE_SIZE) as number;
-  
-      logDebug('Max texture size', maxTextureSize);
-  
-      // Quick google on max texture size support:
-      // > 99.9% of devices support 4096x4096
-      // ~80% of devices support 8192x8192
-      // ~70% of devices support 16384x16384
-  
-      // (right now our texture is 4k x 11k) ...
-      // TODO: maybe just slice into 3 chunks somehow?
-      const useSmallTexture = gl.getParameter(gl.MAX_TEXTURE_SIZE) < 16000;
-  
-      const sprite = combineImages(images);
-      setSprite(sprite);
+      const spriteUrlsAll = data.nodes.map(({attributes: {type, image}}) => ({key: type, url: image}));
+      const spriteUrls = uniqBy(({key, url}) => `${key}-${url}`, spriteUrlsAll);
+
+      logDebug(`Fetching sprites`, spriteUrls);
+      const spritePromises = map(({key, url}) => fetchImage(url).then((image) => ({key, image})), spriteUrls);
+
+      return Promise.all(spritePromises);
+    }).then((sprites) => {
+      setSprites(sprites);
 
       // set an extra timeout to avoid flickering on graph load
       // TODO: might actually work better to load the graph offscreen first 
@@ -79,7 +68,7 @@ const App = () => {
             </Box>
           )}
       </Stack>}
-      {data && sprite ? <NBAGraph data={data} sprite={sprite} /> : null}
+      {data && sprites ? <NBAGraph data={data} sprites={sprites} /> : null}
     </React.Fragment>
   );
 };

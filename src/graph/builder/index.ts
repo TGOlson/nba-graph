@@ -96,13 +96,13 @@ export const buildGraph = async (rawData: NBAData, config: GraphConfig): Promise
   const multiWinnerAwardsById = toMap(x => x.id, data.multiWinnerAwards);
 
   const defaultPlayerImage: SpriteNodeAttributes = {
-    type: 'sprite',
+    type: 'player',
     image: assets.img.playerSprite,
     crop: getProp(PLAYER_DEFAULT_CROP_ID, playerImgLocations),
   };
 
   const defaultTeamImage: SpriteNodeAttributes = {
-    type: 'sprite',
+    type: 'team',
     image: assets.img.teamSprite,
     crop: getProp(TEAM_DEFAULT_CROP_ID, teamImgLocations),
   };
@@ -144,7 +144,7 @@ export const buildGraph = async (rawData: NBAData, config: GraphConfig): Promise
     const seasonTokens = years.map(year => ({leagueId: league.id, year}));
 
     const imgProps: SpriteNodeAttributes = {
-      type: 'sprite',
+      type: 'league',
       image: assets.img.leagueSprite,
       crop: imgCoords,
     };
@@ -172,7 +172,7 @@ export const buildGraph = async (rawData: NBAData, config: GraphConfig): Promise
     const edgeColor = Color(borderColor).lighten(0.3).hex();
 
     const imgProps: SpriteNodeAttributes = {
-      type: 'sprite',
+      type: 'league',
       image: assets.img.leagueSprite,
       crop: imgCoords,
     };
@@ -208,7 +208,7 @@ export const buildGraph = async (rawData: NBAData, config: GraphConfig): Promise
     const imgCoords = playerImgLocations[player.id];
 
     const imgProps: SpriteNodeAttributes = imgCoords 
-      ? {type: 'sprite', image: assets.img.playerSprite, crop: imgCoords}
+      ? {type: 'player', image: assets.img.playerSprite, crop: imgCoords}
       : defaultPlayerImage;
 
     const attrs: NodeAttributes = {
@@ -228,7 +228,7 @@ export const buildGraph = async (rawData: NBAData, config: GraphConfig): Promise
     const imgCoords = franchiseImgLocations[franchise.id];
     
     const imgProps: SpriteNodeAttributes = imgCoords ? 
-      {type: 'sprite', image: assets.img.franchiseSprite, crop: imgCoords}
+      {type: 'franchise', image: assets.img.franchiseSprite, crop: imgCoords}
       : defaultTeamImage;
 
     const borderColor = franchiseColors[franchise.id]?.primary ?? config.borderColors.franchise;
@@ -260,9 +260,9 @@ export const buildGraph = async (rawData: NBAData, config: GraphConfig): Promise
     let imgProps: SpriteNodeAttributes | null = null;
 
     if (imgCoords) {
-      imgProps = {type: 'sprite', image: assets.img.teamSprite, crop: imgCoords};
+      imgProps = {type: 'team', image: assets.img.teamSprite, crop: imgCoords};
     } else if (fallbackImgCoords) {
-      imgProps = {type: 'sprite', image: assets.img.franchiseSprite, crop: fallbackImgCoords};
+      imgProps = {type: 'franchise', image: assets.img.franchiseSprite, crop: fallbackImgCoords};
     } else {
       imgProps = defaultTeamImage;
     }
@@ -321,7 +321,7 @@ export const buildGraph = async (rawData: NBAData, config: GraphConfig): Promise
       ? awardColors[award.image.id]?.primary 
       : leagueColors[award.image.id]?.primary;
 
-    const imgProps: SpriteNodeAttributes = {type: 'sprite', image, crop};
+    const imgProps: SpriteNodeAttributes = {type: award.image.type === 'award' ? 'award' : 'league', image, crop};
 
     const attrs: NodeAttributes = {
       nbaType: 'award',
@@ -358,7 +358,7 @@ export const buildGraph = async (rawData: NBAData, config: GraphConfig): Promise
 
     const label = award.name.includes('All-Star') ? `${award.name} (${award.year})` : `${award.name} (${singleYearStr(award.year)})`;
 
-    const imgProps: SpriteNodeAttributes = {type: 'sprite', image, crop};
+    const imgProps: SpriteNodeAttributes = {type: award.image.type === 'award' ? 'award' : 'league', image, crop};
 
     const attrs: NodeAttributes = {
       nbaType: 'multi-winner-award',
