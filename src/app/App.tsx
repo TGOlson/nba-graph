@@ -21,16 +21,7 @@ const App = () => {
   useEffect(() => {
     logDebug('Fetching graph data');
     void fetchGraphData().then((data) => { 
-      const nodes = data.nodes.map((node) => {
-        return {
-          ...node,
-          attributes: {
-            ...node.attributes,
-            image: node.attributes.image.replace('player', 'team'),
-          }
-        };
-      });
-      setData({...data, nodes});
+      setData(data);
 
       const urls = data.nodes.map((node) => node.attributes.image).filter(notNull);
       const uniqueUrls = [...new Set(urls)];
@@ -38,7 +29,22 @@ const App = () => {
       logDebug('Fetching urls', uniqueUrls);
       return Promise.all(uniqueUrls.map(fetchImage));
     }).then((images) => {
-      const sprite = combineImages(images.filter(x => !x.src.includes('player')));
+      const canvas = document.createElement('canvas');
+      const gl = canvas.getContext('webgl') as WebGLRenderingContext;
+      const maxTextureSize = gl.getParameter(gl.MAX_TEXTURE_SIZE) as number;
+  
+      logDebug('Max texture size', maxTextureSize);
+  
+      // Quick google on max texture size support:
+      // > 99.9% of devices support 4096x4096
+      // ~80% of devices support 8192x8192
+      // ~70% of devices support 16384x16384
+  
+      // (right now our texture is 4k x 11k) ...
+      // TODO: maybe just slice into 3 chunks somehow?
+      const useSmallTexture = gl.getParameter(gl.MAX_TEXTURE_SIZE) < 16000;
+  
+      const sprite = combineImages(images);
       setSprite(sprite);
 
       // set an extra timeout to avoid flickering on graph load
