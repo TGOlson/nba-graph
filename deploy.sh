@@ -22,7 +22,8 @@ cp dist/app.* deploy/assets/
 echo "Staging changes and pushing to gh-pages..."
 git add deploy/
 git commit -m 'Deploy new assets'
-git subtree push --prefix deploy origin gh-pages
+
+git push origin gh-pages -f
 
 echo "Cleaning up..."
 npm run clean
