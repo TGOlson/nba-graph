@@ -11,9 +11,7 @@ git checkout -B gh-pages
 echo "Building production app bundle..."
 npm run clean
 npm run app:build-prod
-
-mkdir -p deploy
-cp -r dist/ deploy 
+cp -r dist/ deploy/
 
 echo "Staging changes and pushing to gh-pages..."
 git add deploy/

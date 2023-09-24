@@ -145,3 +145,4 @@ The output graph data is stored in `./data/graph/graph.json`. The graph is built
   * update readme, move docs around
   * about page on graph?
   * catch errors for too small of texture size support (aim for 4kx4k)
+  * favicon

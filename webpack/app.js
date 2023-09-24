@@ -7,9 +7,9 @@ module.exports = {
   target: 'web',
   devtool: 'inline-source-map',
   output: {
-    filename: 'js/app.bundle.js',
+    filename: 'assets/js/app.bundle.js',
     path: path.resolve(__dirname, '../dist'),
-    publicPath: '/nba-graph/assets/',
+    publicPath: '/nba-graph/',
   },
   module: { 
     rules: [{
@@ -19,7 +19,7 @@ module.exports = {
       test: /\.woff/,
       type: 'asset/resource',
       generator: {
-        filename: 'fonts/[hash][ext][query]'
+        filename: 'assets/fonts/[hash][ext][query]'
       }
     }]
   },
@@ -37,8 +37,8 @@ module.exports = {
     new CopyPlugin({
       patterns: [
         { from: 'public/index.html', to: 'index.html' },
-        { from: 'data/graph', to: 'data/graph' },
-        { from: 'data/sprites/*.png', to: 'sprites/[name].png' },
+        { from: 'data/graph', to: 'assets/data/graph' },
+        { from: 'data/sprites/*.png', to: 'assets/sprites/[name].png' },
       ],
     }),
   ],
