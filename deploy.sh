@@ -16,7 +16,7 @@ mkdir deploy/
 mkdir deploy/assets/
 
 cp public/index.html deploy/
-cp dist/app.* assets/
+cp dist/app.* deploy/assets/
 # TODO: images and graph data
 
 echo "Staging changes and pushing to gh-pages..."
