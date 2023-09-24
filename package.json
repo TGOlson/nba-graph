@@ -4,10 +4,14 @@
   "description": "Graph view of basketball-reference NBA data. Contains two main components, a scraper for downloading and saving the data, and a UI for visualizing it.",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build:graph": "npx webpack --config webpack/common.js --config webpack/graph.js --merge",
-    "watch:graph": "npx webpack watch --config webpack/common.js --config webpack/graph.js --merge",
-    "build:app": "npx webpack --config webpack/common.js --config webpack/app.js --merge",
-    "serve:app": "npx webpack serve --config webpack/common.js --config webpack/app.js --merge"
+
+    "graph:build": "npx webpack --config webpack/common.js --config webpack/graph.js --merge",
+    "graph:watch": "npx webpack watch --config webpack/common.js --config webpack/graph.js --merge",
+
+    "app:build": "npx webpack --config webpack/common.js --config webpack/app.js --merge",
+    "app:build-prod": "npx webpack --config webpack/common.js --config webpack/app.prod.js --merge",
+    "app:serve": "npx webpack serve --config webpack/common.js --config webpack/app.js --merge",
+    "clean": "rm -rf dist/ && rm -rf assets/"
   },
   "repository": {
     "type": "git",
