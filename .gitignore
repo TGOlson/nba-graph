@@ -1,5 +1,3 @@
-node_modules/
-old/
-dist/
-data/
-images/
+/node_modules
+/dist
+/data
