@@ -6,7 +6,7 @@ then
   exit
 fi
 
-git checkout -b gh-pages
+git checkout -B gh-pages
 
 echo "Building production app bundle..."
 npm run clean
@@ -22,6 +22,5 @@ git push origin gh-pages
 
 echo "Cleaning up..."
 npm run clean
-git branch -D gh-pages
 
 git checkout main
