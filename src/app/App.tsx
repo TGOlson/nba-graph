@@ -21,7 +21,16 @@ const App = () => {
   useEffect(() => {
     logDebug('Fetching graph data');
     void fetchGraphData().then((data) => { 
-      setData(data);
+      const nodes = data.nodes.map((node) => {
+        return {
+          ...node,
+          attributes: {
+            ...node.attributes,
+            image: node.attributes.image.replace('player', 'team'),
+          }
+        };
+      });
+      setData({...data, nodes});
 
       const urls = data.nodes.map((node) => node.attributes.image).filter(notNull);
       const uniqueUrls = [...new Set(urls)];
@@ -29,7 +38,7 @@ const App = () => {
       logDebug('Fetching urls', uniqueUrls);
       return Promise.all(uniqueUrls.map(fetchImage));
     }).then((images) => {
-      const sprite = combineImages(images);
+      const sprite = combineImages(images.filter(x => !x.src.includes('player')));
       setSprite(sprite);
 
       // set an extra timeout to avoid flickering on graph load
