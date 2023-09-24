@@ -4,10 +4,8 @@
   "description": "Graph view of basketball-reference NBA data. Contains two main components, a scraper for downloading and saving the data, and a UI for visualizing it.",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-
     "graph:build": "npx webpack --config webpack/common.js --config webpack/graph.js --merge",
     "graph:watch": "npx webpack watch --config webpack/common.js --config webpack/graph.js --merge",
-
     "app:build": "npx webpack --config webpack/common.js --config webpack/app.js --merge",
     "app:build-prod": "npx webpack --config webpack/common.js --config webpack/app.prod.js --merge",
     "app:serve": "npx webpack serve --config webpack/common.js --config webpack/app.js --merge",
@@ -29,6 +27,7 @@
     "@types/react-window": "^1.8.5",
     "@types/upng-js": "^2.1.3",
     "@typescript-eslint/eslint-plugin": "^5.47.0",
+    "copy-webpack-plugin": "^11.0.0",
     "css-loader": "^6.7.3",
     "eslint": "^8.30.0",
     "eslint-config-standard-with-typescript": "^24.0.0",
