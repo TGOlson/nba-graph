@@ -6,7 +6,7 @@ then
   exit
 fi
 
-git checkout -b gh-pages
+git checkout -B gh-pages
 
 echo "Building production app bundle..."
 npm run clean
