@@ -12,11 +12,17 @@ echo "Building production app bundle..."
 npm run clean
 npm run app:build-prod
 
-mkdir -p deploy/assets/
+mkdir -p deploy/assets/{data,fonts,sprites}
 
 cp public/index.html deploy/
+# app bundle
 cp dist/app.* deploy/assets/
-# TODO: images and graph data
+# compiled fonts
+cp -r dist/fonts deploy/assets/
+# graph data
+cp -r data/graph deploy/assets/data/
+# images
+cp -r data/sprites/*.png deploy/assets/sprites/
 
 echo "Staging changes and pushing to gh-pages..."
 git add deploy/

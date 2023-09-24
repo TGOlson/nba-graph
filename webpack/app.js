@@ -17,7 +17,7 @@ module.exports = {
     }, {
       test: /\.woff/,
       type: 'asset/resource',
-      generator: {  //If emitting file, the file path is
+      generator: {
         filename: 'fonts/[hash][ext][query]'
       }
     }]
