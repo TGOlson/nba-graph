@@ -8,7 +8,7 @@ module.exports = {
   output: {
     filename: 'app.bundle.js',
     path: path.resolve(__dirname, '../dist'),
-    publicPath: '/assets/js',
+    publicPath: '/nba-graph/assets/js',
   },
   module: { 
     rules: [{
@@ -33,19 +33,19 @@ module.exports = {
       },
       { 
         directory: path.resolve(__dirname, '../dist'),
-        publicPath: '/assets/js',
+        publicPath: '/nba-graph/assets/js',
       },
       { 
         directory: path.resolve(__dirname, '../data'),
-        publicPath: '/assets/data',
+        publicPath: '/nba-graph/assets/data',
       },
       { 
         directory: path.resolve(__dirname, '../data/img'),
-        publicPath: '/assets/img',
+        publicPath: '/nba-graph/assets/img',
       },
       { 
         directory: path.resolve(__dirname, '../data/sprites'),
-        publicPath: '/assets/sprites',
+        publicPath: '/nba-graph/assets/sprites',
       }      
     ],
     port: 3000,

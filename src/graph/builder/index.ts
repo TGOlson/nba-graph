@@ -5,7 +5,7 @@ import Color from "color";
 
 import { NBAData } from "../../shared/nba-types";
 import { NodeAttributes, SeasonToken, SpriteNodeAttributes } from "../../shared/types";
-import { assets } from "../util/assets";
+import { assets } from "../../shared/assets";
 import { GraphConfig } from "./config";
 import { loadSpriteColors, loadSpriteMapping } from "../storage";
 import { getProp, notNull, singleYearStr } from "../../shared/util";

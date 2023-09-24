@@ -1,5 +1,3 @@
-import { AwardImageId } from "../graph/util/assets";
-
 export type NBAType = 
    'league' |
    'season' |
@@ -66,6 +64,8 @@ export type PlayerSeason = {
   year: number; // can be derived, but convenient to have here
   url: string;
 };
+
+export type AwardImageId = 'allstar' | 'allstar_aba' | 'allstar_mvp' | 'champ' | 'finals_mvp' | 'mvp' | 'trophy' | 'hof';
 
 // MVP_NBA, DPOY_ABA...
 export type Award = {
