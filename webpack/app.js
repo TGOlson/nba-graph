@@ -8,12 +8,18 @@ module.exports = {
   output: {
     filename: 'app.bundle.js',
     path: path.resolve(__dirname, '../dist'),
-    publicPath: '/nba-graph/assets/js',
+    publicPath: '/nba-graph/assets/',
   },
   module: { 
     rules: [{
       test: /\.css$/i,
       use: ["style-loader", "css-loader"],
+    }, {
+      test: /\.woff/,
+      type: 'asset/resource',
+      generator: {  //If emitting file, the file path is
+        filename: 'fonts/[hash][ext][query]'
+      }
     }]
   },
   resolve: {
@@ -32,20 +38,12 @@ module.exports = {
         directory: path.resolve(__dirname, '../public') 
       },
       { 
-        directory: path.resolve(__dirname, '../dist'),
-        publicPath: '/nba-graph/assets/js',
-      },
-      { 
-        directory: path.resolve(__dirname, '../data'),
-        publicPath: '/nba-graph/assets/data',
-      },
-      { 
-        directory: path.resolve(__dirname, '../data/img'),
-        publicPath: '/nba-graph/assets/img',
+        directory: path.resolve(__dirname, '../data/graph'),
+        publicPath: '/nba-graph/assets/data/graph',
       },
       { 
         directory: path.resolve(__dirname, '../data/sprites'),
-        publicPath: '/nba-graph/assets/sprites',
+        publicPath: '/nba-graph/assets/sprites/',
       }      
     ],
     port: 3000,
