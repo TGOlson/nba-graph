@@ -27,7 +27,7 @@ import { CustomNodeAttributes } from '../../shared/types';
 import VisibleNodeTable from './VisibleNodesTable';
 import SearchOption from './NodeSearch/SearchOption';
 
-type FilterMenuProps = {
+type SidePanelProps = {
   filters: GraphFilters;
   nodeCounts: {[key: string]: {visible: number, total: number}};
   onFilterChange: (change: Partial<GraphFilters>) => void;
@@ -54,7 +54,7 @@ const leagueLabel = (league: string, years: string): React.ReactNode => {
   );
 };
 
-const FilterMenu = ({filters, nodeCounts, onFilterChange}: FilterMenuProps) => {
+const SidePanel = ({filters, nodeCounts, onFilterChange}: SidePanelProps) => {
   const [minYear, setMinYear] = useState(filters.minYear);
   const [maxYear, setMaxYear] = useState(filters.maxYear);
   const [drawerOpen, setDrawerOpen] = useState(true);
@@ -217,9 +217,12 @@ const FilterMenu = ({filters, nodeCounts, onFilterChange}: FilterMenuProps) => {
                   autocompleteOptionProps={{}}
                   wrapperStyle={{cursor: 'auto'}}
                 />
-                <IconButton size='sm' color='primary'>
-                  <OpenInNewIcon />
-                </IconButton>
+                {/* TODO: there may be cases where the link is not already truncated... */}
+                <Link href={`https://www.basketball-reference.com${selectedNode.attributes.url}`} target='_blank' rel="noreferrer">
+                  <IconButton size='sm' color='primary'>
+                    <OpenInNewIcon />
+                  </IconButton>
+                </Link>
               </Box>
             ) : 'n/a'}
           </Box>
@@ -242,4 +245,4 @@ const FilterMenu = ({filters, nodeCounts, onFilterChange}: FilterMenuProps) => {
   );
 };
 
-export default FilterMenu;
+export default SidePanel;

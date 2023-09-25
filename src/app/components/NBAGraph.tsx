@@ -10,7 +10,7 @@ import makeNodeSpriteProgramTriangles from '../program/node-sprite-triangles';
 import { GraphFilters, Sprite } from '../util/types';
 
 import GraphEvents, { isVisibleNode } from './GraphEventHandler';
-import FilterMenu, { DEFAULT_FILTERS } from './FilterMenu';
+import SidePanel, { DEFAULT_FILTERS } from './SidePanel';
 import NodeSearch from './NodeSearch';
 import ZoomControl from './ZoomControl';
 import { logDebug } from '../util/logger';
@@ -117,7 +117,7 @@ const NBAGraph = ({data, sprites}: DisplayGraphProps) => {
       settings={settings}
     >
       <GraphEvents filters={filters}/>
-      <FilterMenu filters={filters} nodeCounts={nodeCounts} onFilterChange={onFilterChange}/>
+      <SidePanel filters={filters} nodeCounts={nodeCounts} onFilterChange={onFilterChange}/>
       <NodeSearch nodes={visibleNodes} />
       <ZoomControl />
     </SigmaContainer>

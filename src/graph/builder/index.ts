@@ -162,6 +162,7 @@ export const buildGraph = async (rawData: NBAData, config: GraphConfig): Promise
     const attrs: NodeAttributes = {
       nbaType: 'league',
       label: league.id, 
+      url: league.url,
       size: config.sizes.league, 
       seasons: seasonTokens,
       color: config.nodeColors.default, 
@@ -182,6 +183,7 @@ export const buildGraph = async (rawData: NBAData, config: GraphConfig): Promise
       nbaType: 'season',
       name: `${season.leagueId} Season`,
       label: `${singleYearStr(season.year)} ${season.leagueId} Season`, 
+      url: season.url,
       rollupId: season.leagueId,
       seasons: [{leagueId: season.leagueId, year: season.year}],
       color: config.nodeColors.default, 
@@ -211,6 +213,7 @@ export const buildGraph = async (rawData: NBAData, config: GraphConfig): Promise
     const attrs: NodeAttributes = {
       nbaType: 'player',
       label: player.name, 
+      url: player.url,
       seasons,
       size, 
       color: config.nodeColors.default, 
@@ -231,6 +234,7 @@ export const buildGraph = async (rawData: NBAData, config: GraphConfig): Promise
     const attrs: NodeAttributes = { 
       nbaType: 'franchise',
       label: franchise.name, 
+      url: franchise.url,
       seasons: seasonTokens,
       size: config.sizes.franchise, 
       color: config.nodeColors.default, 
@@ -260,6 +264,7 @@ export const buildGraph = async (rawData: NBAData, config: GraphConfig): Promise
       nbaType: 'team',
       name: team.name,
       label, 
+      url: team.url,
       rollupId: team.franchiseId,
       seasons: [{leagueId, year: team.year}],
       size: config.sizes.team, 
@@ -295,6 +300,7 @@ export const buildGraph = async (rawData: NBAData, config: GraphConfig): Promise
       nbaType: 'award',
       name: award.name,
       label: award.name,
+      url: award.url,
       seasons,
       color: config.nodeColors.default,
       size: config.sizes.awardMax, // TODO: maybe filter by mvp, hof for max, others are default size?
@@ -320,6 +326,7 @@ export const buildGraph = async (rawData: NBAData, config: GraphConfig): Promise
       nbaType: 'multi-winner-award',
       name: award.name,
       label: label,
+      url: award.url,
       rollupId: baseAward.id,
       seasons: [{leagueId: baseAward.leagueId, year: award.year}],
       color: config.nodeColors.default,

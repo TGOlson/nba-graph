@@ -33,6 +33,7 @@ export type NodeAttributes = {
   nbaType: NBAType;
   name?: string; // use this for entities that have a different display name than the graph label
   label: string; // used for graph label
+  url: string;
 
   // search/filter props
   seasons: SeasonToken[];
