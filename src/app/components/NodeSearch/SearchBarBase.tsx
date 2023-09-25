@@ -19,7 +19,7 @@ const SearchBarBase = ({options, onSelect}: SearchBarBaseProps) => {
 
   const onSubItemSelect = (subItem: OptionSubItem) => {
     // set input to parent name, acting kinda like we selected the subitem (even thought it's not a real option)
-    setInputValue(subItem.label);
+    setInputValue(subItem.attrs.name ?? subItem.attrs.label);
     onSelect(subItem.key);
   };
 
@@ -76,7 +76,7 @@ const SearchBarBase = ({options, onSelect}: SearchBarBaseProps) => {
       //    if we actually used a selected value, it would be confusing when toggeling between parent and sub items
       value={null}
       onChange={(_event, value) => {
-        if (value) setInputValue(value.label);
+        if (value) setInputValue(value.attrs.label);
         if (value !== null) onSelect(value.key);
       }}
       inputValue={inputValue}

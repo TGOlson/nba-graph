@@ -3,27 +3,12 @@ import { useSigma } from '@react-sigma/core';
 
 import Box from '@mui/joy/Box';
 
-import { NBAGraphNode, NodeAttributes } from '../../shared/types';
-import { multiYearStr } from '../../shared/util';
+import { NBAGraphNode } from '../../shared/types';
 import { Option, OptionSubItem } from './NodeSearch/SearchOption';
 import SearchBarBase from './NodeSearch/SearchBarBase';
 
 type NodeSearchProps = {
   nodes: NBAGraphNode[];
-};
-
-const getSubLabel = (attrs: NodeAttributes): string => {
-  const years = attrs.seasons.map(x => x.year);
-
-  switch (attrs.nbaType) {
-    case 'league': return multiYearStr(years);
-    case 'franchise': return multiYearStr(years);
-    case 'team': return multiYearStr(years);
-    case 'player': return multiYearStr(years);
-    case 'season': return multiYearStr(years);
-    case 'award': return 'Award';
-    case 'multi-winner-award': return attrs.label.includes('All-Star') ? (years[0] as number).toString() : multiYearStr(years);
-  }
 };
 
 // Note: this component is seperate from the base component 
@@ -43,8 +28,7 @@ const NodeSearch = ({nodes}: NodeSearchProps) => {
 
       prev.push({
         key: node.key,
-        label: node.attributes.name ?? node.attributes.label,
-        subLabel: getSubLabel(attrs),
+        attrs,
       });
       acc[attrs.rollupId] = prev;
     }
@@ -55,7 +39,7 @@ const NodeSearch = ({nodes}: NodeSearchProps) => {
     const isPlayer = node.attributes.nbaType === 'player';
     const subItems = subItemsByRollupId[node.key];
 
-    const subItemsSearchArr = subItems?.map(x => x.label) ?? [];
+    const subItemsSearchArr = subItems?.map(x => x.attrs.label) ?? [];
     const searchString = [...new Set([
       node.attributes.label, 
       isPlayer ? '' : node.key, 
@@ -66,8 +50,6 @@ const NodeSearch = ({nodes}: NodeSearchProps) => {
     const attrs = node.attributes;
     return {
       key: node.key,
-      label: attrs.name ?? attrs.label,
-      subLabel: getSubLabel(attrs),
       searchString,
       subItems,
       attrs,

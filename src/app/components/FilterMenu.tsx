@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import Typography from '@mui/joy/Typography';
-import Card from '@mui/joy/Card';
 import Checkbox from '@mui/joy/Checkbox';
 import Box from '@mui/joy/Box';
 import Divider from '@mui/joy/Divider';
@@ -11,18 +10,26 @@ import Tooltip from '@mui/joy/Tooltip';
 import Drawer from '@mui/joy/Drawer';
 import ModalClose from '@mui/joy/ModalClose';
 import Link from '@mui/joy/Link';
-import List from '@mui/joy/List';
-import ListItem from '@mui/joy/ListItem';
 
 import IconButton from '@mui/joy/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import OpenInNewIcon from '@mui/icons-material/OpenInNew';
+import DialogContent from '@mui/joy/DialogContent';
+
+import { EventHandlers, useRegisterEvents, useSigma } from '@react-sigma/core';
+import { SigmaNodeEventPayload } from 'sigma/sigma';
+import { NodeDisplayData } from 'sigma/types';
 
 import { GraphFilters } from '../util/types';
 import { getProp } from '../../shared/util';
+import { CustomNodeAttributes } from '../../shared/types';
+import VisibleNodeTable from './VisibleNodesTable';
+import SearchOption from './NodeSearch/SearchOption';
 
 type FilterMenuProps = {
   filters: GraphFilters;
+  nodeCounts: {[key: string]: {visible: number, total: number}};
   onFilterChange: (change: Partial<GraphFilters>) => void;
 };
 
@@ -47,10 +54,40 @@ const leagueLabel = (league: string, years: string): React.ReactNode => {
   );
 };
 
-const FilterMenu = ({filters, onFilterChange}: FilterMenuProps) => {
+const FilterMenu = ({filters, nodeCounts, onFilterChange}: FilterMenuProps) => {
   const [minYear, setMinYear] = useState(filters.minYear);
   const [maxYear, setMaxYear] = useState(filters.maxYear);
   const [drawerOpen, setDrawerOpen] = useState(true);
+
+  const [selectedNode, setSelectedNode] = useState<{key: string, attributes: NodeDisplayData & CustomNodeAttributes} | null>(null);
+  // const [hoveredNode, setHoveredNode] = useState<string | null>(null);
+
+  const registerEvents: (eventHandlers: Partial<EventHandlers>) => void = useRegisterEvents();
+  const sigma = useSigma();
+
+  // TODO: this has to be moved, almost for sure needs to be a hook
+  useEffect(() => {
+    registerEvents({
+      clickNode: (baseEvent) => {
+        // event is hackily overloaded at one point to include a synthetic click event from the search bar
+        // adjust type here to make typescript happy
+        const event = baseEvent as SigmaNodeEventPayload & {syntheticClickEventFromSearch: boolean};
+        // logDebug('Click event', baseEvent, 'node', sigma.getGraph().getNodeAttributes(event.node));
+        const attributes = sigma.getGraph().getNodeAttributes(event.node) as (NodeDisplayData & CustomNodeAttributes);
+    
+        if (selectedNode && selectedNode.key === event.node && !event.syntheticClickEventFromSearch) {
+          setSelectedNode(null);
+        } else {
+          setSelectedNode({key: event.node, attributes});
+          // gotoNode(event.node, {duration: 250});
+        }
+        // setHoveredNode(null);
+      },
+      // enterNode: (event) => setHoveredNode(event.node),
+      // leaveNode: () => setHoveredNode(null),
+    });
+  }, [sigma, registerEvents, selectedNode]);
+
   
   return (
     <React.Fragment>
@@ -64,20 +101,30 @@ const FilterMenu = ({filters, onFilterChange}: FilterMenuProps) => {
         open={drawerOpen} 
         disableEnforceFocus
         onClose={() => setDrawerOpen(false)}
-        sx={{width: {sm: 'fit-content'}}}
+        sx={{
+          width: {sm: 'fit-content'},
+        }}
         slotProps={{
           backdrop: {sx: {display: {sm: 'none'}}},
           content: {sx: {maxWidth: '320px'}}
         }}
       >
-        <Card variant="plain">
+        <Box sx={{p: 2, pb: 0}}>
           <Typography level="title-lg" fontSize='24px'>NBA Graph</Typography>
           <ModalClose />
+        </Box>
+        <DialogContent sx={{gap: 1.5, p: 2}}>
           <Divider inset='none' />
-          <Typography level="title-md">Filters</Typography>
-          <Box sx={{display: 'flex', alignItems: 'center'}}>
+          <Box sx={{display: 'flex', alignItems: 'center', mt: 1}}>
             <Typography level="body-sm">Years</Typography>
-            <Tooltip size='sm' sx={{ml: '4px'}} arrow title="Basketball reference league year (eg. 2023 is the 2022-23 NBA season)" placement='right'>
+            <Tooltip 
+              size='sm' 
+              arrow 
+              sx={{ml: '4px'}}
+              title={<Typography level='inherit' sx={{width: '250px'}}>Basketball reference league year (eg. 2023 is the 2022-23 NBA season)</Typography>}
+              placement='right'
+              enterDelay={0}
+            >
               <InfoOutlinedIcon fontSize='small' />
             </Tooltip>
           </Box>
@@ -135,45 +182,61 @@ const FilterMenu = ({filters, onFilterChange}: FilterMenuProps) => {
               valueLabelDisplay="off"
               />
           </Box>
-        <Typography level="body-sm">Leagues</Typography>
-        {([
-          ['NBA', '1950-2023'],
-          ['ABA', '1968-1976'],
-          ['BAA', '1947-1949'],
-        ] as [string, string][]).map(([league, years]) => (
-          <Checkbox 
-            key={league}
-            size="sm" 
-            sx={{mb: '-4px'}}
-            label={leagueLabel(league, years)} 
-            checked={getProp(league, filters.leagues)} 
-            onChange={(e) => onFilterChange({leagues: {...filters.leagues, [league]: e.target.checked}})} 
-          />
-        ))}
-        <Typography level="body-sm" sx={{mt: 1}}>Misc.</Typography>
-        <Checkbox size="sm" label="Awards" checked={filters.awards} onChange={() => onFilterChange({awards: !filters.awards})} />
-        <Checkbox size="sm" label="Short career players" checked={filters.shortCareerPlayers} onChange={() => onFilterChange({shortCareerPlayers: !filters.shortCareerPlayers})} />
-        <Divider inset='none' sx={{mt: 1}}/>
-        <Typography level="title-md">Stats</Typography>
-        <Typography level="body-sm">Visible nodes</Typography>
-        <List>
-          <ListItem><Typography level="body-sm">Players: 2,000</Typography></ListItem>
-          <ListItem><Typography level="body-sm">Teams: 1500</Typography></ListItem>
-          <ListItem><Typography level="body-sm">Seasons: 80</Typography></ListItem>
-          <ListItem><Typography level="body-sm">Leagues: 3</Typography></ListItem>
-          <ListItem><Typography level="body-sm">Franchises: 53</Typography></ListItem>
-        </List>
-        <Divider inset='none' sx={{mt: 1}}/>
-        <Link 
-          href="https://github.com/TGOlson/nba-graph" 
-          level="body-sm" 
-          target="_blank"
-          sx={{width: 'fit-content'}}
-          rel="noreferrer"
-        >
-          GitHub
-        </Link>
-      </Card>
+          <Typography level="body-sm">Leagues</Typography>
+          {([
+            ['NBA', '1950-2023'],
+            ['ABA', '1968-1976'],
+            ['BAA', '1947-1949'],
+          ] as [string, string][]).map(([league, years]) => (
+            <Checkbox 
+              key={league}
+              size="sm" 
+              sx={{mb: '-4px'}}
+              label={leagueLabel(league, years)} 
+              checked={getProp(league, filters.leagues)} 
+              onChange={(e) => onFilterChange({leagues: {...filters.leagues, [league]: e.target.checked}})} 
+            />
+          ))}
+          <Typography level="body-sm" sx={{mt: 2}}>Misc.</Typography>
+          <Checkbox size="sm" label="Awards" checked={filters.awards} onChange={() => onFilterChange({awards: !filters.awards})} />
+          <Checkbox size="sm" label="Short career players" checked={filters.shortCareerPlayers} onChange={() => onFilterChange({shortCareerPlayers: !filters.shortCareerPlayers})} />
+          <Divider inset='none' sx={{mt: 2}}/>
+          <Typography level="body-xs" sx={{mt: 1}}>Selected node</Typography>
+          <Box>
+            {selectedNode ? (
+              <Box className="select-node-preview" sx={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+              }}>
+                <SearchOption 
+                  option={{key: selectedNode.key, searchString: '', attrs: selectedNode.attributes}} 
+                  expanded={false}
+                  setExpanded={() => null}
+                  onSubItemSelect={() => null}
+                  autocompleteOptionProps={{}}
+                  wrapperStyle={{cursor: 'auto'}}
+                />
+                <IconButton size='sm' color='primary'>
+                  <OpenInNewIcon />
+                </IconButton>
+              </Box>
+            ) : 'n/a'}
+          </Box>
+          <Divider inset='none' sx={{mt: 1}}/>
+          <Typography level="body-xs" sx={{mt: 1}}>Visible nodes</Typography>
+          <VisibleNodeTable nodeCounts={nodeCounts} />
+          <Divider inset='none' sx={{mt: 1}}/>
+          <Link 
+            href="https://github.com/TGOlson/nba-graph" 
+            level="body-xs" 
+            target="_blank"
+            sx={{width: 'fit-content'}}
+            rel="noreferrer"
+          >
+            GitHub
+          </Link>
+        </DialogContent>
       </Drawer>
     </React.Fragment>
   );

@@ -14,6 +14,7 @@ import FilterMenu, { DEFAULT_FILTERS } from './FilterMenu';
 import NodeSearch from './NodeSearch';
 import ZoomControl from './ZoomControl';
 import { logDebug } from '../util/logger';
+import { NBAGraphNode } from '../../shared/types';
 
 type DisplayGraphProps = {
   data: GraphData;
@@ -93,7 +94,21 @@ const NBAGraph = ({data, sprites}: DisplayGraphProps) => {
     setFilters({ ...filters, ...change });
   };
 
-  const nodes = data.nodes.filter((node) => isVisibleNode(filters, node.attributes));
+
+  const visibleNodes: NBAGraphNode[] = [];
+  const nodeCounts: {[key: string]: {visible: number, total: number}} = {};
+
+  data.nodes.forEach((node) => {
+    const isVisible = isVisibleNode(filters, node.attributes);
+    if (isVisible) visibleNodes.push(node);
+
+    const key = node.attributes.nbaType === 'multi-winner-award' ? 'award' : node.attributes.nbaType;
+    const prev = nodeCounts[key] ?? {visible: 0, total: 0};
+    prev.total++;
+    if (isVisible) prev.visible++;
+
+    nodeCounts[key] = prev;
+  });
 
   return (
     <SigmaContainer 
@@ -102,8 +117,8 @@ const NBAGraph = ({data, sprites}: DisplayGraphProps) => {
       settings={settings}
     >
       <GraphEvents filters={filters}/>
-      <FilterMenu filters={filters} onFilterChange={onFilterChange}/>
-      <NodeSearch nodes={nodes} />
+      <FilterMenu filters={filters} nodeCounts={nodeCounts} onFilterChange={onFilterChange}/>
+      <NodeSearch nodes={visibleNodes} />
       <ZoomControl />
     </SigmaContainer>
   );

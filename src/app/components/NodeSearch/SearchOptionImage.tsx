@@ -2,14 +2,15 @@ import React from 'react';
 
 import Box from '@mui/joy/Box';
 
-import { Option } from "./SearchOption";
+import { NodeAttributes } from '../../../shared/types';
 
 type SearchOptionImageProps = {
-  option: Option;
+  image: NodeAttributes['image'];
+  crop: NodeAttributes['crop'];
 };
 
-const SearchOptionImage = ({option}: SearchOptionImageProps) => {
-  const {image, crop: {width, height, x, y}} = option.attrs;
+const SearchOptionImage = ({image, crop}: SearchOptionImageProps) => {
+  const {width, height, x, y} = crop;
 
   return (
     <Box 

@@ -14,16 +14,16 @@ type GraphEventsProps = {
   filters: GraphFilters;
 };
 
-export const isVisibleNode = (filters: GraphFilters, data: NodeAttributes): boolean => {
-  if (!filters.awards && data.nbaType === 'award') return false;
+export const isVisibleNode = (filters: GraphFilters, {seasons, nbaType}: NodeAttributes): boolean => {
+  if (!filters.awards && (nbaType === 'award' || nbaType === 'multi-winner-award')) return false;
 
-  if (!filters.shortCareerPlayers && data.nbaType === 'player') {
-    const n = data.seasons.length;
-    const shortCareer = n <= 3 && getIndex(n - 1, data.seasons).year !== 2023;
+  if (!filters.shortCareerPlayers && nbaType === 'player') {
+    const n = seasons.length;
+    const shortCareer = n <= 3 && getIndex(n - 1, seasons).year !== 2023;
     if (shortCareer) return false;
   }
 
-  return data.seasons.some((season) => {
+  return seasons.some((season) => {
     return filters.leagues[season.leagueId] && isWithinYearRange(filters, season.year);
   });
 };

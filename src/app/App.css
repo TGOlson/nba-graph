@@ -8,3 +8,7 @@ body {
   cursor: auto;
   background-color: inherit !important;
 }
+
+.select-node-preview li:hover {
+  background-color: inherit !important;
+}
