@@ -9,11 +9,5 @@ export const assets = {
     nodes: `${BASE_GRAPH_PATH}/nodes.json`,
     edges: `${BASE_GRAPH_PATH}/edges.json`,
   },
-  img: {
-    franchiseSprite: `${BASE_SPRITE_PATH}/franchise.png`,
-    teamSprite: `${BASE_SPRITE_PATH}/team.png`,
-    playerSprite: `${BASE_SPRITE_PATH}/player.png`,
-    leagueSprite: `${BASE_SPRITE_PATH}/league.png`,
-    awardSprite: `${BASE_SPRITE_PATH}/award.png`,
-  }
+  spriteUrl: (spriteId: string) => `${BASE_SPRITE_PATH}/${spriteId}.png`,
 };

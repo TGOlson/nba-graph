@@ -1,4 +1,4 @@
-import { mkdir, readFile, writeFile } from "fs/promises";
+import { mkdir, readFile, writeFile, readdir } from "fs/promises";
 import Graph from "graphology";
 import path from "path";
 
@@ -22,6 +22,7 @@ import {
   AWARD_PATH,
   MULTI_WINNER_AWARD_PATH,
   AWARD_RECIPIENT_PATH,
+  SPRITE_PATH,
 } from './paths';
 
 // ** read
@@ -69,14 +70,19 @@ export async function loadNBAData(): Promise<NBAData> {
   };
 }
 
-export function loadSpriteMapping(typ: NBAType): Promise<SelectionMap> {
-  const reader: Read<SelectionMap> = readJSON(spriteMappingPath(typ));
+export function loadSpriteMapping(spriteId: string): Promise<SelectionMap> {
+  const reader: Read<SelectionMap> = readJSON(spriteMappingPath(spriteId));
   return reader();
 }
 
-export function loadSpriteColors(typ: NBAType): Promise<{[key: string]: Palette}> {
-  const reader: Read<{[key: string]: Palette}> = readJSON(spriteColorsPath(typ));
+export function loadSpriteColors(spriteId: string): Promise<{[key: string]: Palette}> {
+  const reader: Read<{[key: string]: Palette}> = readJSON(spriteColorsPath(spriteId));
   return reader();
+}
+
+export async function loadSpriteIds(): Promise<string[]> {
+  const filenames = await readdir(SPRITE_PATH);
+  return filenames.filter(x => x.includes('png')).map(filename => path.basename(filename, '.png'));
 }
 
 // ** write

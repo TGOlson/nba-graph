@@ -24,11 +24,11 @@ export const GRAPH_EDGES_PATH = path.resolve(GRAPH_PATH, 'edges.json');
 
 // images
 const IMAGE_PATH = path.resolve(ROOT_DIR, './img');
-export const imageDir = (typ: NBAType) => path.resolve(IMAGE_PATH, typ);
-export const imgPath = (typ: NBAType, id: string, fileType: string) => path.resolve(imageDir(typ), `${id}.${fileType}`);
+export const imageDir = (typ: NBAType | null) => path.resolve(IMAGE_PATH, typ ?? '');
+export const imgPath = (typ: NBAType | null, id: string, fileType: string) => path.resolve(imageDir(typ), `${id}.${fileType}`);
 
 // sprites 
-const SPRITE_PATH = path.resolve(ROOT_DIR, './sprites');
-export const spritePath = (typ: NBAType) => path.resolve(SPRITE_PATH, `${typ}.png`);
-export const spriteMappingPath = (typ: NBAType) => path.resolve(SPRITE_PATH, `${typ}.mapping.json`);
-export const spriteColorsPath = (typ: NBAType) => path.resolve(SPRITE_PATH, `${typ}.colors.json`);
+export const SPRITE_PATH = path.resolve(ROOT_DIR, './sprites');
+export const spritePath = (spriteId: string) => path.resolve(SPRITE_PATH, `${spriteId}.png`);
+export const spriteMappingPath = (spriteId: string) => path.resolve(SPRITE_PATH, `${spriteId}.mapping.json`);
+export const spriteColorsPath = (spriteId: string) => path.resolve(SPRITE_PATH, `${spriteId}.colors.json`);

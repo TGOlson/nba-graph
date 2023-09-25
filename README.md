@@ -137,8 +137,8 @@ The output graph data is stored in `./data/graph/graph.json`. The graph is built
 * deploy
  * ~~setup github page~~
 * last cleanups
+  * ~~consider breaking up player sprite by last name~~
   * better mobile support
-  * consider breaking up player sprite by last name
   * adjust player node size for awards
   * improve locations (do this last after adding more node types)
   * fun AI logo
@@ -149,3 +149,4 @@ The output graph data is stored in `./data/graph/graph.json`. The graph is built
   * mobile
     * labels get too big
     * rotate is weird
+  * git lfs to store scraped data?

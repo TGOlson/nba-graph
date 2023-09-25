@@ -8,21 +8,22 @@ import { seasonParser } from "./parsers/season";
 import { makeTeamParser } from "./parsers/team";
 import { makePlayerSeasonParser } from "./parsers/player-season";
 
-import { loadFranchises, loadNBAData, loadPlayers, loadTeams, persistAwards, persistFranchises, persistGraph, persistJSON, persistLeagues, persistPlayers, persistPlayerSeasons, persistMultiWinnerAwards, persistAwardRecipients, persistSeasons, persistTeams, readJSON } from "./storage";
-import { imageDir, spriteColorsPath, spriteMappingPath, spritePath } from "./storage/paths";
+import { loadFranchises, loadNBAData, loadPlayers, loadTeams, persistAwards, persistFranchises, persistGraph, persistJSON, persistLeagues, persistPlayers, persistPlayerSeasons, persistMultiWinnerAwards, persistAwardRecipients, persistSeasons, persistTeams, readJSON, loadSpriteIds } from "./storage";
+import { imageDir, imgPath, spriteColorsPath, spriteMappingPath, spritePath } from "./storage/paths";
 
 import { buildGraph } from "./builder";
 import { GRAPH_CONFIG } from "./builder/config";
 
 import { makeDelayedFetch, makeFetch } from "./util/fetch";
 import { execSeq } from "./util/promise";
-import { createSpriteImage, noopTransform, parseSpriteColorPallette, playerTransform, teamTransform } from "./util/image";
-import { NBAType } from "../shared/nba-types";
+import { createSpriteImage, parseSpriteColorPallette, playerTransform, teamTransform } from "./util/image";
 import { allStarUrl, awardUrls, LEAGUE_CHAMP_URL } from "./util/bref-url";
 import { validAllStarSeasons } from "./parsers/awards/all-star";
 import { runAwardsParsers } from "./parsers/awards";
 import path from "path";
 import { NBAGraphNode } from "../shared/types";
+import { readdir } from "fs/promises";
+import Jimp from "jimp";
 
 const VERBOSE_FETCH = true;
 const FETCH_DELAY_MS = 6000; // basketball-reference seems to get mad at >~30 req/m
@@ -60,7 +61,7 @@ const commands = {
   },
   misc: {
     ConvertImages: '--convert-images',
-    ConvertImagesTwo: '--convert-images-two',
+    // ConvertImagesTwo: '--convert-images-two',
     ParsePrimaryColors: '--parse-primary-colors',
     Test: '--test',
   },
@@ -232,42 +233,50 @@ async function main() {
 
     // *** misc commands
     case commands.misc.ConvertImages: {
+      const readDirPaths = (dir: string): Promise<string[]> => {
+        return readdir(dir).then(filenames => filenames.map(filename => path.resolve(dir, filename)));
+      };
 
-      // Quick google on max texture size support:
-      // > 99.9% of devices support 4096x4096
-      // ~80% of devices support 8192x8192
-      // ~70% of devices support 16384x16384
-  
+      const playerPaths = await readDirPaths(imageDir('player'));
+      const n = playerPaths.length;
+      const playerPaths0 = playerPaths.slice(0, n / 2);
+      const playerPaths1 = playerPaths.slice(n / 2, n);
 
-      return await execSeq([
-        {typ: 'franchise' as NBAType, transform: teamTransform},
-        {typ: 'team' as NBAType, transform: teamTransform},
-        {typ: 'player' as NBAType, transform: playerTransform}
-      ].map(({typ, transform}) => 
-        () => {
-          console.log('Building sprite for: ', typ);
-          return createSpriteImage(imageDir(typ), spritePath(typ), spriteMappingPath(typ), transform);
-        }
-      ));
-    }
-    case commands.misc.ConvertImagesTwo: {
-      return await execSeq([
-        {typ: 'award' as NBAType, transform: noopTransform},
-        {typ: 'league' as NBAType, transform: noopTransform},
-      ].map(({typ, transform}) => 
-        () => {
-          console.log('Building sprite for: ', typ);
-          return createSpriteImage(imageDir(typ), spritePath(typ), spriteMappingPath(typ), transform);
-        }
-      ));
+      const otherPaths = (await Promise.all([
+        readDirPaths(imageDir('team')),
+        readDirPaths(imageDir('franchise')),
+        readDirPaths(imageDir('award')),
+        readDirPaths(imageDir('league')),
+        [
+          imgPath(null, 'player_default', 'png'),
+          imgPath(null, 'team_default', 'png'),
+        ]
+      ])).flat();
+      
+      const otherTransform = (key: string, image: Jimp): Jimp => {
+        // Super hacky, but doesn't feel worth it to refactor transform scheme now...
+        // Basically use team transform for all 3 letter keys (with or without trailing years) that aren't NBA, ABA, or BAA
+        // We want to apploy this to all team and franchise images, and nothing else...
+        return key.match(/(?!NBA|ABA|BAA)[A-Z]{3}/) ? teamTransform(key, image) : image;
+      };
+
+      return Promise.all([
+        {paths: playerPaths0, transform: playerTransform, dedupe: false},
+        {paths: playerPaths1, transform: playerTransform, dedupe: false},
+        {paths: otherPaths, transform: otherTransform, dedupe: true},
+      ].map(({paths, transform, dedupe}, index) => {
+        const key = `sprite_${index}`;
+        return createSpriteImage(paths, spritePath(key), spriteMappingPath(key), transform, dedupe);
+      }));
     }
 
     case commands.misc.ParsePrimaryColors: {
-      const types: NBAType[] = ['franchise', 'team', 'award', 'league'];
-      return await execSeq(types.map(typ =>
+      const spriteIds = await loadSpriteIds();
+
+      return await execSeq(spriteIds.map(spriteId =>
         async () => {
-          const colors = await parseSpriteColorPallette(typ);
-          return persistJSON(spriteColorsPath(typ))(colors);
+          const colors = await parseSpriteColorPallette(spriteId);
+          return persistJSON(spriteColorsPath(spriteId))(colors);
         }
       ));
     }

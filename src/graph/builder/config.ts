@@ -1,5 +1,3 @@
-import Color from "color";
-
 export type GraphConfig = {
   startYear: number | null;
   endYear: number | null;
@@ -15,18 +13,14 @@ export type GraphConfig = {
     awardDefault: number;
   };
   borderColors: {
-    franchise: string;
     team: string;
     player: string;
-    award: string;
   };
   nodeColors: {
     default: string;
-    award: string;
   };
   edgeColors: {
     default: string;
-    award: string;
   };
 };
 
@@ -44,25 +38,14 @@ export const GRAPH_CONFIG: GraphConfig = {
     awardMax: 6,
     awardDefault: 4,
   },
-  // Note: these colors are only used when a image is not defined for a node
-  // This should never happen for player nodes, but may happen for franchise and team nodes
-  // colors: {
-  //   franchise: '#C6C3BD',
-  //   team: '#C6C3BD',
-  //   player: '#C6C3BD'
-  // },
   nodeColors: {
-    default: '#C6C3BD',
-    award: '#FFFFFF',
+    default: '#C6C3BD', // TODO: remove?
   },
   borderColors: {
-    franchise: '#FFFFFF',
     team: '#FFFFFF',
     player: '#C6C3BD',
-    award: '#dd1b32',
   },
   edgeColors: {
     default: '#CCCCCC',
-    award: Color('#ec9921').lighten(0.3).hex()
   },
 };

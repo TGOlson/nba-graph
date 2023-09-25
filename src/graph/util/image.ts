@@ -1,14 +1,13 @@
-import { readdir, writeFile } from 'fs/promises';
+import { writeFile } from 'fs/promises';
 import Jimp from 'jimp';
-import path from 'path';
 import Vibrant from 'node-vibrant';
 
 import { loadSpriteMapping, persistJSON } from '../storage';
 import {createSprite, ImageSource, Sprite} from 'quick-sprite';
-import { NBAType } from '../../shared/nba-types';
 import { Palette } from '../../shared/types';
 import { spritePath } from '../storage/paths';
 import { decode, encode, toRGBA8 } from 'upng-js';
+import { basename, extname } from 'path';
 
 // 4096 for iPhone 4S and newer, some older devices may have lower limits
 // modern browsers are much higher...
@@ -61,18 +60,17 @@ export const playerTransform = (key: string, image: Jimp): Jimp => {
   return base.composite(resized, PLAYER_IMAGE_X_PADDING, PLAYER_IMAGE_TOP_PADDING);
 };
 
-export async function createSpriteImage(inputDir: string, imagePath: string, mappingPath: string, transform?: (_key: string, image: Jimp) => Jimp): Promise<void> {
-  const fileNames: string[] = await readdir(inputDir);
-  const sources: ImageSource[] = fileNames.map(f => {
-    const key = f.split('.')[0];
-    if (!key) throw new Error(`Unable to parse key for: ${f}`);
+export async function createSpriteImage(paths: string[], imagePath: string, mappingPath: string, transform?: (_key: string, image: Jimp) => Jimp, dedupe = false): Promise<void> {
+  const sources: ImageSource[] = paths.map(path => {
+    const key = basename(path, extname(path));
+    if (!key) throw new Error(`Unable to parse key for: ${path}`);
 
-    return {key, path: path.resolve(inputDir, f)};
+    return {key, path};
   });
 
   const {image, mapping}: Sprite = await createSprite(sources, {
     fillMode: {type: 'row', maxWidth: MAX_WIDTH},
-    dedupe: {diffPercent: 0},
+    dedupe: dedupe ? {diffPercent: 0} : false,
     transform,
     debug: true,
   });
@@ -104,9 +102,9 @@ export async function parseColorPalette(img: Jimp): Promise<Partial<Palette>> {
   };
 }
 
-export async function eachSpriteImage(typ: NBAType, fn: (key: string, img: Jimp) => Promise<void>): Promise<void> {
-  const sprite = await Jimp.read(spritePath(typ));
-  const spriteMapping = await loadSpriteMapping(typ);
+export async function eachSpriteImage(spriteId: string, fn: (key: string, img: Jimp) => Promise<void>): Promise<void> {
+  const sprite = await Jimp.read(spritePath(spriteId));
+  const spriteMapping = await loadSpriteMapping(spriteId);
 
   for (const [key, coords] of Object.entries(spriteMapping)) {
     const img = sprite.clone().crop(coords.x, coords.y, coords.width, coords.height);
@@ -114,10 +112,10 @@ export async function eachSpriteImage(typ: NBAType, fn: (key: string, img: Jimp)
   }
 }
 
-export async function parseSpriteColorPallette(typ: NBAType): Promise<{[key: string]: Palette}> {
+export async function parseSpriteColorPallette(spriteId: string): Promise<{[key: string]: Palette}> {
   const res: {[key: string]: Palette} = {};
 
-  await eachSpriteImage(typ, async (key, img) => {
+  await eachSpriteImage(spriteId, async (key, img) => {
     const palette = await parseColorPalette(img);
 
     if (!isFullPallette(palette)) throw new Error(`Unexpected partial palette for: ${key}`);
