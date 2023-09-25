@@ -51,7 +51,7 @@ const FilterMenu = ({filters, onFilterChange}: FilterMenuProps) => {
   return (
     <React.Fragment>
       <Box sx={{top: 0, m: 1, position: 'absolute'}}>
-        <IconButton variant="outlined" color="neutral" onClick={() => setDrawerOpen(true)}>
+        <IconButton variant="outlined" color="neutral" sx={{backgroundColor: '#ffffff'}} onClick={() => setDrawerOpen(true)}>
           <MenuIcon />
         </IconButton>
       </Box>
@@ -59,11 +59,13 @@ const FilterMenu = ({filters, onFilterChange}: FilterMenuProps) => {
         variant="plain"
         open={drawerOpen} 
         onClose={() => setDrawerOpen(false)}
-        sx={{width: 300, height: {sm: 'fit-content'}}}
+        sx={{height: {sm: 'fit-content'}}}
+        disableEnforceFocus
         slotProps={{
           backdrop: {sx: {display: {sm: 'none'}}},
           content: {
             sx: {
+              width: 316,
               bgcolor: {sm: 'transparent'},
               p: { sm: 1, xs: 0 },
               boxShadow: 'none',
@@ -73,8 +75,9 @@ const FilterMenu = ({filters, onFilterChange}: FilterMenuProps) => {
         }}
         >
         <Card sx={{
-          // "--Card-radius": {sm: "6px", xs: '0px'},
+          "--Card-radius": "6px",
           borderWidth: {sm: '1px', xs: 0},
+          width: 300,
           // border: {sm: 'auto', xs: 'none'},
           height: {sm: 'fit-content'},
         }}>
