@@ -39,7 +39,7 @@ export const GRAPH_CONFIG: GraphConfig = {
     awardDefault: 4,
   },
   nodeColors: {
-    default: '#C6C3BD', // TODO: remove?
+    default: '#C6C3BD', // need this for opacity background on hover
   },
   borderColors: {
     team: '#FFFFFF',
