@@ -31,7 +31,7 @@ const SearchBarBase = ({options, onSelect}: SearchBarBaseProps) => {
   return (
     <Autocomplete 
       sx={{ 
-        width: (focused || hovered) ? 300 : 240, 
+        width: {sm: (focused || hovered) ? 300 : 240, xs: 240}, 
         transition: 'width 0.15s ease-in-out',
       }}
       slots={{

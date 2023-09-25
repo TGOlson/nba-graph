@@ -8,16 +8,16 @@ import Divider from '@mui/joy/Divider';
 import Input from '@mui/joy/Input';
 import Slider from '@mui/joy/Slider';
 import Tooltip from '@mui/joy/Tooltip';
-import CardOverflow from '@mui/joy/CardOverflow';
-import IconButton from '@mui/joy/IconButton';
+import Drawer from '@mui/joy/Drawer';
+import ModalClose from '@mui/joy/ModalClose';
 
+import IconButton from '@mui/joy/IconButton';
+import MenuIcon from '@mui/icons-material/Menu';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
-import KeyboardDoubleArrowDownIcon from '@mui/icons-material/KeyboardDoubleArrowDown';
-import KeyboardDoubleArrowUpIcon from '@mui/icons-material/KeyboardDoubleArrowUp';
 
 import { GraphFilters } from '../util/types';
 
-type HeaderProps = {
+type FilterMenuProps = {
   filters: GraphFilters;
   onFilterChange: (change: Partial<GraphFilters>) => void;
 };
@@ -43,23 +43,43 @@ const leagueLabel = (league: string, years: string): React.ReactNode => {
   );
 };
 
-const HeaderMenu = ({filters, onFilterChange}: HeaderProps) => {
+const FilterMenu = ({filters, onFilterChange}: FilterMenuProps) => {
   const [minYear, setMinYear] = useState(filters.minYear);
   const [maxYear, setMaxYear] = useState(filters.maxYear);
-  const [expanded, setExpanded] = useState(true);
+  const [drawerOpen, setDrawerOpen] = useState(true);
   
   return (
-    <Card variant='outlined' sx={{
-      top: 0,
-      m: 1,
-      position: 'absolute', 
-      width: 300,
-      boxShadow: 'none',
-      "--Card-radius": "6px",
-    }}>
-      <Typography level="title-lg">NBA Graph</Typography>
-      {expanded ? <React.Fragment>
-        <Divider inset="none" />
+    <React.Fragment>
+      <Box sx={{top: 0, m: 1, position: 'absolute'}}>
+        <IconButton variant="outlined" color="neutral" onClick={() => setDrawerOpen(true)}>
+          <MenuIcon />
+        </IconButton>
+      </Box>
+      <Drawer 
+        variant="plain"
+        open={drawerOpen} 
+        onClose={() => setDrawerOpen(false)}
+        sx={{width: 300, height: {sm: 'fit-content'}}}
+        slotProps={{
+          backdrop: {sx: {display: {sm: 'none'}}},
+          content: {
+            sx: {
+              bgcolor: {sm: 'transparent'},
+              p: { sm: 1, xs: 0 },
+              boxShadow: 'none',
+              height: {sm: 'fit-content'},
+            },
+          },
+        }}
+        >
+        <Card sx={{
+          // "--Card-radius": {sm: "6px", xs: '0px'},
+          borderWidth: {sm: '1px', xs: 0},
+          // border: {sm: 'auto', xs: 'none'},
+          height: {sm: 'fit-content'},
+        }}>
+        <Typography level="title-lg">NBA Graph</Typography>
+        <ModalClose />
         <Box sx={{display: 'flex', alignItems: 'center'}}>
           <Typography level="body-sm">Years</Typography>
           <Tooltip size='sm' sx={{ml: '2px'}} arrow title="Basketball reference league year (eg. 2023 is the 2022-23 NBA season)" placement='right'>
@@ -150,24 +170,10 @@ const HeaderMenu = ({filters, onFilterChange}: HeaderProps) => {
             <InfoOutlinedIcon fontSize='small' />
           </Tooltip>
         </Box>
-      </React.Fragment> : null}
-      <CardOverflow 
-        variant="soft" 
-        sx={{ 
-          display: 'flex',
-          padding: 0,
-          mt: expanded ? 1 : undefined, 
-          flexDirection: 'column',
-          alignItems: 'center',
-        }}
-      >
-        <Divider sx={{width: '100%'}} />
-        <IconButton sx={{"--IconButton-size": "20px"}} onClick={() => setExpanded(!expanded)}>
-          {expanded ? <KeyboardDoubleArrowUpIcon color='inherit' /> : <KeyboardDoubleArrowDownIcon color='inherit' />}
-        </IconButton>
-      </CardOverflow>
-    </Card>
+      </Card>
+      </Drawer>
+    </React.Fragment>
   );
 };
 
-export default HeaderMenu;
+export default FilterMenu;

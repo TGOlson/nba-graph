@@ -20,6 +20,7 @@ const ZoomControl = () => {
       gap: 0,
       padding: 0,
       "--Card-radius": "6px",
+      display: {sm: 'flex', xs: 'none'}
     }}>
       <IconButton onClick={() => zoomIn()} size='sm'>
         <AddIcon />
