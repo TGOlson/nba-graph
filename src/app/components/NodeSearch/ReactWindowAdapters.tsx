@@ -39,7 +39,9 @@ const RenderRow = ({ data, index, style }: RenderRowProps) => {
   }; 
 
   return isNoResults(props) 
-    ? <AutocompleteOption sx={{...wrapperStyle}} className="searchbar-no-options">{props.message}</AutocompleteOption>
+    ? <AutocompleteOption sx={{...wrapperStyle}} className="searchbar-no-options">
+        {props.message} {/* eslint-disable-line */}
+      </AutocompleteOption> 
     : <SearchOption {...props} wrapperStyle={wrapperStyle} />;
 };
 

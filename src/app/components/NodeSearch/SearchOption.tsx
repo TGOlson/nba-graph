@@ -54,22 +54,15 @@ const SearchOption = (props: SearchOptionProps) => {
 
   return (
     <Box>
-      <AutocompleteOption style={{...wrapperStyle, height: OPTION_HEIGHT}} {...autocompleteOptionProps}>
-        <ListItemDecorator>
-          <Box sx={{ width: '40px', height: '40px'}}>
-            <SearchOptionImage option={option}/>
-          </Box>
-        </ListItemDecorator>
-        <ListItemContent sx={{ fontSize: option.label.length > 25 ? 'sm' : 'md', ml: 1 }}>
-          <Typography level='inherit' noWrap>{option.label}</Typography>
-          <Typography level="body-xs">{option.subLabel}</Typography>
-        </ListItemContent>
-        {option.subItems && 
-          <IconButton
+      <ListItem 
+        {...autocompleteOptionProps} 
+        style={{...wrapperStyle, height: OPTION_HEIGHT}} 
+        slots={{root: AutocompleteOption}} 
+        endAction={option.subItems 
+          ? <IconButton
             variant="plain"
             color='primary'
             size="sm"
-            sx={{borderRadius: '50%'}}
             onClick={(e) => {
               e.stopPropagation();
               setExpanded(!expanded);
@@ -77,8 +70,19 @@ const SearchOption = (props: SearchOptionProps) => {
           >
             {expanded ? <KeyboardDoubleArrowUpIcon /> : <KeyboardDoubleArrowDownIcon />}
           </IconButton>
+          : null 
         }
-      </AutocompleteOption>
+      >
+        <ListItemDecorator>
+          <Box sx={{ width: '40px', height: '40px'}}>
+            <SearchOptionImage option={option}/>
+          </Box>
+        </ListItemDecorator>
+        <ListItemContent sx={{ fontSize: option.label.length > 25 ? 'sm' : 'md', ml: 1, width: '100%' }}>
+          <Typography level='inherit' noWrap>{option.label}</Typography>
+          <Typography level="body-xs">{option.subLabel}</Typography>
+        </ListItemContent>
+      </ListItem>
       {option.subItems && expanded ? <Box sx={{
         ml: 4, 
         width: '250px', // 300 search bar - 32 margin left - 18 margin right
