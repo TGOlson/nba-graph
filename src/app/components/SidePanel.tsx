@@ -131,7 +131,7 @@ const YearFilters = ({filters, onFilterChange}: Pick<SidePanelProps, 'filters' |
 const SelectedNodeLink = ({selectedNode}: Pick<SidePanelProps, 'selectedNode'>) => {
   const previewOption = selectedNode 
     ? {key: selectedNode.key, searchString: '', attrs: selectedNode.attributes}
-    : {placeholder: 'Nothing selected!'};
+    : {placeholder: 'Nothing selected'};
   
   const href = selectedNode 
     ? `https://www.basketball-reference.com${selectedNode.attributes.url}` 
@@ -139,7 +139,7 @@ const SelectedNodeLink = ({selectedNode}: Pick<SidePanelProps, 'selectedNode'>) 
 
   return (
     <Box>
-      <Typography level="body-sm" sx={{mb: 2}}>Selected node</Typography>
+      <Typography level="body-sm" sx={{mb: 1}}>Selected node</Typography>
       <Box className="select-node-preview" sx={{
         display: 'flex',
         alignItems: 'center',

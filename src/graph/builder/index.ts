@@ -88,7 +88,7 @@ export const buildGraph = async (rawData: NBAData, config: GraphConfig): Promise
     return {spriteId, imageUrl, mapping, colors};
   }));
 
-  const maybeGetSpriteAttributes = (key: string): {attributes: SpriteNodeAttributes, primaryColor: string} | null => {
+  const maybeGetSpriteAttributes = (key: string): {attributes: SpriteNodeAttributes, palette: Palette} | null => {
     // Find which sprite data contains the given key
     const spriteData = spriteLookupData.find(x => x.mapping[key]);
     if (!spriteData) return null;
@@ -101,26 +101,23 @@ export const buildGraph = async (rawData: NBAData, config: GraphConfig): Promise
         image: imageUrl,
         crop: getProp(key, mapping),
       },
-      primaryColor: getProp(key, colors).primary,
+      palette: getProp(key, colors),
     };
   };
 
 
-  const getSpriteAttributes = (key: string): {attributes: SpriteNodeAttributes, primaryColor: string} => {
+  const getSpriteAttributes = (key: string): {attributes: SpriteNodeAttributes, palette: Palette} => {
     const attrs = maybeGetSpriteAttributes(key);
     if (!attrs) throw new Error(`Unexpected error: no sprite data for ${key}`);
 
     return attrs;
   };
 
-  const defaultPlayerSpriteAttributes = {
-    ...getSpriteAttributes(PLAYER_DEFAULT_CROP_ID),
-    primaryColor: config.borderColors.player,
-  };
-  const defaultTeamSpriteAttributes = {
-    ...getSpriteAttributes(TEAM_DEFAULT_CROP_ID),
-    primaryColor: config.borderColors.team,
-  };
+  const defaultPlayerSpriteAttributes = getSpriteAttributes(PLAYER_DEFAULT_CROP_ID);
+  defaultPlayerSpriteAttributes.palette.primary = config.borderColors.player;
+
+  const defaultTeamSpriteAttributes = getSpriteAttributes(TEAM_DEFAULT_CROP_ID);
+  defaultTeamSpriteAttributes.palette.primary = config.borderColors.team;
 
   const seasonsById = toMap(x => x.id, data.seasons);
   const teamsById = toMap(x => x.id, data.teams);
@@ -166,7 +163,7 @@ export const buildGraph = async (rawData: NBAData, config: GraphConfig): Promise
       size: config.sizes.league, 
       seasons: seasonTokens,
       color: config.nodeColors.default, 
-      borderColor: spriteAttrs.primaryColor,
+      borderColor: spriteAttrs.palette.primary,
       ...spriteAttrs.attributes, 
     };
 
@@ -175,7 +172,7 @@ export const buildGraph = async (rawData: NBAData, config: GraphConfig): Promise
 
   data.seasons.forEach(season => {
     const spriteAttrs = getSpriteAttributes(season.leagueId);
-    const borderColor = spriteAttrs.primaryColor;
+    const borderColor = spriteAttrs.palette.primary;
 
     const edgeColor = Color(borderColor).lighten(0.3).hex();
 
@@ -231,6 +228,9 @@ export const buildGraph = async (rawData: NBAData, config: GraphConfig): Promise
     const seasons = franchiseTeams.map(team => seasonsById[team.seasonId]).filter(notNull);
     const seasonTokens = seasons.map(season => ({leagueId: season.leagueId, year: season.year})).sort((a, b) => a.year - b.year);
 
+    // For some reason the parsed MN palette primary is really bad... just use dark instead
+    const borderColor = franchise.id === 'MIN' ? spriteAttrs.palette.dark : spriteAttrs.palette.primary;
+
     const attrs: NodeAttributes = { 
       nbaType: 'franchise',
       label: franchise.name, 
@@ -238,7 +238,7 @@ export const buildGraph = async (rawData: NBAData, config: GraphConfig): Promise
       seasons: seasonTokens,
       size: config.sizes.franchise, 
       color: config.nodeColors.default, 
-      borderColor: spriteAttrs.primaryColor,
+      borderColor,
       ...spriteAttrs.attributes, 
     };
 
@@ -254,8 +254,9 @@ export const buildGraph = async (rawData: NBAData, config: GraphConfig): Promise
     const leagueId = seasonsById[team.seasonId]?.leagueId;
     if (!leagueId) throw new Error(`Unexpected error: no leagueId for team ${team.name} ${team.year}`);
     
-    const borderColor = spriteAttrs.primaryColor;
-    const leagueColor = getSpriteAttributes(leagueId).primaryColor;
+    // For some reason the parsed MN palette primary is really bad... just use dark instead
+    const borderColor = team.id.includes('MIN') ? spriteAttrs.palette.dark : spriteAttrs.palette.primary;
+    const leagueColor = getSpriteAttributes(leagueId).palette.primary;
     
     const teamEdgeColor = borderColor === config.borderColors.team ? config.edgeColors.default : Color(borderColor).lighten(0.3).hex();
     const seasonEdgeColor = Color(leagueColor).lighten(0.3).hex();
@@ -304,7 +305,7 @@ export const buildGraph = async (rawData: NBAData, config: GraphConfig): Promise
       seasons,
       color: config.nodeColors.default,
       size: config.sizes.awardMax, // TODO: maybe filter by mvp, hof for max, others are default size?
-      borderColor: spriteAttrs.primaryColor,
+      borderColor: spriteAttrs.palette.primary,
       ...spriteAttrs.attributes,
     };
 
@@ -317,7 +318,7 @@ export const buildGraph = async (rawData: NBAData, config: GraphConfig): Promise
 
     const spriteAttrs = getSpriteAttributes(award.image.id);
 
-    const borderColor = spriteAttrs.primaryColor;
+    const borderColor = spriteAttrs.palette.primary;
     const edgeColor = Color(borderColor).lighten(0.3).hex();
 
     const label = award.name.includes('All-Star') ? `${award.name} (${award.year})` : `${award.name} (${singleYearStr(award.year)})`;
@@ -344,10 +345,10 @@ export const buildGraph = async (rawData: NBAData, config: GraphConfig): Promise
   // *************
 
   data.playerSeasons.forEach(pt => {
-    const teamPrimary = maybeGetSpriteAttributes(pt.teamId)?.primaryColor;
+    const teamPalette = maybeGetSpriteAttributes(pt.teamId)?.palette;
   
-    const color = teamPrimary
-      ? Color(teamPrimary).lighten(0.3).hex()
+    const color = teamPalette
+      ? Color(pt.teamId.includes('MIN') ? teamPalette.dark : teamPalette.primary).lighten(0.3).hex()
       : config.edgeColors.default;
 
     graph.addEdge(pt.playerId, pt.teamId, {color, hidden: true});
@@ -363,7 +364,7 @@ export const buildGraph = async (rawData: NBAData, config: GraphConfig): Promise
       const award = awardsById[recipient.awardId] ?? multiWinnerAwardsById[recipient.awardId];
       if (!award) throw new Error(`Unexpected error: no award for recipient ${recipient.recipientId} ${recipient.awardId}`);
 
-      const borderColor = getSpriteAttributes(award.image.id).primaryColor;      
+      const borderColor = getSpriteAttributes(award.image.id).palette.primary;      
       const edgeColor = Color(borderColor).lighten(0.3).hex();
 
       graph.addEdge(recipient.recipientId, recipient.awardId, {color: edgeColor, hidden: true, year: recipient.year, nbaType: 'award'});

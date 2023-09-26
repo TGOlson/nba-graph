@@ -1,5 +1,4 @@
 import path from "path";
-import { Season } from "../../shared/nba-types";
 
 const BASE_URL = 'https://www.basketball-reference.com';
 

@@ -93,19 +93,17 @@ const SearchOption = (props: SearchOptionProps) => {
           : null 
         }
       >
-        <ListItemDecorator>
-          <Box sx={{ width: '40px', height: '40px'}}>
-            {isPlaceholder(option) 
-              ? <SearchOptionImage type='placeholder' /> 
-              : <SearchOptionImage image={option.attrs.image} crop={option.attrs.crop}/>
-            }
-          </Box>
+        <ListItemDecorator sx={{ width: '44px', height: '44px', minInlineSize: '44px'}}>
+          {isPlaceholder(option) 
+            ? <SearchOptionImage type='placeholder' /> 
+            : <SearchOptionImage image={option.attrs.image} crop={option.attrs.crop} borderColor={option.attrs.borderColor}/>
+          }
         </ListItemDecorator>
         <ListItemContent sx={{ fontSize: 'md', ml: 1, width: '100%' }}>
           <Typography level='inherit' noWrap>
             {isPlaceholder(option) ? option.placeholder : option.attrs.name ?? option.attrs.label}
           </Typography>
-          {isPlaceholder(option) ? null : <Typography level="body-xs">{getSubLabel(option.attrs)}</Typography>}
+          {isPlaceholder(option) ? <Typography level="body-xs">Click the graph to get started!</Typography> : <Typography level="body-xs">{getSubLabel(option.attrs)}</Typography>}
         </ListItemContent>
       </ListItem>
       {!isPlaceholder(option) && option.subItems && expanded ? <Box sx={{

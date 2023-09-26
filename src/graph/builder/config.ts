@@ -43,7 +43,7 @@ export const GRAPH_CONFIG: GraphConfig = {
   },
   borderColors: {
     team: '#FFFFFF',
-    player: '#C6C3BD',
+    player: '#DDE7EE',
   },
   edgeColors: {
     default: '#CCCCCC',
