@@ -9,7 +9,7 @@ import { RenderParams } from 'sigma/rendering/webgl/programs/common/program';
 import Sigma from 'sigma';
 
 import { FRAGMENT_SHADER_GLSL, VERTEX_SHADER_GLSL } from './shaders-triangles';
-import { CustomNodeAttributes } from '../../shared/types';
+import { NodeAttributes } from '../../shared/types';
 import { logDebug } from '../util/logger';
 import { Sprite } from '../util/types';
 
@@ -92,7 +92,7 @@ export default function makeNodeSpriteProgramTriangles(sprite: Sprite) {
       gl.generateMipmap(gl.TEXTURE_2D);
     }
 
-    process(data: NodeDisplayData & CustomNodeAttributes, hidden: boolean, offset: number): void {
+    process(data: NodeDisplayData & NodeAttributes, hidden: boolean, offset: number): void {
       const array = this.array;
       let i = offset * POINTS * ATTRIBUTES;
 

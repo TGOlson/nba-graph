@@ -15,6 +15,7 @@ import NodeSearch from './NodeSearch';
 import ZoomControl from './ZoomControl';
 import { logDebug } from '../util/logger';
 import { NBAGraphNode } from '../../shared/types';
+import { useSelectedNode } from '../hooks/useSelectedNode';
 
 type DisplayGraphProps = {
   data: GraphData;
@@ -110,16 +111,28 @@ const NBAGraph = ({data, sprites}: DisplayGraphProps) => {
     nodeCounts[key] = prev;
   });
 
+  // Do this to provide multiple components with access to the selected node
+  const InnerComponents = () => {
+    const useSelectedNodeRes = useSelectedNode();
+    const {selectedNode, setSelectedNode} = useSelectedNodeRes;
+
+    return (
+      <React.Fragment>
+        <GraphEvents filters={filters} {...useSelectedNodeRes} />
+        <SidePanel filters={filters} nodeCounts={nodeCounts} selectedNode={selectedNode} onFilterChange={onFilterChange}/>
+        <NodeSearch nodes={visibleNodes} setSelectedNode={setSelectedNode}/>
+        <ZoomControl />
+      </React.Fragment>
+    );
+  };
+
   return (
     <SigmaContainer 
       style={{ height: "100vh", backgroundColor: "#fcfcfc" }} 
       graph={graph}
       settings={settings}
     >
-      <GraphEvents filters={filters}/>
-      <SidePanel filters={filters} nodeCounts={nodeCounts} onFilterChange={onFilterChange}/>
-      <NodeSearch nodes={visibleNodes} />
-      <ZoomControl />
+      <InnerComponents />
     </SigmaContainer>
   );
 };

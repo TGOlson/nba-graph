@@ -1,17 +1,18 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 
-import { EventHandlers, useCamera } from "@react-sigma/core";
-import { useSigma, useRegisterEvents, useSetSettings } from "@react-sigma/core";
+import { useCamera } from "@react-sigma/core";
+import { useSigma, useSetSettings } from "@react-sigma/core";
 import { Attributes } from 'graphology-types';
 import { NodeDisplayData } from 'sigma/types';
-import { CustomNodeAttributes, NodeAttributes } from '../../shared/types';
+import { NBAGraphNode, NodeAttributes } from '../../shared/types';
 import { GraphFilters } from '../util/types';
-import { SigmaNodeEventPayload } from 'sigma/sigma';
-import { logDebug } from '../util/logger';
 import { getIndex } from '../../shared/util';
 
 type GraphEventsProps = {
   filters: GraphFilters;
+  selectedNode: NBAGraphNode | null;
+  setSelectedNode: (node: NBAGraphNode | null) => void;
+  hoveredNode: string | null;
 };
 
 export const isVisibleNode = (filters: GraphFilters, {seasons, nbaType}: NodeAttributes): boolean => {
@@ -32,43 +33,24 @@ const isWithinYearRange = (filters: GraphFilters, year: number): boolean => {
   return year >= filters.minYear && year <= filters.maxYear;
 };
 
-const GraphEvents = ({filters}: GraphEventsProps) => {
+const GraphEvents = ({filters, selectedNode: selectedNodeFull, setSelectedNode, hoveredNode}: GraphEventsProps) => {
   const sigma = useSigma();
   (window as any).sigma = sigma; // eslint-disable-line
 
   const setSettings = useSetSettings();
-  const registerEvents: (eventHandlers: Partial<EventHandlers>) => void = useRegisterEvents();
   const { gotoNode } = useCamera();
 
-  const [selectedNode, setSelectedNode] = useState<string | null>(null);
-  const [hoveredNode, setHoveredNode] = useState<string | null>(null);
+  const selectedNode = selectedNodeFull?.key ?? null;
 
   useEffect(() => {
-    registerEvents({
-      clickNode: (baseEvent) => {
-        // event is hackily overloaded at one point to include a synthetic click event from the search bar
-        // adjust type here to make typescript happy
-        const event = baseEvent as SigmaNodeEventPayload & {syntheticClickEventFromSearch: boolean};
-        logDebug('Click event', baseEvent, 'node', sigma.getGraph().getNodeAttributes(event.node));
-    
-        if (selectedNode === event.node && !event.syntheticClickEventFromSearch) {
-          setSelectedNode(null);
-        } else {
-          setSelectedNode(event.node);
-          gotoNode(event.node, {duration: 250});
-        }
-        setHoveredNode(null);
-      },
-      enterNode: (event) => setHoveredNode(event.node),
-      leaveNode: () => setHoveredNode(null),
-    });
-  }, [gotoNode, registerEvents, selectedNode, hoveredNode]);
+    if (selectedNode) gotoNode(selectedNode, {duration: 250});
+  }, [selectedNode]);
 
   useEffect(() => {
     setSettings({
-      nodeReducer: (node: string, baseData: Attributes): Partial<NodeDisplayData & CustomNodeAttributes> => {
+      nodeReducer: (node: string, baseData: Attributes): Partial<NodeDisplayData & NodeAttributes> => {
         // a little type cohersion to make typescript happy
-        const data = baseData as (NodeDisplayData & CustomNodeAttributes);
+        const data = baseData as (NodeDisplayData & NodeAttributes);
 
         const isVisible = isVisibleNode(filters, data);
 

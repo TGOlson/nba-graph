@@ -65,7 +65,7 @@ const SearchOption = (props: SearchOptionProps) => {
   } = props;
 
   return (
-    <Box>
+    <Box sx={{overflowX: 'auto'}}>
       <ListItem 
         {...autocompleteOptionProps} 
         sx={{...wrapperStyle, height: OPTION_HEIGHT}} 
@@ -90,7 +90,7 @@ const SearchOption = (props: SearchOptionProps) => {
             <SearchOptionImage image={option.attrs.image} crop={option.attrs.crop}/>
           </Box>
         </ListItemDecorator>
-        <ListItemContent sx={{ fontSize: option.attrs.label.length > 25 ? 'sm' : 'md', ml: 1, width: '100%' }}>
+        <ListItemContent sx={{ fontSize: 'md', ml: 1, width: '100%' }}>
           <Typography level='inherit' noWrap>{option.attrs.name ?? option.attrs.label}</Typography>
           <Typography level="body-xs">{getSubLabel(option.attrs)}</Typography>
         </ListItemContent>

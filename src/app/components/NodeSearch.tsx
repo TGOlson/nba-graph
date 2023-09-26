@@ -1,5 +1,4 @@
 import React from 'react';
-import { useSigma } from '@react-sigma/core';
 
 import Box from '@mui/joy/Box';
 
@@ -9,18 +8,12 @@ import SearchBarBase from './NodeSearch/SearchBarBase';
 
 type NodeSearchProps = {
   nodes: NBAGraphNode[];
+  setSelectedNode: (node: string) => void;
 };
 
 // Note: this component is seperate from the base component 
 // to avoid re-computing options and filters on every input change
-const NodeSearch = ({nodes}: NodeSearchProps) => {
-  const sigma = useSigma();
-
-  const onSelect = (id: string) => {
-    // hacky, but provides a really nice way to trigger a synthetic click event on the graph : )
-    (sigma as any)._events.clickNode({node: id, syntheticClickEventFromSearch: true}); // eslint-disable-line
-  };
-
+const NodeSearch = ({nodes, setSelectedNode}: NodeSearchProps) => {
   const subItemsByRollupId = nodes.reduce<{[key: string]: OptionSubItem[]}>((acc, node) => {
     const attrs = node.attributes;
     if (attrs.rollupId) {
@@ -63,7 +56,7 @@ const NodeSearch = ({nodes}: NodeSearchProps) => {
       m: 1,
       position: 'absolute', 
     }}>
-      <SearchBarBase options={options} onSelect={onSelect} />
+      <SearchBarBase options={options} onSelect={setSelectedNode} />
     </Box>
   );
 };

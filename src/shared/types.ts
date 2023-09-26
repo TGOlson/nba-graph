@@ -17,9 +17,6 @@ export type SpriteNodeAttributes = {
   crop: Selection
 };
 
-// used in graph rendering
-export type CustomNodeAttributes = {muted?: boolean, borderColor: string} & NodeAttributes;
-
 export type NBAGraphNode = SerializedNode & {attributes: NodeAttributes};
 
 export type SeasonToken = {
@@ -43,4 +40,5 @@ export type NodeAttributes = {
   color: string;
   borderColor: string;
   size: number;
+  muted?: boolean;
 } & SpriteNodeAttributes;

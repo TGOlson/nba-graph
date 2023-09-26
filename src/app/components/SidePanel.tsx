@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 
 import Typography from '@mui/joy/Typography';
 import Checkbox from '@mui/joy/Checkbox';
@@ -17,18 +17,15 @@ import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import DialogContent from '@mui/joy/DialogContent';
 
-import { EventHandlers, useRegisterEvents, useSigma } from '@react-sigma/core';
-import { SigmaNodeEventPayload } from 'sigma/sigma';
-import { NodeDisplayData } from 'sigma/types';
-
 import { GraphFilters } from '../util/types';
 import { getProp } from '../../shared/util';
-import { CustomNodeAttributes } from '../../shared/types';
 import VisibleNodeTable from './VisibleNodesTable';
 import SearchOption from './NodeSearch/SearchOption';
+import { NBAGraphNode } from '../../shared/types';
 
 type SidePanelProps = {
   filters: GraphFilters;
+  selectedNode: NBAGraphNode | null;
   nodeCounts: {[key: string]: {visible: number, total: number}};
   onFilterChange: (change: Partial<GraphFilters>) => void;
 };
@@ -54,41 +51,11 @@ const leagueLabel = (league: string, years: string): React.ReactNode => {
   );
 };
 
-const SidePanel = ({filters, nodeCounts, onFilterChange}: SidePanelProps) => {
+const SidePanel = ({filters, nodeCounts, selectedNode, onFilterChange}: SidePanelProps) => {
   const [minYear, setMinYear] = useState(filters.minYear);
   const [maxYear, setMaxYear] = useState(filters.maxYear);
   const [drawerOpen, setDrawerOpen] = useState(true);
 
-  const [selectedNode, setSelectedNode] = useState<{key: string, attributes: NodeDisplayData & CustomNodeAttributes} | null>(null);
-  // const [hoveredNode, setHoveredNode] = useState<string | null>(null);
-
-  const registerEvents: (eventHandlers: Partial<EventHandlers>) => void = useRegisterEvents();
-  const sigma = useSigma();
-
-  // TODO: this has to be moved, almost for sure needs to be a hook
-  useEffect(() => {
-    registerEvents({
-      clickNode: (baseEvent) => {
-        // event is hackily overloaded at one point to include a synthetic click event from the search bar
-        // adjust type here to make typescript happy
-        const event = baseEvent as SigmaNodeEventPayload & {syntheticClickEventFromSearch: boolean};
-        // logDebug('Click event', baseEvent, 'node', sigma.getGraph().getNodeAttributes(event.node));
-        const attributes = sigma.getGraph().getNodeAttributes(event.node) as (NodeDisplayData & CustomNodeAttributes);
-    
-        if (selectedNode && selectedNode.key === event.node && !event.syntheticClickEventFromSearch) {
-          setSelectedNode(null);
-        } else {
-          setSelectedNode({key: event.node, attributes});
-          // gotoNode(event.node, {duration: 250});
-        }
-        // setHoveredNode(null);
-      },
-      // enterNode: (event) => setHoveredNode(event.node),
-      // leaveNode: () => setHoveredNode(null),
-    });
-  }, [sigma, registerEvents, selectedNode]);
-
-  
   return (
     <React.Fragment>
       <Box sx={{top: 0, m: 1, position: 'absolute'}}>
@@ -201,7 +168,7 @@ const SidePanel = ({filters, nodeCounts, onFilterChange}: SidePanelProps) => {
           <Checkbox size="sm" label="Awards" checked={filters.awards} onChange={() => onFilterChange({awards: !filters.awards})} />
           <Checkbox size="sm" label="Short career players" checked={filters.shortCareerPlayers} onChange={() => onFilterChange({shortCareerPlayers: !filters.shortCareerPlayers})} />
           <Divider inset='none' sx={{mt: 2}}/>
-          <Typography level="body-xs" sx={{mt: 1}}>Selected node</Typography>
+          <Typography level="body-sm" sx={{mt: 1}}>Selected node</Typography>
           <Box>
             {selectedNode ? (
               <Box className="select-node-preview" sx={{
@@ -227,7 +194,7 @@ const SidePanel = ({filters, nodeCounts, onFilterChange}: SidePanelProps) => {
             ) : 'n/a'}
           </Box>
           <Divider inset='none' sx={{mt: 1}}/>
-          <Typography level="body-xs" sx={{mt: 1}}>Visible nodes</Typography>
+          <Typography level="body-sm" sx={{mt: 1}}>Visible nodes</Typography>
           <VisibleNodeTable nodeCounts={nodeCounts} />
           <Divider inset='none' sx={{mt: 1}}/>
           <Link 
