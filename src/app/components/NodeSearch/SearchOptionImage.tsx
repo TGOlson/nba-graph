@@ -1,15 +1,22 @@
 import React from 'react';
 
 import Box from '@mui/joy/Box';
+import Skeleton from '@mui/joy/Skeleton';
 
 import { NodeAttributes } from '../../../shared/types';
 
 type SearchOptionImageProps = {
+  type: 'placeholder'
+} | {
+  type?: 'image',
   image: NodeAttributes['image'];
   crop: NodeAttributes['crop'];
 };
 
-const SearchOptionImage = ({image, crop}: SearchOptionImageProps) => {
+const SearchOptionImage = (props: SearchOptionImageProps) => {
+  if (props.type === 'placeholder') return <Skeleton variant="circular" animation={false} width={40} height={40} />;
+
+  const {crop, image} = props;
   const {width, height, x, y} = crop;
 
   return (

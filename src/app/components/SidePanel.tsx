@@ -52,11 +52,24 @@ const leagueLabel = (league: string, years: string): React.ReactNode => {
 };
 
 const YearFilters = ({filters, onFilterChange}: Pick<SidePanelProps, 'filters' | 'onFilterChange'>) => {
-    const [minYear, setMinYear] = useState(filters.minYear);
-    const [maxYear, setMaxYear] = useState(filters.maxYear);
+  const [minYear, setMinYear] = useState(filters.minYear);
+  const [maxYear, setMaxYear] = useState(filters.maxYear);
 
   return (
     <React.Fragment>
+      <Box sx={{display: 'flex', alignItems: 'center'}}>
+        <Typography level="body-sm">Years</Typography>
+        <Tooltip 
+          size='sm' 
+          arrow 
+          sx={{ml: '4px'}}
+          title={<Typography level='inherit' sx={{width: '250px'}}>Basketball reference league year (eg. 2023 is the 2022-23 NBA season)</Typography>}
+          placement='right'
+          enterDelay={0}
+        >
+          <InfoOutlinedIcon fontSize='small' />
+        </Tooltip>
+      </Box>
       <Box sx={{display: 'flex'}}>
         <Input 
           size="sm" 
@@ -115,6 +128,42 @@ const YearFilters = ({filters, onFilterChange}: Pick<SidePanelProps, 'filters' |
   );
 };
 
+const SelectedNodeLink = ({selectedNode}: Pick<SidePanelProps, 'selectedNode'>) => {
+  const previewOption = selectedNode 
+    ? {key: selectedNode.key, searchString: '', attrs: selectedNode.attributes}
+    : {placeholder: 'Nothing selected!'};
+  
+  const href = selectedNode 
+    ? `https://www.basketball-reference.com${selectedNode.attributes.url}` 
+    : undefined;
+
+  return (
+    <Box>
+      <Typography level="body-sm" sx={{mb: 2}}>Selected node</Typography>
+      <Box className="select-node-preview" sx={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+      }}>
+        <SearchOption 
+          option={previewOption} 
+          expanded={false}
+          setExpanded={() => null}
+          onSubItemSelect={() => null}
+          autocompleteOptionProps={{}}
+          wrapperStyle={{cursor: 'auto'}}
+        />
+        {/* TODO: there may be cases where the link is not already truncated... */}
+        <Link href={href} disabled={!selectedNode} target='_blank' rel="noreferrer">
+          <IconButton disabled={!selectedNode} size='sm' color='primary'>
+            <OpenInNewIcon />
+          </IconButton>
+        </Link>
+      </Box>
+    </Box>
+  );
+};
+
 const SidePanel = ({filters, nodeCounts, selectedNode, onFilterChange}: SidePanelProps) => {
   const [drawerOpen, setDrawerOpen] = useState(true);
 
@@ -143,20 +192,9 @@ const SidePanel = ({filters, nodeCounts, selectedNode, onFilterChange}: SidePane
           <ModalClose />
         </Box>
         <DialogContent sx={{gap: 1.5, p: 2}}>
-          <Divider inset='none' />
-          <Box sx={{display: 'flex', alignItems: 'center', mt: 1}}>
-            <Typography level="body-sm">Years</Typography>
-            <Tooltip 
-              size='sm' 
-              arrow 
-              sx={{ml: '4px'}}
-              title={<Typography level='inherit' sx={{width: '250px'}}>Basketball reference league year (eg. 2023 is the 2022-23 NBA season)</Typography>}
-              placement='right'
-              enterDelay={0}
-            >
-              <InfoOutlinedIcon fontSize='small' />
-            </Tooltip>
-          </Box>
+          <Divider inset='none' sx={{mb: 1}}/>
+          <SelectedNodeLink selectedNode={selectedNode} />
+          <Divider inset='none' sx={{mb: 1}} />
           <YearFilters filters={filters} onFilterChange={onFilterChange} />
           <Typography level="body-sm">Leagues</Typography>
           {([
@@ -176,39 +214,13 @@ const SidePanel = ({filters, nodeCounts, selectedNode, onFilterChange}: SidePane
           <Typography level="body-sm" sx={{mt: 2}}>Misc.</Typography>
           <Checkbox size="sm" label="Awards" checked={filters.awards} onChange={() => onFilterChange({awards: !filters.awards})} />
           <Checkbox size="sm" label="Short career players" checked={filters.shortCareerPlayers} onChange={() => onFilterChange({shortCareerPlayers: !filters.shortCareerPlayers})} />
-          <Divider inset='none' sx={{mt: 2}}/>
-          <Typography level="body-sm" sx={{mt: 1}}>Selected node</Typography>
-          <Box>
-            {selectedNode ? (
-              <Box className="select-node-preview" sx={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-              }}>
-                <SearchOption 
-                  option={{key: selectedNode.key, searchString: '', attrs: selectedNode.attributes}} 
-                  expanded={false}
-                  setExpanded={() => null}
-                  onSubItemSelect={() => null}
-                  autocompleteOptionProps={{}}
-                  wrapperStyle={{cursor: 'auto'}}
-                />
-                {/* TODO: there may be cases where the link is not already truncated... */}
-                <Link href={`https://www.basketball-reference.com${selectedNode.attributes.url}`} target='_blank' rel="noreferrer">
-                  <IconButton size='sm' color='primary'>
-                    <OpenInNewIcon />
-                  </IconButton>
-                </Link>
-              </Box>
-            ) : 'n/a'}
-          </Box>
-          <Divider inset='none' sx={{mt: 1}}/>
-          <Typography level="body-sm" sx={{mt: 1}}>Visible nodes</Typography>
+          <Divider inset='none' sx={{mt: 2, mb: 1}}/>
+          <Typography level="body-sm">Visible nodes</Typography>
           <NodeCountTable nodeCounts={nodeCounts} />
           <Divider inset='none' sx={{mt: 1}}/>
           <Link 
             href="https://github.com/TGOlson/nba-graph" 
-            level="body-xs" 
+            level="body-sm" 
             target="_blank"
             sx={{width: 'fit-content'}}
             rel="noreferrer"

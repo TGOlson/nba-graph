@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import Autocomplete from '@mui/joy/Autocomplete';
 import SearchIcon from '@mui/icons-material/Search';
 
-import { Option, OptionSubItem, SearchOptionProps } from './SearchOption';
+import { Option, OptionSubItem, BaseSearchOptionProps } from './SearchOption';
 import { ListboxComponent } from './ReactWindowAdapters';
 
 type SearchBarBaseProps = {
@@ -53,7 +53,7 @@ const SearchBarBase = ({options, onSelect}: SearchBarBaseProps) => {
       
       options={options}
       renderOption={(props, option) => {
-        const searchOptionProps: Omit<SearchOptionProps, 'wrapperStyle'> = {
+        const searchOptionProps: Omit<BaseSearchOptionProps, 'wrapperStyle'> = {
           option, 
           expanded: expandedOptions[option.key] ?? false,
           setExpanded: (expanded: boolean) => setExpandedOptions({...expandedOptions, [option.key]: expanded}),

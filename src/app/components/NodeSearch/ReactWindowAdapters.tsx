@@ -5,7 +5,7 @@ import { Popper } from '@mui/base/Popper';
 import AutocompleteListbox from '@mui/joy/AutocompleteListbox';
 import AutocompleteOption from '@mui/joy/AutocompleteOption';
 
-import SearchOption, { OPTION_HEIGHT, OPTION_SUBITEM_HEIGHT, SearchOptionProps } from './SearchOption';
+import SearchOption, { OPTION_HEIGHT, OPTION_SUBITEM_HEIGHT, BaseSearchOptionProps } from './SearchOption';
 import { getIndex } from '../../../shared/util';
 
 // ***
@@ -20,12 +20,12 @@ type NoResults = {
   message: string;
 };
 
-const isNoResults = (item: SearchOptionProps | NoResults): item is NoResults => {
+const isNoResults = (item: BaseSearchOptionProps | NoResults): item is NoResults => {
   return 'message' in item;
 };
 
 export type RenderRowProps = {
-  data: (SearchOptionProps | NoResults)[];
+  data: (BaseSearchOptionProps | NoResults)[];
   index: number;
   style: React.CSSProperties;
 };
@@ -77,7 +77,7 @@ export const ListboxComponent = React.forwardRef<HTMLDivElement, ListboxComponen
   const { children, anchorEl, open, modifiers, ...other } = props;
 
   const listRef = React.useRef<VariableSizeList>(null);
-  const rowDataBase = getIndex(0, (children as (SearchOptionProps | NoResults)[][]));
+  const rowDataBase = getIndex(0, (children as (BaseSearchOptionProps | NoResults)[][]));
   const rowData = rowDataBase.length > 0 ? rowDataBase : [{ key: 'no-results', message: 'No results found'}];
   
   // By default react-window does a lot of aggressive caching.
@@ -88,7 +88,7 @@ export const ListboxComponent = React.forwardRef<HTMLDivElement, ListboxComponen
     listRef.current?.resetAfterIndex(0);
   }, [rowData]);
   
-  const getRow = (index: number): SearchOptionProps | NoResults => getIndex(index, rowData);
+  const getRow = (index: number): BaseSearchOptionProps | NoResults => getIndex(index, rowData);
 
   const getKey = (index: number): string => {
     const res = getRow(index);

@@ -31,13 +31,21 @@ export type OptionSubItem = {
   attrs: NodeAttributes;
 };
 
-export type SearchOptionProps = {
+export type BaseSearchOptionProps = {
   option: Option;
   expanded: boolean,
   setExpanded: (expanded: boolean) => void,
   onSubItemSelect: (subItem: OptionSubItem) => void,
   wrapperStyle: React.CSSProperties,
   autocompleteOptionProps: Omit<React.HTMLAttributes<HTMLLIElement>, 'color'>, 
+};
+
+type SearchOptionProps = Omit<BaseSearchOptionProps, 'option'> & {
+  option: Option | {placeholder: string};
+};
+
+const isPlaceholder = (option: Option | {placeholder: string}): option is {placeholder: string} => {
+  return 'placeholder' in option;
 };
 
 const getSubLabel = (attrs: NodeAttributes): string => {
@@ -70,7 +78,7 @@ const SearchOption = (props: SearchOptionProps) => {
         {...autocompleteOptionProps} 
         sx={{...wrapperStyle, height: OPTION_HEIGHT}} 
         slots={{root: AutocompleteOption}} 
-        endAction={option.subItems 
+        endAction={!isPlaceholder(option) && option.subItems
           ? <IconButton
             variant="plain"
             color='primary'
@@ -87,15 +95,20 @@ const SearchOption = (props: SearchOptionProps) => {
       >
         <ListItemDecorator>
           <Box sx={{ width: '40px', height: '40px'}}>
-            <SearchOptionImage image={option.attrs.image} crop={option.attrs.crop}/>
+            {isPlaceholder(option) 
+              ? <SearchOptionImage type='placeholder' /> 
+              : <SearchOptionImage image={option.attrs.image} crop={option.attrs.crop}/>
+            }
           </Box>
         </ListItemDecorator>
         <ListItemContent sx={{ fontSize: 'md', ml: 1, width: '100%' }}>
-          <Typography level='inherit' noWrap>{option.attrs.name ?? option.attrs.label}</Typography>
-          <Typography level="body-xs">{getSubLabel(option.attrs)}</Typography>
+          <Typography level='inherit' noWrap>
+            {isPlaceholder(option) ? option.placeholder : option.attrs.name ?? option.attrs.label}
+          </Typography>
+          {isPlaceholder(option) ? null : <Typography level="body-xs">{getSubLabel(option.attrs)}</Typography>}
         </ListItemContent>
       </ListItem>
-      {option.subItems && expanded ? <Box sx={{
+      {!isPlaceholder(option) && option.subItems && expanded ? <Box sx={{
           ml: 4, 
           width: '250px', // 300 search bar - 32 margin left - 18 margin right
           borderLeft: '2px solid #DDD', 
