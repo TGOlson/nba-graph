@@ -284,9 +284,9 @@ async function main() {
     // for testing, debugging, etc
     case commands.misc.Test: {
       const nodes = await readJSON<NBAGraphNode[]>(path.resolve(__dirname, '../data/graph/nodes.json'))();
-      const labels = nodes.map(x => x.attributes.name).sort((a, b) => (b?.length ?? 0) - (a?.length ?? 0));
+      const urls = nodes.filter(x => x.attributes.url.includes('basketball-reference'));
 
-      console.log('labels: ', labels.slice(0, 100).map(x => [x, x?.length]));
+      console.log('urls: ', urls);
 
       return;
     }

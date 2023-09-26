@@ -1,6 +1,6 @@
 import * as cheerio from 'cheerio';
 
-import { LEAGUES_URL, allStarUrl, localPath } from "../../util/bref-url";
+import { allStarUrl, localPath } from "../../util/bref-url";
 import { Award, MultiWinnerAward, AwardRecipient } from "../../../shared/nba-types";
 import { HtmlParser } from "../html-parser";
 
@@ -15,14 +15,14 @@ export const ALL_STAR_AWARDS: Award[] = [
     name: 'NBA All-Star Team',
     leagueId: 'NBA',
     image: {type: 'award', id: 'allstar'},
-    url: LEAGUES_URL,
+    url: '/allstar',
   },
   {
     id: 'ALL_STAR_ABA',
     name: 'ABA All-Star Team',
     leagueId: 'ABA',
     image: {type: 'award', id: 'allstar_aba'},
-    url: LEAGUES_URL,
+    url: '/allstar',
   }
 ];
 
