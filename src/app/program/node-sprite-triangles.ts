@@ -28,7 +28,7 @@ const ANGLE_1 = 0.0;
 const ANGLE_2 = (2 * Math.PI) / 3;
 const ANGLE_3 = (4 * Math.PI) / 3;
 
-const MUTED_COLOR = floatColor('#E2E2E2');
+const MUTED_COLOR = floatColor('#edebeb');
 
 const R_CONST = (8 / 3) * (1 - Math.sin((2 * Math.PI) / 3));
 

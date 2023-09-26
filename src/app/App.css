@@ -12,3 +12,10 @@ body {
 .select-node-preview li:hover {
   background-color: inherit !important;
 }
+
+.sigma-container {
+  /* This prevents the graph from scaling oddly on small screens
+     Just set a min width and use overflow
+  */
+  min-width: 600px;
+}

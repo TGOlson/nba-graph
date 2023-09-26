@@ -58,6 +58,7 @@
     "graphology": "^0.25.1",
     "graphology-layout": "^0.6.1",
     "graphology-layout-forceatlas2": "^0.10.1",
+    "graphology-layout-noverlap": "^0.4.2",
     "graphology-types": "^0.24.5",
     "jimp": "^0.22.10",
     "node-fetch": "^3.3.0",

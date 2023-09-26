@@ -42,3 +42,9 @@ export type NodeAttributes = {
   size: number;
   muted?: boolean;
 } & SpriteNodeAttributes;
+
+export type EdgeAttributes = {
+  color: string, 
+  nbaType?: NBAType, 
+  year?: number
+};

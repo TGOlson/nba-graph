@@ -1,34 +1,19 @@
 import Graph, { DirectedGraph } from "graphology";
 import { circular } from "graphology-layout";
 import forceAtlas2 from "graphology-layout-forceatlas2";
+import noverlap from "graphology-layout-noverlap";
 import Color from "color";
 
-import { NBAData } from "../../shared/nba-types";
-import { NodeAttributes, Palette, SeasonToken, SelectionMap, SpriteNodeAttributes } from "../../shared/types";
+import { AwardImageId, LeagueId, NBAData } from "../../shared/nba-types";
+import { EdgeAttributes, NodeAttributes, Palette, SeasonToken, SelectionMap, SpriteNodeAttributes } from "../../shared/types";
 import { GraphConfig } from "./config";
 import { loadSpriteColors, loadSpriteIds, loadSpriteMapping } from "../storage";
 import { getProp, notNull, singleYearStr } from "../../shared/util";
 import { assets } from "../../shared/assets";
 import { uniqBy } from "ramda";
 
-// TODO: things that would be nice to add (that we already have the data for, but need to stitch together):
-// - years active for players
-// - leagues active for players
-// - leagues for teams (and franchises)
-
-// mainly thinking for dropdown search:
-// eg.
-// [pic] Steph Curry
-//       2013-present / NBA
-// [pic] Denver Nuggets (franchise)
-//       1976-1982 / ABA
-// [pic] Denver Nuggets (franchise)
-//       1985-present / NBA
-
 const PLAYER_DEFAULT_CROP_ID = 'player_default';
 const TEAM_DEFAULT_CROP_ID = 'team_default';
-
-// const DEFAULT_IMAGE_CROP = {x: 0, y: 0, width: 128, height: 128};
 
 const filterYears = (data: NBAData, config: GraphConfig): NBAData => {
   const startYear = config.startYear ?? 0; 
@@ -72,10 +57,17 @@ type SpriteDataLookup = {
 
 export const buildGraph = async (rawData: NBAData, config: GraphConfig): Promise<Graph> => {
   console.log('Building graph');
+
   const graph = new DirectedGraph();
 
+  // Helper functions for better types
+  const addNode = (id: string, attrs: NodeAttributes) => 
+    graph.addNode(id, attrs);
+
+  const addEdge = (source: string, target: string, attrs: EdgeAttributes) => 
+    graph.addEdge(source, target, {...attrs, hidden: true});
+
   const data = filterYears(rawData, config);
-  
   const spriteIds = await loadSpriteIds();
 
   console.log('Using sprite ids', spriteIds);
@@ -127,11 +119,8 @@ export const buildGraph = async (rawData: NBAData, config: GraphConfig): Promise
   const playerSeasons = data.playerSeasons.reduce<{[playerId: string]: SeasonToken[]}>((acc, ps) => {
     const prev = acc[ps.playerId] ?? [];
 
-    const team = teamsById[ps.teamId];
-    if (!team) throw new Error(`Unexpected error: no team for player ${ps.playerId} ${ps.year}`);
-
-    const season = seasonsById[team.seasonId];
-    if (!season) throw new Error(`Unexpected error: no season for player ${ps.playerId} ${ps.year}`);
+    const team = getProp(ps.teamId, teamsById);
+    const season = getProp(team.seasonId, seasonsById);
 
     prev.push({
       leagueId: season.leagueId,
@@ -167,7 +156,7 @@ export const buildGraph = async (rawData: NBAData, config: GraphConfig): Promise
       ...spriteAttrs.attributes, 
     };
 
-    graph.addNode(league.id, attrs);
+    addNode(league.id, attrs);
   });
 
   data.seasons.forEach(season => {
@@ -189,8 +178,8 @@ export const buildGraph = async (rawData: NBAData, config: GraphConfig): Promise
       ...spriteAttrs.attributes, 
     };
 
-    graph.addNode(season.id, attrs);
-    graph.addEdge(season.leagueId, season.id, {color: edgeColor, hidden: true});
+    addNode(season.id, attrs);
+    addEdge(season.leagueId, season.id, {color: edgeColor});
   });
 
   data.players.forEach(player => {
@@ -218,7 +207,7 @@ export const buildGraph = async (rawData: NBAData, config: GraphConfig): Promise
       ...imgProps, 
     };
 
-    graph.addNode(player.id, attrs);
+    addNode(player.id, attrs);
   });
   
   data.franchises.forEach(franchise => {
@@ -242,7 +231,7 @@ export const buildGraph = async (rawData: NBAData, config: GraphConfig): Promise
       ...spriteAttrs.attributes, 
     };
 
-    graph.addNode(franchise.id, attrs);
+    addNode(franchise.id, attrs);
   });
 
 
@@ -261,6 +250,9 @@ export const buildGraph = async (rawData: NBAData, config: GraphConfig): Promise
     const teamEdgeColor = borderColor === config.borderColors.team ? config.edgeColors.default : Color(borderColor).lighten(0.3).hex();
     const seasonEdgeColor = Color(leagueColor).lighten(0.3).hex();
 
+    // const wonTitle = data.awardRecipients.find(x => x.recipientId === team.id && x.year === team.year);
+    // if (wonTitle) console.log('Team won title', team.name, team.year, wonTitle.awardId, wonTitle.recipientId);
+
     const attrs: NodeAttributes = { 
       nbaType: 'team',
       name: team.name,
@@ -269,14 +261,15 @@ export const buildGraph = async (rawData: NBAData, config: GraphConfig): Promise
       rollupId: team.franchiseId,
       seasons: [{leagueId, year: team.year}],
       size: config.sizes.team, 
+      // size: config.sizes.team + (wonTitle ? 2 : 0), 
       color: config.nodeColors.default, 
       borderColor,
       ...spriteAttrs.attributes,
     };
 
-    graph.addNode(team.id, attrs);
-    graph.addEdge(team.id, team.seasonId, {color: seasonEdgeColor, hidden: true});
-    graph.addEdge(team.id, team.franchiseId, {color: teamEdgeColor, hidden: true});
+    addNode(team.id, attrs);
+    addEdge(team.id, team.seasonId, {color: seasonEdgeColor});
+    addEdge(team.id, team.franchiseId, {color: teamEdgeColor});
   });
 
   data.awards.forEach(award => {
@@ -297,6 +290,13 @@ export const buildGraph = async (rawData: NBAData, config: GraphConfig): Promise
 
     const spriteAttrs = getSpriteAttributes(award.image.id);
 
+    const largeAwards = new Set<AwardImageId | LeagueId>([
+      'hof',
+      'mvp',
+    ]);
+
+    const size =  largeAwards.has(award.image.id) ? config.sizes.awardMax : config.sizes.awardDefault;
+
     const attrs: NodeAttributes = {
       nbaType: 'award',
       name: award.name,
@@ -304,12 +304,12 @@ export const buildGraph = async (rawData: NBAData, config: GraphConfig): Promise
       url: award.url,
       seasons,
       color: config.nodeColors.default,
-      size: config.sizes.awardMax, // TODO: maybe filter by mvp, hof for max, others are default size?
+      size,
       borderColor: spriteAttrs.palette.primary,
       ...spriteAttrs.attributes,
     };
 
-    graph.addNode(award.id, attrs);
+    addNode(award.id, attrs);
   });
 
   data.multiWinnerAwards.forEach(award => {
@@ -331,13 +331,13 @@ export const buildGraph = async (rawData: NBAData, config: GraphConfig): Promise
       rollupId: baseAward.id,
       seasons: [{leagueId: baseAward.leagueId, year: award.year}],
       color: config.nodeColors.default,
-      size: config.sizes.awardDefault,
+      size: config.sizes.awardMin,
       borderColor,
       ...spriteAttrs.attributes,
     };
     
-    graph.addNode(award.id, attrs);
-    graph.addEdge(award.awardId, award.id, {color: edgeColor, hidden: true});
+    addNode(award.id, attrs);
+    addEdge(award.awardId, award.id, {color: edgeColor});
   });
 
   // *************
@@ -351,7 +351,7 @@ export const buildGraph = async (rawData: NBAData, config: GraphConfig): Promise
       ? Color(pt.teamId.includes('MIN') ? teamPalette.dark : teamPalette.primary).lighten(0.3).hex()
       : config.edgeColors.default;
 
-    graph.addEdge(pt.playerId, pt.teamId, {color, hidden: true});
+    addEdge(pt.playerId, pt.teamId, {color});
   });
 
   data.awardRecipients.forEach(recipient => {
@@ -367,7 +367,7 @@ export const buildGraph = async (rawData: NBAData, config: GraphConfig): Promise
       const borderColor = getSpriteAttributes(award.image.id).palette.primary;      
       const edgeColor = Color(borderColor).lighten(0.3).hex();
 
-      graph.addEdge(recipient.recipientId, recipient.awardId, {color: edgeColor, hidden: true, year: recipient.year, nbaType: 'award'});
+      addEdge(recipient.recipientId, recipient.awardId, {color: edgeColor, year: recipient.year ?? undefined, nbaType: 'award'});
     }
   });
 
@@ -386,10 +386,25 @@ export const buildGraph = async (rawData: NBAData, config: GraphConfig): Promise
   //   slowDown: 9.031385330625534
   // };
 
-
+  console.log('assigning force atlas');
   forceAtlas2.assign(graph, {
-    iterations: 100,
-    settings,
+    iterations: 50,
+    settings
+  });
+  
+  console.log('assigning noverlap');
+  noverlap.assign(graph, {
+    maxIterations: 50,
+    inputReducer: (_key, attr) => {
+      return {
+        x: attr.x,
+        y: attr.y,
+        size: (attr.size ?? 1) / 0.5,
+      };
+    },
+    settings: {
+      expansion: 2,
+    },
   });
 
   console.log('Done!');

@@ -126,14 +126,15 @@ const NBAGraph = ({data, sprites}: DisplayGraphProps) => {
     setGraph(graph);
   }, []);
 
+  // TODO: clean this up, think we can avoid the double render?
   return (
-    <SigmaContainer 
-      style={{ height: "100vh", backgroundColor: "#fcfcfc" }} 
+    graph && settings ? <SigmaContainer 
+      style={{ height: "100vh", backgroundColor: "#fcfcfc", overflowX: 'hidden' }} 
       graph={graph}
       settings={settings}
     >
       <InnerComponents nodes={data.nodes}/>
-    </SigmaContainer>
+    </SigmaContainer> : null
   );
 };
 
