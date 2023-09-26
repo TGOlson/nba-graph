@@ -22,9 +22,44 @@ type DisplayGraphProps = {
   sprites: Sprite[];
 };
 
+// Do this to provide multiple components with access to the selected node
+const InnerComponents = ({nodes}: {nodes: GraphData['nodes']}) => {
+  const [filters, setFilters] = useState<GraphFilters>(DEFAULT_FILTERS);
+  const useSelectedNodeRes = useSelectedNode();
+  const {selectedNode, setSelectedNode} = useSelectedNodeRes;
+
+
+  const onFilterChange = (change: Partial<GraphFilters>) => {
+    setFilters({ ...filters, ...change });
+  };
+
+  const visibleNodes: NBAGraphNode[] = [];
+  const nodeCounts: {[key: string]: {visible: number, total: number}} = {};
+
+  nodes.forEach((node) => {
+    const isVisible = isVisibleNode(filters, node.attributes);
+    if (isVisible) visibleNodes.push(node);
+
+    const key = node.attributes.nbaType === 'multi-winner-award' ? 'award' : node.attributes.nbaType;
+    const prev = nodeCounts[key] ?? {visible: 0, total: 0};
+    prev.total++;
+    if (isVisible) prev.visible++;
+
+    nodeCounts[key] = prev;
+  });
+
+  return (
+    <React.Fragment>
+      <GraphEvents filters={filters} {...useSelectedNodeRes} />
+      <SidePanel filters={filters} nodeCounts={nodeCounts} selectedNode={selectedNode} onFilterChange={onFilterChange}/>
+      <NodeSearch nodes={visibleNodes} setSelectedNode={setSelectedNode}/>
+      <ZoomControl />
+    </React.Fragment>
+  );
+};
+
 const NBAGraph = ({data, sprites}: DisplayGraphProps) => {
   const [graph, setGraph] = useState<Graph | undefined>(undefined);
-  const [filters, setFilters] = useState<GraphFilters>(DEFAULT_FILTERS);
   const [settings, setSettings] = useState<Partial<Settings>>({});
 
   // Note: in a setup function so we don't re-instantiate the program class on each render
@@ -91,48 +126,13 @@ const NBAGraph = ({data, sprites}: DisplayGraphProps) => {
     setGraph(graph);
   }, []);
 
-  const onFilterChange = (change: Partial<GraphFilters>) => {
-    setFilters({ ...filters, ...change });
-  };
-
-
-  const visibleNodes: NBAGraphNode[] = [];
-  const nodeCounts: {[key: string]: {visible: number, total: number}} = {};
-
-  data.nodes.forEach((node) => {
-    const isVisible = isVisibleNode(filters, node.attributes);
-    if (isVisible) visibleNodes.push(node);
-
-    const key = node.attributes.nbaType === 'multi-winner-award' ? 'award' : node.attributes.nbaType;
-    const prev = nodeCounts[key] ?? {visible: 0, total: 0};
-    prev.total++;
-    if (isVisible) prev.visible++;
-
-    nodeCounts[key] = prev;
-  });
-
-  // Do this to provide multiple components with access to the selected node
-  const InnerComponents = () => {
-    const useSelectedNodeRes = useSelectedNode();
-    const {selectedNode, setSelectedNode} = useSelectedNodeRes;
-
-    return (
-      <React.Fragment>
-        <GraphEvents filters={filters} {...useSelectedNodeRes} />
-        <SidePanel filters={filters} nodeCounts={nodeCounts} selectedNode={selectedNode} onFilterChange={onFilterChange}/>
-        <NodeSearch nodes={visibleNodes} setSelectedNode={setSelectedNode}/>
-        <ZoomControl />
-      </React.Fragment>
-    );
-  };
-
   return (
     <SigmaContainer 
       style={{ height: "100vh", backgroundColor: "#fcfcfc" }} 
       graph={graph}
       settings={settings}
     >
-      <InnerComponents />
+      <InnerComponents nodes={data.nodes}/>
     </SigmaContainer>
   );
 };

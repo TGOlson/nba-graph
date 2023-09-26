@@ -19,7 +19,7 @@ import DialogContent from '@mui/joy/DialogContent';
 
 import { GraphFilters } from '../util/types';
 import { getProp } from '../../shared/util';
-import VisibleNodeTable from './VisibleNodesTable';
+import NodeCountTable from './NodeCountTable';
 import SearchOption from './NodeSearch/SearchOption';
 import { NBAGraphNode } from '../../shared/types';
 
@@ -51,9 +51,71 @@ const leagueLabel = (league: string, years: string): React.ReactNode => {
   );
 };
 
+const YearFilters = ({filters, onFilterChange}: Pick<SidePanelProps, 'filters' | 'onFilterChange'>) => {
+    const [minYear, setMinYear] = useState(filters.minYear);
+    const [maxYear, setMaxYear] = useState(filters.maxYear);
+
+  return (
+    <React.Fragment>
+      <Box sx={{display: 'flex'}}>
+        <Input 
+          size="sm" 
+          sx={{width: 70}} 
+          value={isNaN(minYear) ? '' : minYear} 
+          onChange={(e) => setMinYear(parseInt(e.target.value))}
+          onBlur={(e) => {
+            let year = parseInt(e.target.value);
+            
+            if (year > maxYear) year = maxYear;
+            if (year < DEFAULT_FILTERS.minYear) year = DEFAULT_FILTERS.minYear;
+            if (isNaN(year)) year = DEFAULT_FILTERS.minYear;
+            
+            setMinYear(year);
+            onFilterChange({minYear: year});
+          }}
+        />
+        <Divider sx={{width: 12, mt: 2, mr: 1, ml: 1}} />
+        <Input 
+          size="sm" 
+          sx={{width: 70}} 
+          value={isNaN(maxYear) ? '' : maxYear} 
+          onChange={(e) => setMaxYear(parseInt(e.target.value))}
+          onBlur={(e) => {
+            let year = parseInt(e.target.value);
+            
+            if (year < minYear) year = minYear;
+            if (year > DEFAULT_FILTERS.maxYear) year = DEFAULT_FILTERS.maxYear;
+            if (isNaN(year)) year = DEFAULT_FILTERS.maxYear;
+            
+            setMaxYear(year);
+            onFilterChange({maxYear: year});
+          }}
+        />
+      </Box>
+      <Box sx={{pl: 1, pr: 1, mb: -1, mt: -1}}>
+        <Slider 
+          size="sm"
+          sx={{pl: 2, pr: 2}}
+          min={DEFAULT_FILTERS.minYear}
+          max={DEFAULT_FILTERS.maxYear}
+          value={[filters.minYear, filters.maxYear]}
+          onChange={(_e, value) => {
+            if (typeof value === 'number') throw new Error(`Unexpected slider value: ${value}`);
+            const minYear = value[0] as number;
+            const maxYear = value[1] as number;
+            
+            setMinYear(minYear);
+            setMaxYear(maxYear);
+            onFilterChange({minYear, maxYear});
+          }}
+          valueLabelDisplay="off"
+        />
+      </Box>
+    </React.Fragment>
+  );
+};
+
 const SidePanel = ({filters, nodeCounts, selectedNode, onFilterChange}: SidePanelProps) => {
-  const [minYear, setMinYear] = useState(filters.minYear);
-  const [maxYear, setMaxYear] = useState(filters.maxYear);
   const [drawerOpen, setDrawerOpen] = useState(true);
 
   return (
@@ -95,60 +157,7 @@ const SidePanel = ({filters, nodeCounts, selectedNode, onFilterChange}: SidePane
               <InfoOutlinedIcon fontSize='small' />
             </Tooltip>
           </Box>
-          <Box sx={{display: 'flex'}}>
-            <Input 
-              size="sm" 
-              sx={{width: 70}} 
-              value={isNaN(minYear) ? '' : minYear} 
-              onChange={(e) => setMinYear(parseInt(e.target.value))}
-              onBlur={(e) => {
-                let year = parseInt(e.target.value);
-                
-                if (year > maxYear) year = maxYear;
-                if (year < DEFAULT_FILTERS.minYear) year = DEFAULT_FILTERS.minYear;
-                if (isNaN(year)) year = DEFAULT_FILTERS.minYear;
-                
-                setMinYear(year);
-                onFilterChange({minYear: year});
-              }}
-            />
-            <Divider sx={{width: 12, mt: 2, mr: 1, ml: 1}} />
-            <Input 
-              size="sm" 
-              sx={{width: 70}} 
-              value={isNaN(maxYear) ? '' : maxYear} 
-              onChange={(e) => setMaxYear(parseInt(e.target.value))}
-              onBlur={(e) => {
-                let year = parseInt(e.target.value);
-                
-                if (year < minYear) year = minYear;
-                if (year > DEFAULT_FILTERS.maxYear) year = DEFAULT_FILTERS.maxYear;
-                if (isNaN(year)) year = DEFAULT_FILTERS.maxYear;
-                
-                setMaxYear(year);
-                onFilterChange({maxYear: year});
-              }}
-            />
-          </Box>
-          <Box sx={{pl: 1, pr: 1, mb: -1, mt: -1}}>
-            <Slider 
-              size="sm"
-              sx={{pl: 2, pr: 2}}
-              min={DEFAULT_FILTERS.minYear}
-              max={DEFAULT_FILTERS.maxYear}
-              value={[filters.minYear, filters.maxYear]}
-              onChange={(_e, value) => {
-                if (typeof value === 'number') throw new Error(`Unexpected slider value: ${value}`);
-                const minYear = value[0] as number;
-                const maxYear = value[1] as number;
-                
-                setMinYear(minYear);
-                setMaxYear(maxYear);
-                onFilterChange({minYear, maxYear});
-              }}
-              valueLabelDisplay="off"
-              />
-          </Box>
+          <YearFilters filters={filters} onFilterChange={onFilterChange} />
           <Typography level="body-sm">Leagues</Typography>
           {([
             ['NBA', '1950-2023'],
@@ -195,7 +204,7 @@ const SidePanel = ({filters, nodeCounts, selectedNode, onFilterChange}: SidePane
           </Box>
           <Divider inset='none' sx={{mt: 1}}/>
           <Typography level="body-sm" sx={{mt: 1}}>Visible nodes</Typography>
-          <VisibleNodeTable nodeCounts={nodeCounts} />
+          <NodeCountTable nodeCounts={nodeCounts} />
           <Divider inset='none' sx={{mt: 1}}/>
           <Link 
             href="https://github.com/TGOlson/nba-graph" 

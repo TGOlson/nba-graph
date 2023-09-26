@@ -2,14 +2,14 @@ import React from 'react';
 
 import Table from '@mui/joy/Table';
 
-type VisibleNodeTableProps = {
+type NodeCountTableProps = {
   nodeCounts: {[key: string]: {visible: number, total: number}};
 };
 
 const capitalizeFirstLetter = (string: string): string =>
   string.charAt(0).toUpperCase() + string.slice(1);
 
-const VisibleNodeTable = ({nodeCounts}: VisibleNodeTableProps) => {
+const NodeCountTable = ({nodeCounts}: NodeCountTableProps) => {
   return (
     <Table 
       size="sm" 
@@ -34,4 +34,4 @@ const VisibleNodeTable = ({nodeCounts}: VisibleNodeTableProps) => {
   );
 };
 
-export default VisibleNodeTable;
+export default NodeCountTable;
