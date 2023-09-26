@@ -138,12 +138,12 @@ The output graph data is stored in `./data/graph/graph.json`. The graph is built
  * ~~setup github page~~
 * last cleanups
   * ~~consider breaking up player sprite by last name~~
+  * ~~more cool side panel things to look at~~
   * better mobile support
   * adjust player node size for awards
   * improve locations (do this last after adding more node types)
   * fun AI logo
   * update readme, move docs around
-  * about page on graph?
   * catch errors for too small of texture size support (aim for 4kx4k)
   * favicon
   * mobile
