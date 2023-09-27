@@ -20,7 +20,7 @@ import DialogContent from '@mui/joy/DialogContent';
 import { GraphFilters } from '../util/types';
 import { getProp } from '../../shared/util';
 import NodeCountTable from './NodeCountTable';
-import SearchOption from './NodeSearch/SearchOption';
+import { SearchOptionPlaceholder } from './NodeSearch/SearchOption';
 import { NBAGraphNode } from '../../shared/types';
 
 type SidePanelProps = {
@@ -131,7 +131,7 @@ const YearFilters = ({filters, onFilterChange}: Pick<SidePanelProps, 'filters' |
 const SelectedNodeLink = ({selectedNode}: Pick<SidePanelProps, 'selectedNode'>) => {
   const previewOption = selectedNode 
     ? {key: selectedNode.key, searchString: '', attrs: selectedNode.attributes}
-    : {placeholder: 'Nothing selected'};
+    : {message: 'Nothing selected', subMessage: 'Click the graph to get started!'};
   
   const href = selectedNode 
     ? `https://www.basketball-reference.com${selectedNode.attributes.url}` 
@@ -145,14 +145,7 @@ const SelectedNodeLink = ({selectedNode}: Pick<SidePanelProps, 'selectedNode'>) 
         alignItems: 'center',
         justifyContent: 'space-between',
       }}>
-        <SearchOption 
-          option={previewOption} 
-          expanded={false}
-          setExpanded={() => null}
-          onSubItemSelect={() => null}
-          autocompleteOptionProps={{}}
-          wrapperStyle={{cursor: 'auto'}}
-        />
+        <SearchOptionPlaceholder option={previewOption} />
         <Link href={href} disabled={!selectedNode} target='_blank' rel="noreferrer">
           <IconButton disabled={!selectedNode} size='sm' color='primary'>
             <OpenInNewIcon />

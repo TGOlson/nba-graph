@@ -3,9 +3,8 @@ import { VariableSizeList } from 'react-window';
 
 import { Popper } from '@mui/base/Popper';
 import AutocompleteListbox from '@mui/joy/AutocompleteListbox';
-import AutocompleteOption from '@mui/joy/AutocompleteOption';
 
-import SearchOption, { OPTION_HEIGHT, OPTION_SUBITEM_HEIGHT, BaseSearchOptionProps } from './SearchOption';
+import SearchOption, { OPTION_HEIGHT, OPTION_SUBITEM_HEIGHT, BaseSearchOptionProps, SearchOptionPlaceholder } from './SearchOption';
 import { getIndex } from '../../../shared/util';
 
 // ***
@@ -39,9 +38,11 @@ const RenderRow = ({ data, index, style }: RenderRowProps) => {
   }; 
 
   return isNoResults(props) 
-    ? <AutocompleteOption sx={{...wrapperStyle}} className="searchbar-no-options">
-        {props.message} {/* eslint-disable-line */}
-      </AutocompleteOption> 
+    ?  <SearchOptionPlaceholder option={{
+        message: props.message, // eslint-disable-line
+        subMessage: 'When filters are applied, items may be hidden.',
+        noImage: true,
+      }} />
     : <SearchOption {...props} wrapperStyle={wrapperStyle} />;
 };
 

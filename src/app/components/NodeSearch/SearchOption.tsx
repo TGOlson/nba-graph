@@ -40,12 +40,18 @@ export type BaseSearchOptionProps = {
   autocompleteOptionProps: Omit<React.HTMLAttributes<HTMLLIElement>, 'color'>, 
 };
 
-type SearchOptionProps = Omit<BaseSearchOptionProps, 'option'> & {
-  option: Option | {placeholder: string};
+export type Placeholder = {
+  message: string;
+  subMessage?: string;
+  noImage?: boolean;
 };
 
-const isPlaceholder = (option: Option | {placeholder: string}): option is {placeholder: string} => {
-  return 'placeholder' in option;
+type SearchOptionProps = Omit<BaseSearchOptionProps, 'option'> & {
+  option: Option | Placeholder;
+};
+
+export const isPlaceholder = (option: Option | Placeholder): option is Placeholder => {
+  return 'message' in option;
 };
 
 const getSubLabel = (attrs: NodeAttributes): string => {
@@ -62,6 +68,24 @@ const getSubLabel = (attrs: NodeAttributes): string => {
   }
 };
 
+// TODO: this is a litttlleeee funky here
+// Basically trying to use this as a generic player card
+// Probably need to rip that out as a subcomponent, 
+// but it's a kinda tricky to do that given how a lot of it relies on being rendered in a list component...
+export const SearchOptionPlaceholder = ({option}: {option: Option | Placeholder}) => (
+  <SearchOption 
+    option={option} 
+    expanded={false}
+    setExpanded={() => null}
+    onSubItemSelect={() => null}
+    autocompleteOptionProps={{
+      className: 'search-option-placeholder'
+    }}
+    wrapperStyle={{}}
+  />
+);
+
+
 const SearchOption = (props: SearchOptionProps) => {
   const {
     option, 
@@ -71,6 +95,15 @@ const SearchOption = (props: SearchOptionProps) => {
     wrapperStyle,
     autocompleteOptionProps
   } = props;
+
+  const image = isPlaceholder(option) && option.noImage
+    ? null
+    : <ListItemDecorator sx={{ width: '44px', height: '44px', minInlineSize: '44px'}}>
+        {isPlaceholder(option) 
+          ? (option.noImage ? null : <SearchOptionImage type='placeholder' />)
+          : <SearchOptionImage image={option.attrs.image} crop={option.attrs.crop} borderColor={option.attrs.borderColor}/>
+        }
+      </ListItemDecorator>;
 
   return (
     <Box sx={{overflowX: 'auto'}}>
@@ -93,17 +126,12 @@ const SearchOption = (props: SearchOptionProps) => {
           : null 
         }
       >
-        <ListItemDecorator sx={{ width: '44px', height: '44px', minInlineSize: '44px'}}>
-          {isPlaceholder(option) 
-            ? <SearchOptionImage type='placeholder' /> 
-            : <SearchOptionImage image={option.attrs.image} crop={option.attrs.crop} borderColor={option.attrs.borderColor}/>
-          }
-        </ListItemDecorator>
+        {image}
         <ListItemContent sx={{ fontSize: 'md', ml: 1, width: '100%' }}>
           <Typography level='inherit' noWrap>
-            {isPlaceholder(option) ? option.placeholder : option.attrs.name ?? option.attrs.label}
+            {isPlaceholder(option) ? option.message : option.attrs.name ?? option.attrs.label}
           </Typography>
-          {isPlaceholder(option) ? <Typography level="body-xs">Click the graph to get started!</Typography> : <Typography level="body-xs">{getSubLabel(option.attrs)}</Typography>}
+          {isPlaceholder(option) ? <Typography level="body-xs">{option.subMessage}</Typography> : <Typography level="body-xs">{getSubLabel(option.attrs)}</Typography>}
         </ListItemContent>
       </ListItem>
       {!isPlaceholder(option) && option.subItems && expanded ? <Box sx={{
