@@ -1,17 +1,18 @@
 import Graph, { DirectedGraph } from "graphology";
-import { circular } from "graphology-layout";
+import { random } from "graphology-layout";
 import forceAtlas2 from "graphology-layout-forceatlas2";
 import noverlap from "graphology-layout-noverlap";
 import Color from "color";
+import groupBy from "ramda/src/groupBy";
+import mapObjIndexed from "ramda/src/mapObjIndexed";
 
 import { AwardImageId, LeagueId, NBAData, PlayerSeason } from "../../shared/nba-types";
-import { EdgeAttributes, NodeAttributes, Palette, SeasonToken, SelectionMap, SpriteNodeAttributes } from "../../shared/types";
+import { EdgeAttributes, NodeAttributes, Palette, SelectionMap, SpriteNodeAttributes } from "../../shared/types";
 import { GraphConfig } from "./config";
 import { loadSpriteColors, loadSpriteIds, loadSpriteMapping } from "../storage";
 import { getProp, notNull, singleYearStr } from "../../shared/util";
 import { assets } from "../../shared/constants";
 import { dedupeSeasonTokens, filterYears, getPlayerNodeSize, toMap } from "./util";
-import { groupBy, groupWith, mapObjIndexed } from "ramda";
 
 const PLAYER_DEFAULT_CROP_ID = 'player_default';
 const TEAM_DEFAULT_CROP_ID = 'team_default';
@@ -23,17 +24,28 @@ type SpriteDataLookup = {
   colors: {[key: string]: Palette};
 };
 
+type StagedNode = {
+  key: string;
+  attributes: NodeAttributes;
+};
+
+type StagedEdge = {
+  source: string;
+  target: string;
+  attributes: EdgeAttributes;
+};
+
 export const buildGraph = async (rawData: NBAData, config: GraphConfig): Promise<Graph> => {
   console.log('Building graph');
 
-  const graph = new DirectedGraph();
-
   // Helper functions for better types
-  const addNode = (id: string, attrs: NodeAttributes) => 
-    graph.addNode(id, attrs);
+  const stagedNodes: StagedNode[] = [];
+  const addNode = (key: string, attributes: NodeAttributes) => 
+    stagedNodes.push({key, attributes});
 
-  const addEdge = (source: string, target: string, attrs: EdgeAttributes) => 
-    graph.addEdge(source, target, {...attrs, hidden: true});
+  const stagedEdges: StagedEdge[] = [];
+  const addEdge = (source: string, target: string, attributes: EdgeAttributes) => 
+    stagedEdges.push({source, target, attributes});
 
   const data = filterYears(rawData, config);
   const spriteIds = await loadSpriteIds();
@@ -211,7 +223,12 @@ export const buildGraph = async (rawData: NBAData, config: GraphConfig): Promise
     const leagueColor = getSpriteAttributes(leagueId).palette.primary;
     
     const teamEdgeColor = borderColor === config.borderColors.team ? config.edgeColors.default : Color(borderColor).lighten(0.3).hex();
-    const seasonEdgeColor = Color(leagueColor).lighten(0.3).hex();
+
+    const maybeChampAward = data.awardRecipients.find(x => x.recipientId === team.id);
+    const maybeChamp = maybeChampAward ? awardsById[maybeChampAward.awardId] : undefined;
+
+    const seasonColor = maybeChamp ? getSpriteAttributes(maybeChamp.image.id).palette.primary : leagueColor;
+    const seasonEdgeColor = Color(seasonColor).lighten(0.3).hex();
 
     const attrs: NodeAttributes = { 
       nbaType: 'team',
@@ -314,13 +331,15 @@ export const buildGraph = async (rawData: NBAData, config: GraphConfig): Promise
     addEdge(pt.playerId, pt.teamId, {color});
   });
 
+  const dupeCache = new Set<string>();
   data.awardRecipients.forEach(recipient => {
     // Need to check for dupdes because of how the data is modeled for single-winner awards
     // eg. for MVP winners we just make an edge between player->NBA>MVP, without distinguishing between the years
     // for guys who have won an MVP multiple times, this would create a duplicate edge
     // in the future maybe it would be nice to add a weight to the edge to distinguish between multiple wins
     // (or add an edge label, but that isn't used elsewhere and I think would be too busy)
-    if (!graph.hasEdge(recipient.recipientId, recipient.awardId)) {
+    const key = `${recipient.recipientId}-${recipient.awardId}`;
+    if (!dupeCache.has(key)) {
       const award = awardsById[recipient.awardId] ?? multiWinnerAwardsById[recipient.awardId];
       if (!award) throw new Error(`Unexpected error: no award for recipient ${recipient.recipientId} ${recipient.awardId}`);
 
@@ -328,30 +347,36 @@ export const buildGraph = async (rawData: NBAData, config: GraphConfig): Promise
       const edgeColor = Color(borderColor).lighten(0.3).hex();
 
       addEdge(recipient.recipientId, recipient.awardId, {color: edgeColor, year: recipient.year ?? undefined, nbaType: 'award'});
+      dupeCache.add(key);
     }
   });
 
+  const graph = assignLocations(stagedNodes, stagedEdges);
+
+  console.log('done assigning locations');
+  return graph;
+};
+
+const assignLocations = (stagedNodes: StagedNode[], stagedEdges: StagedEdge[]): Graph => {
+  const graph = new DirectedGraph();
+
+  stagedNodes.forEach(x => graph.addNode(x.key, x.attributes));
+
+  stagedEdges.forEach(x => graph.addEdge(x.source, x.target, x.attributes));
+
   console.log('Assigning locations');
-  circular.assign(graph);
+  random.assign(graph);
 
   // This call takes a little while...
   const settings = forceAtlas2.inferSettings(graph);
   console.log('infered settings', forceAtlas2.inferSettings(graph));
-  // => 
-  // const settings = {
-  //   barnesHutOptimize: true,
-  //   strongGravityMode: true,
-  //   gravity: 0.05,
-  //   scalingRatio: 10,
-  //   slowDown: 9.031385330625534
-  // };
 
   console.log('assigning force atlas');
   forceAtlas2.assign(graph, {
     iterations: 50,
     settings
   });
-  
+
   console.log('assigning noverlap');
   noverlap.assign(graph, {
     maxIterations: 50,
@@ -369,6 +394,5 @@ export const buildGraph = async (rawData: NBAData, config: GraphConfig): Promise
     },
   });
 
-  console.log('Done!');
   return graph;
 };

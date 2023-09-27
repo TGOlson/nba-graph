@@ -144,8 +144,8 @@ The output graph data is stored in `./data/graph/graph.json`. The graph is built
   * ~~start graph at good zoom / location~~
   * ~~adjust player node size for awards~~
   * improve locations (do this last after adding more node types)
-  * fun AI logo
-  * update readme, move docs around
-  * catch errors for too small of texture size support (aim for 4kx4k)
-  * favicon
-  * git lfs to store scraped data?
+  * [images] fun AI logo
+  * [images] favicon
+  * [error-handling] catch errors for too small of texture size support (aim for 4kx4k)
+  * [cleanup] update readme, move docs around
+  * [cleanup] git lfs to store scraped data?

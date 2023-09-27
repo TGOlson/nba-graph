@@ -95,7 +95,7 @@ const NBAGraph = ({data, sprites}: DisplayGraphProps) => {
       // defaultEdgeType: "line",
       labelFont: "Arial",
       labelSize: 14,
-      // labelWeight: "normal",
+      labelWeight: "500",
       // labelColor: { color: "#000" },
       // edgeLabelFont: "Arial",
       // edgeLabelSize: 14,
@@ -106,7 +106,7 @@ const NBAGraph = ({data, sprites}: DisplayGraphProps) => {
       // Labels
       // labelDensity: 1,
       // labelGridCellSize: 100,
-      labelRenderedSizeThreshold: 20,
+      labelRenderedSizeThreshold: 25,
   
       // Reducers
       // nodeReducer: null,
