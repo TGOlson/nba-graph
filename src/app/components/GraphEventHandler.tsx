@@ -7,6 +7,7 @@ import { NodeDisplayData } from 'sigma/types';
 import { NBAGraphNode, NodeAttributes } from '../../shared/types';
 import { GraphFilters } from '../util/types';
 import { getIndex } from '../../shared/util';
+import { useWindowWidth } from '@react-hook/window-size';
 
 type GraphEventsProps = {
   filters: GraphFilters;
@@ -37,6 +38,8 @@ const GraphEvents = ({filters, selectedNode: selectedNodeFull, setSelectedNode, 
   const sigma = useSigma();
   (window as any).sigma = sigma; // eslint-disable-line
 
+  const width = useWindowWidth();
+
   const setSettings = useSetSettings();
   const { gotoNode } = useCamera();
 
@@ -50,15 +53,19 @@ const GraphEvents = ({filters, selectedNode: selectedNodeFull, setSelectedNode, 
     setSettings({
       nodeReducer: (node: string, baseData: Attributes): Partial<NodeDisplayData & NodeAttributes> => {
         // a little type cohersion to make typescript happy
-        const data = baseData as (NodeDisplayData & NodeAttributes);
+        // copy node data and then mutate below...
+        // makes iterative updates below easier
+        const data = {...baseData} as (NodeDisplayData & NodeAttributes);
 
-        // data.size = data.size * 0.625;
+        // On screens smaller than 600px, scale down the nodes
+        // Otherwise sigma resizes itself and gets too smushed and hard to read
+        const nodeSizeScalingFactor = Math.min(1, width / 600);
+        data.size = data.size * nodeSizeScalingFactor;
 
-        const isVisible = isVisibleNode(filters, data);
-
-        if (!isVisible) {
+        if (!isVisibleNode(filters, data)) {
           if (selectedNode === node) setSelectedNode(null);
-          return { ...data, hidden: true };
+          data.hidden = true;
+          return data;
         }
 
         // if nothing selected or hovered, quick return default
@@ -85,7 +92,7 @@ const GraphEvents = ({filters, selectedNode: selectedNodeFull, setSelectedNode, 
           // some awards are given to multiple people over multiple years, but don't have nodes differentiating the year (eg. MVP)
           // in the case that year filters are applied, we want to hide the edge if the year is not in the range
           // TODO: this problably signals some sort of problem with the data modeling, maybe later consider tidying this up somehow...
-            if ((activeNode.nbaType === 'award' && data.nbaType === 'player') || (activeNode.nbaType === 'player' && data.nbaType === 'award')) {
+          if ((activeNode.nbaType === 'award' && data.nbaType === 'player') || (activeNode.nbaType === 'player' && data.nbaType === 'award')) {
             const edge = graph.edge(activeNode.nbaType === 'award' ? node : activeNodeKey, activeNode.nbaType === 'award' ? activeNodeKey : node);            
             const edgeAttrs = graph.getEdgeAttributes(edge);
 
@@ -94,28 +101,42 @@ const GraphEvents = ({filters, selectedNode: selectedNodeFull, setSelectedNode, 
               muted = true;
             }
           }
-          
-          return { 
-            ...data, 
-            zIndex: 700,
-            highlighted, 
-            muted,
-            borderColor: activeBorderColor,
-            size: data.size + (nodeIsHovered ? 2 : 1),
-          };
+
+          data.zIndex = 700;
+          data.highlighted = highlighted;
+          data.muted = muted;
+          data.borderColor = activeBorderColor;
+          data.size = data.size + (nodeIsHovered ? 2 : 1);
+          return data;
         }
 
         // if current reducer node is selected or hovered, apply styles
-        if (nodeIsSelected && nodeIsHovered) return { ...data, zIndex: 10, highlighted: true, borderColor: activeBorderColor, size: data.size + 4};
-        if (nodeIsSelected) return { ...data, zIndex: 900, highlighted: true, borderColor: activeBorderColor, size: data.size + 3};
-        if (nodeIsHovered) return { ...data, zIndex: 800, highlighted: true, borderColor: activeBorderColor, size: data.size + 1};
+        if (nodeIsSelected && nodeIsHovered) {
+          data.zIndex = 1000;
+          data.highlighted = true;
+          data.borderColor = activeBorderColor;
+          data.size = data.size + 4;
+          return data;
+        }
+        if (nodeIsSelected) {
+          data.zIndex = 900;
+          data.highlighted = true;
+          data.borderColor = activeBorderColor;
+          data.size = data.size + 3;
+          return data;
+        }
+        if (nodeIsHovered) {
+          data.zIndex = 800;
+          data.highlighted = true;
+          data.borderColor = activeBorderColor;
+          data.size = data.size + 1;
+          return data;
+        }
 
-        return {
-          ...data, 
-          muted: true,
-          highlighted: false,
-          zIndex: 0,
-        };
+        data.muted = true;
+        data.highlighted = false;
+        data.zIndex = 0;
+        return data;
       },
       edgeReducer: (edge: string, data: Attributes): Attributes => {
         // if nothing selected or hovered, hide all edges
@@ -144,7 +165,7 @@ const GraphEvents = ({filters, selectedNode: selectedNodeFull, setSelectedNode, 
         return { ...data, hidden: true };
       }
     });
-  }, [hoveredNode, selectedNode, setSettings, sigma, filters]);
+  }, [hoveredNode, selectedNode, setSettings, sigma, filters, width]);
 
 
   return null;
