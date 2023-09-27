@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Graph from 'graphology';
-import { SigmaContainer, useCamera } from "@react-sigma/core";
+import { SigmaContainer, useSigma } from "@react-sigma/core";
 import { Settings } from 'sigma/settings';
 
 import "@react-sigma/core/lib/react-sigma.min.css";
@@ -16,7 +16,6 @@ import ZoomControl from './ZoomControl';
 import { logDebug } from '../util/logger';
 import { NBAGraphNode } from '../../shared/types';
 import { useSelectedNode } from '../hooks/useSelectedNode';
-import { INITIAL_ZOOM_FACTOR } from '../../shared/constants';
 
 type DisplayGraphProps = {
   data: GraphData;
@@ -28,10 +27,19 @@ const InnerComponents = ({nodes}: {nodes: GraphData['nodes']}) => {
   const [filters, setFilters] = useState<GraphFilters>(DEFAULT_FILTERS);
   const useSelectedNodeRes = useSelectedNode();
   const {selectedNode, setSelectedNode} = useSelectedNodeRes;
-  const camera = useCamera();
+
+  const sigma = useSigma();
 
   useEffect(() => {
-    camera.zoomIn({factor: INITIAL_ZOOM_FACTOR});
+    const camera = sigma.getCamera();
+
+    const nba = sigma.getNodeDisplayData('NBA');
+
+    if (nba) camera.animate({
+      x: nba.x,
+      y: nba.y,
+      ratio: 1 / 3,
+    });
   }, []);
 
   const onFilterChange = (change: Partial<GraphFilters>) => {

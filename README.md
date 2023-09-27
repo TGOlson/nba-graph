@@ -143,7 +143,7 @@ The output graph data is stored in `./data/graph/graph.json`. The graph is built
   * ~~mobile labels get too big~~
   * ~~start graph at good zoom / location~~
   * ~~adjust player node size for awards~~
-  * improve locations (do this last after adding more node types)
+  * ~~improve locations (do this last after adding more node types)~~
   * [images] fun AI logo
   * [images] favicon
   * [error-handling] catch errors for too small of texture size support (aim for 4kx4k)
