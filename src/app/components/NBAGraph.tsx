@@ -122,8 +122,8 @@ const NBAGraph = ({data, sprites}: DisplayGraphProps) => {
   
       // Features
       zIndex: true,
-      minCameraRatio: 0.01,
-      maxCameraRatio: 1.5,
+      minCameraRatio: 0.04,
+      maxCameraRatio: 1.2,
       
       nodeProgramClasses,
     });

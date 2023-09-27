@@ -153,7 +153,6 @@ const SelectedNodeLink = ({selectedNode}: Pick<SidePanelProps, 'selectedNode'>) 
           autocompleteOptionProps={{}}
           wrapperStyle={{cursor: 'auto'}}
         />
-        {/* TODO: there may be cases where the link is not already truncated... */}
         <Link href={href} disabled={!selectedNode} target='_blank' rel="noreferrer">
           <IconButton disabled={!selectedNode} size='sm' color='primary'>
             <OpenInNewIcon />

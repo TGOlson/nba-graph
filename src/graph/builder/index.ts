@@ -155,7 +155,6 @@ export const buildGraph = async (rawData: NBAData, config: GraphConfig): Promise
   });
 
   data.players.forEach(player => {
-    // TODO: more sophisticated size calculation, using seasons, awards, etc.
     const seasonsAll = playerSeasons[player.id];
     if (!seasonsAll) throw new Error(`Unexpected error: no years active for player ${player.name}`);
     const seasons = dedupeSeasonTokens(seasonsAll).sort((a, b) => a.year - b.year);
