@@ -1,6 +1,6 @@
 import { Attributes, GraphOptions, SerializedEdge } from 'graphology-types';
 import { NBAGraphNode } from '../shared/types';
-import { assets } from '../shared/assets';
+import { assets } from '../shared/constants';
 
 export type GraphData = {
   attributes: Attributes;

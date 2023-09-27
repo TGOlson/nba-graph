@@ -4,49 +4,17 @@ import forceAtlas2 from "graphology-layout-forceatlas2";
 import noverlap from "graphology-layout-noverlap";
 import Color from "color";
 
-import { AwardImageId, LeagueId, NBAData } from "../../shared/nba-types";
+import { AwardImageId, LeagueId, NBAData, PlayerSeason } from "../../shared/nba-types";
 import { EdgeAttributes, NodeAttributes, Palette, SeasonToken, SelectionMap, SpriteNodeAttributes } from "../../shared/types";
 import { GraphConfig } from "./config";
 import { loadSpriteColors, loadSpriteIds, loadSpriteMapping } from "../storage";
 import { getProp, notNull, singleYearStr } from "../../shared/util";
-import { assets } from "../../shared/assets";
-import { uniqBy } from "ramda";
+import { assets } from "../../shared/constants";
+import { dedupeSeasonTokens, filterYears, getPlayerNodeSize, toMap } from "./util";
+import { groupBy, groupWith, mapObjIndexed } from "ramda";
 
 const PLAYER_DEFAULT_CROP_ID = 'player_default';
 const TEAM_DEFAULT_CROP_ID = 'team_default';
-
-const filterYears = (data: NBAData, config: GraphConfig): NBAData => {
-  const startYear = config.startYear ?? 0; 
-  const endYear = config.endYear ?? Infinity;
-
-  const seasons = data.seasons.filter(({year}) => year >= startYear && year <= endYear);
-  const teams = data.teams.filter(({year}) => year >= startYear && year <= endYear);
-  const playerSeasons = data.playerSeasons.filter(({year}) => year >= startYear && year <= endYear);
-  // const awards = data.awards.filter(({year}) => !year || (year >= startYear && year <= endYear));
-  const awardRecipients = data.awardRecipients.filter(({year}) => !year || (year >= startYear && year <= endYear));
-  const multiWinnerAwards = data.multiWinnerAwards.filter(({year}) => year >= startYear && year <= endYear);
-
-  return {
-    ...data,
-    seasons,
-    teams,
-    playerSeasons,
-    // awards,
-    awardRecipients,
-    multiWinnerAwards,
-  };
-};
-
-const toMap = <T>(key: (t: T) => string, arr: T[]): {[key: string]: T} => {
-  return arr.reduce<{[key: string]: T}>((acc, x) => {
-    acc[key(x)] = x;
-    return acc;
-  }, {});
-};
-
-const dedupeSeasonTokens = (seasons: SeasonToken[]): SeasonToken[] => {
-  return uniqBy(x => `${x.leagueId}-${x.year}`, seasons);
-};
 
 type SpriteDataLookup = {
   spriteId: string;
@@ -116,21 +84,13 @@ export const buildGraph = async (rawData: NBAData, config: GraphConfig): Promise
   const awardsById = toMap(x => x.id, data.awards);  
   const multiWinnerAwardsById = toMap(x => x.id, data.multiWinnerAwards);
 
-  const playerSeasons = data.playerSeasons.reduce<{[playerId: string]: SeasonToken[]}>((acc, ps) => {
-    const prev = acc[ps.playerId] ?? [];
-
+  const playerSeasonsGrouped = groupBy((x) => x.playerId, data.playerSeasons);
+  const playerSeasons = mapObjIndexed((xs: PlayerSeason[]) => xs.map(ps => {
     const team = getProp(ps.teamId, teamsById);
-    const season = getProp(team.seasonId, seasonsById);
+    const {year, leagueId} = getProp(team.seasonId, seasonsById);
 
-    prev.push({
-      leagueId: season.leagueId,
-      year: season.year,
-    });
-
-    acc[ps.playerId] = prev;
-
-    return acc;
-  }, {});
+    return {year, leagueId};
+  }), playerSeasonsGrouped);
 
   // *************
   // *** NODES ***
@@ -192,7 +152,10 @@ export const buildGraph = async (rawData: NBAData, config: GraphConfig): Promise
     const years = [...new Set(yearsAll)];
     const end = years[years.length - 1];
 
-    const size = (years.length <= 3 && end !== 2023) ? config.sizes.playerMin : config.sizes.playerDefault;
+    const awardRecipients = data.awardRecipients.filter(x => x.recipientId === player.id);
+    const awards = awardRecipients.map(x => awardsById[x.awardId] ?? multiWinnerAwardsById[x.awardId]).filter(notNull);
+
+    const size = (years.length <= 3 && end !== 2023) ? config.sizes.playerMin : getPlayerNodeSize(config, awards);
 
     const imgProps = (maybeGetSpriteAttributes(player.id) ?? defaultPlayerSpriteAttributes).attributes;
 
@@ -250,9 +213,6 @@ export const buildGraph = async (rawData: NBAData, config: GraphConfig): Promise
     const teamEdgeColor = borderColor === config.borderColors.team ? config.edgeColors.default : Color(borderColor).lighten(0.3).hex();
     const seasonEdgeColor = Color(leagueColor).lighten(0.3).hex();
 
-    // const wonTitle = data.awardRecipients.find(x => x.recipientId === team.id && x.year === team.year);
-    // if (wonTitle) console.log('Team won title', team.name, team.year, wonTitle.awardId, wonTitle.recipientId);
-
     const attrs: NodeAttributes = { 
       nbaType: 'team',
       name: team.name,
@@ -261,7 +221,6 @@ export const buildGraph = async (rawData: NBAData, config: GraphConfig): Promise
       rollupId: team.franchiseId,
       seasons: [{leagueId, year: team.year}],
       size: config.sizes.team, 
-      // size: config.sizes.team + (wonTitle ? 2 : 0), 
       color: config.nodeColors.default, 
       borderColor,
       ...spriteAttrs.attributes,
@@ -293,6 +252,7 @@ export const buildGraph = async (rawData: NBAData, config: GraphConfig): Promise
     const largeAwards = new Set<AwardImageId | LeagueId>([
       'hof',
       'mvp',
+      'champ'
     ]);
 
     const size =  largeAwards.has(award.image.id) ? config.sizes.awardMax : config.sizes.awardDefault;
@@ -399,10 +359,12 @@ export const buildGraph = async (rawData: NBAData, config: GraphConfig): Promise
       return {
         x: attr.x,
         y: attr.y,
+        // size: attr.size,
         size: (attr.size ?? 1) / 0.5,
       };
     },
     settings: {
+      margin: 10,
       expansion: 2,
     },
   });

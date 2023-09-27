@@ -165,7 +165,7 @@ const SelectedNodeLink = ({selectedNode}: Pick<SidePanelProps, 'selectedNode'>) 
 };
 
 const SidePanel = ({filters, nodeCounts, selectedNode, onFilterChange}: SidePanelProps) => {
-  const [drawerOpen, setDrawerOpen] = useState(true);
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   return (
     <React.Fragment>

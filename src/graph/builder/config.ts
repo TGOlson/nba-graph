@@ -38,7 +38,7 @@ export const GRAPH_CONFIG: GraphConfig = {
     playerMin: 2,
     awardMax: 12,
     awardDefault: 9,
-    awardMin: 6,
+    awardMin: 5,
   },
   nodeColors: {
     default: '#C6C3BD', // need this for opacity background on hover

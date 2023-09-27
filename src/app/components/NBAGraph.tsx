@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Graph from 'graphology';
-import { SigmaContainer } from "@react-sigma/core";
+import { SigmaContainer, useCamera } from "@react-sigma/core";
 import { Settings } from 'sigma/settings';
 
 import "@react-sigma/core/lib/react-sigma.min.css";
@@ -16,6 +16,7 @@ import ZoomControl from './ZoomControl';
 import { logDebug } from '../util/logger';
 import { NBAGraphNode } from '../../shared/types';
 import { useSelectedNode } from '../hooks/useSelectedNode';
+import { INITIAL_ZOOM_FACTOR } from '../../shared/constants';
 
 type DisplayGraphProps = {
   data: GraphData;
@@ -27,7 +28,11 @@ const InnerComponents = ({nodes}: {nodes: GraphData['nodes']}) => {
   const [filters, setFilters] = useState<GraphFilters>(DEFAULT_FILTERS);
   const useSelectedNodeRes = useSelectedNode();
   const {selectedNode, setSelectedNode} = useSelectedNodeRes;
+  const camera = useCamera();
 
+  useEffect(() => {
+    camera.zoomIn({factor: INITIAL_ZOOM_FACTOR});
+  }, []);
 
   const onFilterChange = (change: Partial<GraphFilters>) => {
     setFilters({ ...filters, ...change });
@@ -59,8 +64,8 @@ const InnerComponents = ({nodes}: {nodes: GraphData['nodes']}) => {
 };
 
 const NBAGraph = ({data, sprites}: DisplayGraphProps) => {
-  const [graph, setGraph] = useState<Graph | undefined>(undefined);
-  const [settings, setSettings] = useState<Partial<Settings>>({});
+  const [graph, setGraph] = useState<Graph | null>(null);
+  const [settings, setSettings] = useState<Partial<Settings> | null>(null);
 
   // Note: in a setup function so we don't re-instantiate the program class on each render
   useEffect(() => {
@@ -114,10 +119,7 @@ const NBAGraph = ({data, sprites}: DisplayGraphProps) => {
       
       nodeProgramClasses,
     });
-  }, []);
 
-
-  useEffect(() => {
     logDebug('Registering graph');
 
     const graph = new Graph(data.options);
@@ -126,16 +128,15 @@ const NBAGraph = ({data, sprites}: DisplayGraphProps) => {
     setGraph(graph);
   }, []);
 
-  // TODO: clean this up, think we can avoid the double render?
-  return (
-    graph && settings ? <SigmaContainer 
+  return graph && settings 
+    ? <SigmaContainer 
       style={{ height: "100vh", backgroundColor: "#fcfcfc", overflowX: 'hidden' }} 
       graph={graph}
       settings={settings}
     >
       <InnerComponents nodes={data.nodes}/>
-    </SigmaContainer> : null
-  );
+    </SigmaContainer> 
+    : null;
 };
 
 export default NBAGraph;

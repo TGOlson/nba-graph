@@ -11,3 +11,5 @@ export const assets = {
   },
   spriteUrl: (spriteId: string) => `${BASE_SPRITE_PATH}/${spriteId}.png`,
 };
+
+export const INITIAL_ZOOM_FACTOR = 3;

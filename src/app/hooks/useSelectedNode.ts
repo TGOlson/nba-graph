@@ -2,7 +2,7 @@ import { EventHandlers, useRegisterEvents, useSigma } from "@react-sigma/core";
 import { useEffect, useState } from "react";
 import { SigmaNodeEventPayload } from "sigma/sigma";
 import { logDebug } from "../util/logger";
-import { NBAGraphNode, NodeAttributes } from "../../shared/types";
+import { NBAGraphNode } from "../../shared/types";
 
 type UseSelectedNode = {
   selectedNode: NBAGraphNode | null;
@@ -26,7 +26,7 @@ export const useSelectedNode = (): UseSelectedNode => {
       clickNode: (baseEvent) => {
         const event = baseEvent as SigmaNodeEventPayload & {syntheticClickEventFromSearch: boolean};
 
-        const attributes = sigma.getGraph().getNodeAttributes(event.node) as NodeAttributes;
+        const attributes = sigma.getGraph().getNodeAttributes(event.node) as NBAGraphNode['attributes'];
         const node = {key: event.node, attributes};
         
         logDebug('Click event', baseEvent, 'node', node);
@@ -45,7 +45,7 @@ export const useSelectedNode = (): UseSelectedNode => {
 
   const setSelectedNodeFn = (node: NBAGraphNode | string | null) => {
     if (typeof node === 'string') {
-      const attributes = sigma.getGraph().getNodeAttributes(node) as NodeAttributes;
+      const attributes = sigma.getGraph().getNodeAttributes(node) as NBAGraphNode['attributes'];
       setSelectedNode({key: node, attributes});
     } else {
       setSelectedNode(node);

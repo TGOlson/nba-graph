@@ -8,7 +8,7 @@ import { seasonParser } from "./parsers/season";
 import { makeTeamParser } from "./parsers/team";
 import { makePlayerSeasonParser } from "./parsers/player-season";
 
-import { loadFranchises, loadNBAData, loadPlayers, loadTeams, persistAwards, persistFranchises, persistGraph, persistJSON, persistLeagues, persistPlayers, persistPlayerSeasons, persistMultiWinnerAwards, persistAwardRecipients, persistSeasons, persistTeams, readJSON, loadSpriteIds } from "./storage";
+import { loadFranchises, loadNBAData, loadPlayers, loadTeams, persistAwards, persistFranchises, persistGraph, persistJSON, persistLeagues, persistPlayers, persistPlayerSeasons, persistMultiWinnerAwards, persistAwardRecipients, persistSeasons, persistTeams, readJSON, loadSpriteIds, loadAwards, loadAwardRecipients, loadMultiWinnerAwards } from "./storage";
 import { imageDir, imgPath, spriteColorsPath, spriteMappingPath, spritePath } from "./storage/paths";
 
 import { buildGraph } from "./builder";
@@ -283,10 +283,28 @@ async function main() {
 
     // for testing, debugging, etc
     case commands.misc.Test: {
-      const nodes = await readJSON<NBAGraphNode[]>(path.resolve(__dirname, '../data/graph/nodes.json'))();
-      const urls = nodes.filter(x => x.attributes.url.includes('basketball-reference'));
+      const players = await loadPlayers();
+      const recipients = await loadAwardRecipients();
+      const awards = await loadAwards();
+      const multiWinnerAwards = await loadMultiWinnerAwards();
 
-      console.log('urls: ', urls);
+      const playerIds = players.map(x => x.id);
+
+      const allPlayerAwards = players.map(({id, name}) => {
+        const awardsIds = recipients.filter(x => x.recipientId === id).map(x => x.awardId);
+
+        const playerAwards = awardsIds.map(awardId => {
+          const award = awards.find(x => x.id === awardId);
+          const mwa = multiWinnerAwards.find(x => x.id === awardId);
+
+          return (award ?? mwa)?.name;
+        });
+
+        return {id, name, count: playerAwards.length, awards: playerAwards};
+      });
+
+      const sorted = allPlayerAwards.sort((a, b) => b.count - a.count);
+      console.log(sorted.slice(0, 100));
 
       return;
     }
