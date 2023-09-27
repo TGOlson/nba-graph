@@ -145,13 +145,10 @@ The output graph data is stored in `./data/graph/graph.json`. The graph is built
   * ~~adjust player node size for awards~~
   * ~~improve locations (do this last after adding more node types)~~
   * ~~graph load~~
+  * ~~[cleanup] goto node doesn't work on small screens because of overflow...~~
   * [images] fun AI logo
   * [images] favicon
   * [error-handling] catch errors for too small of texture size support (aim for 4kx4k)
-  * [cleanup] goto node doesn't work on small screens because of overflow...
-   * idea => graph scales well above 600px
-   * for screens < 600px add a scale factor that is passed into the event handler (scale nodes by width / 600px = scale factor)
-   * same goes for initial zoom level
   * [cleanup] update readme, move docs around
   * [cleanup] git lfs to store scraped data?
   * [experiment] fastest path search?

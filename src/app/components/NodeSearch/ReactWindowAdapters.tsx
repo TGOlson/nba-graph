@@ -40,7 +40,7 @@ const RenderRow = ({ data, index, style }: RenderRowProps) => {
   return isNoResults(props) 
     ?  <SearchOptionPlaceholder option={{
         message: props.message, // eslint-disable-line
-        subMessage: 'When filters are applied, items may be hidden.',
+        subMessage: 'If filters are applied, items may be hidden.',
         noImage: true,
       }} />
     : <SearchOption {...props} wrapperStyle={wrapperStyle} />;

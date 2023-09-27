@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-import Autocomplete from '@mui/joy/Autocomplete';
+import Autocomplete, { createFilterOptions } from '@mui/joy/Autocomplete';
 import SearchIcon from '@mui/icons-material/Search';
 
 import { Option, OptionSubItem, BaseSearchOptionProps } from './SearchOption';
@@ -13,13 +13,21 @@ type SearchBarBaseProps = {
 
 const SearchBarBase = ({options, onSelect}: SearchBarBaseProps) => {
   const [inputValue, setInputValue] = useState('');
+
+  // optionSelected is used to determine if the search popout should be open
+  // it mimics the default behavior of the uncontrolled component,
+  // but is needed for some special casing with subitems
+  const [optionSelected, setOptionSelected] = useState(false);
+
   const [hovered, setHovered] = useState(false);
   const [focused, setFocused] = useState(false);
+  
   const [expandedOptions, setExpandedOptions] = useState<{[key: string]: boolean}>({});
 
   const onSubItemSelect = (subItem: OptionSubItem) => {
     // set input to parent name, acting kinda like we selected the subitem (even thought it's not a real option)
-    setInputValue(subItem.attrs.name ?? subItem.attrs.label);
+    setInputValue(subItem.attrs.label);
+    setOptionSelected(true);
     onSelect(subItem.key);
   };
 
@@ -39,16 +47,20 @@ const SearchBarBase = ({options, onSelect}: SearchBarBaseProps) => {
         listbox: ListboxComponent,
       }}
 
+      onOpen={(_e) => {
+        if (optionSelected) setOptionSelected(false);
+      }}
+
       onFocus={() => setFocused(true)}
       onBlur={() => onBlur()}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-
+      clearOnBlur
       clearOnEscape
       disableListWrap
       placeholder='Search'
       startDecorator={<SearchIcon />}
-      open={inputValue.length > 1}
+      open={inputValue.length > 1 && !optionSelected}
       forcePopupIcon={false}
       
       options={options}
@@ -64,8 +76,11 @@ const SearchBarBase = ({options, onSelect}: SearchBarBaseProps) => {
         // Funky type cohersion to allow for passing props to adapter functions (as opposed to a true component)
         return searchOptionProps as unknown as React.ReactNode;
       }}
-      getOptionLabel={(option) => option.searchString}
+      getOptionLabel={(option) => option.attrs.name ?? option.attrs.label}
       isOptionEqualToValue={(option, value) => option.key === value.key}
+      filterOptions={createFilterOptions({
+        stringify: (option) => option.searchString,
+      })}
 
       // A couple things to note here...
       // 1. this is a managed component, both for the raw input value, and the selected value
@@ -76,8 +91,13 @@ const SearchBarBase = ({options, onSelect}: SearchBarBaseProps) => {
       //    if we actually used a selected value, it would be confusing when toggeling between parent and sub items
       value={null}
       onChange={(_event, value) => {
-        if (value) setInputValue(value.attrs.label);
-        if (value !== null) onSelect(value.key);
+        if (value) {
+          setInputValue(value.attrs.label);
+          setOptionSelected(true);
+          onSelect(value.key);
+        } else {
+          console.log('onChange null');
+        }
       }}
       inputValue={inputValue}
       onInputChange={(_event, newInputValue) => setInputValue(newInputValue)}

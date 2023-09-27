@@ -120,7 +120,7 @@ const NBAGraph = ({data, sprites}: DisplayGraphProps) => {
       // edgeReducer: null,
   
       // Features
-      zIndex: true,
+      zIndex: false,
       minCameraRatio: 0.025,
       maxCameraRatio: 1.2,
       
