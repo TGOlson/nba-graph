@@ -52,6 +52,8 @@ const GraphEvents = ({filters, selectedNode: selectedNodeFull, setSelectedNode, 
         // a little type cohersion to make typescript happy
         const data = baseData as (NodeDisplayData & NodeAttributes);
 
+        // data.size = data.size * 0.625;
+
         const isVisible = isVisibleNode(filters, data);
 
         if (!isVisible) {
@@ -104,7 +106,7 @@ const GraphEvents = ({filters, selectedNode: selectedNodeFull, setSelectedNode, 
         }
 
         // if current reducer node is selected or hovered, apply styles
-        if (nodeIsSelected && nodeIsHovered) return { ...data, zIndex: 1000, highlighted: true, borderColor: activeBorderColor, size: data.size + 4};
+        if (nodeIsSelected && nodeIsHovered) return { ...data, zIndex: 10, highlighted: true, borderColor: activeBorderColor, size: data.size + 4};
         if (nodeIsSelected) return { ...data, zIndex: 900, highlighted: true, borderColor: activeBorderColor, size: data.size + 3};
         if (nodeIsHovered) return { ...data, zIndex: 800, highlighted: true, borderColor: activeBorderColor, size: data.size + 1};
 
@@ -117,7 +119,7 @@ const GraphEvents = ({filters, selectedNode: selectedNodeFull, setSelectedNode, 
       },
       edgeReducer: (edge: string, data: Attributes): Attributes => {
         // if nothing selected or hovered, hide all edges
-        if (!hoveredNode && !selectedNode) return { ...data, hidden: true };
+        if (!hoveredNode && !selectedNode) return { ...data, zIndex: 0, hidden: true };
 
         // check neighbors
         const graph = sigma.getGraph();

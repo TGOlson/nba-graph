@@ -1,4 +1,4 @@
-import Graph, { DirectedGraph } from "graphology";
+import Graph, { UndirectedGraph } from "graphology";
 import { random } from "graphology-layout";
 import forceAtlas2 from "graphology-layout-forceatlas2";
 import noverlap from "graphology-layout-noverlap";
@@ -357,7 +357,7 @@ export const buildGraph = async (rawData: NBAData, config: GraphConfig): Promise
 };
 
 const assignLocations = (stagedNodes: StagedNode[], stagedEdges: StagedEdge[]): Graph => {
-  const graph = new DirectedGraph();
+  const graph = new UndirectedGraph();
 
   stagedNodes.forEach(x => graph.addNode(x.key, x.attributes));
 
@@ -366,7 +366,6 @@ const assignLocations = (stagedNodes: StagedNode[], stagedEdges: StagedEdge[]): 
   console.log('Assigning locations');
   random.assign(graph);
 
-  // This call takes a little while...
   const settings = forceAtlas2.inferSettings(graph);
   console.log('infered settings', forceAtlas2.inferSettings(graph));
 

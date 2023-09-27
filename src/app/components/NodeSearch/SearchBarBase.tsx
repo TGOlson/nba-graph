@@ -38,7 +38,7 @@ const SearchBarBase = ({options, onSelect}: SearchBarBaseProps) => {
       slots={{
         listbox: ListboxComponent,
       }}
-      
+
       onFocus={() => setFocused(true)}
       onBlur={() => onBlur()}
       onMouseEnter={() => setHovered(true)}

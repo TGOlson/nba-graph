@@ -8,7 +8,7 @@ import { seasonParser } from "./parsers/season";
 import { makeTeamParser } from "./parsers/team";
 import { makePlayerSeasonParser } from "./parsers/player-season";
 
-import { loadFranchises, loadNBAData, loadPlayers, loadTeams, persistAwards, persistFranchises, persistGraph, persistJSON, persistLeagues, persistPlayers, persistPlayerSeasons, persistMultiWinnerAwards, persistAwardRecipients, persistSeasons, persistTeams, readJSON, loadSpriteIds, loadAwards, loadAwardRecipients, loadMultiWinnerAwards } from "./storage";
+import * as storage from "./storage";
 import { imageDir, imgPath, spriteColorsPath, spriteMappingPath, spritePath } from "./storage/paths";
 
 import { buildGraph } from "./builder";
@@ -21,9 +21,9 @@ import { allStarUrl, awardUrls, LEAGUE_CHAMP_URL } from "./util/bref-url";
 import { validAllStarSeasons } from "./parsers/awards/all-star";
 import { runAwardsParsers } from "./parsers/awards";
 import path from "path";
-import { NBAGraphNode } from "../shared/types";
 import { readdir } from "fs/promises";
 import Jimp from "jimp";
+import { bidirectional } from "graphology-shortest-path";
 
 const VERBOSE_FETCH = true;
 const FETCH_DELAY_MS = 6000; // basketball-reference seems to get mad at >~30 req/m
@@ -121,7 +121,7 @@ async function main() {
     }
 
     case commands.download.FranchiseImages: {
-      const franchises = await loadFranchises();
+      const franchises = await storage.loadFranchises();
 
       const fns = franchises.map(x => {
           return () => downloadImage(fetch, x.image, 'franchise', x.id)
@@ -132,7 +132,7 @@ async function main() {
     }
 
     case commands.download.TeamImages: {
-      const teams  = await loadTeams();
+      const teams  = await storage.loadTeams();
 
       const fns = teams.map(x => {
           return () => downloadImage(fetch, x.image, 'team', x.id)
@@ -143,7 +143,7 @@ async function main() {
     }
 
     case commands.download.PlayerImages: {
-      const players = await loadPlayers();
+      const players = await storage.loadPlayers();
 
       const startAtId = arg;
       const startAt = startAtId ? players.findIndex(x => x.id == startAtId) : 0;
@@ -184,9 +184,9 @@ async function main() {
     }
 
     // *** extract commands
-    case commands.parse.Leagues: return await runHtmlParser(leagueParser).then(persistLeagues);
-    case commands.parse.Seasons: return await runHtmlParser(seasonParser).then(persistSeasons);
-    case commands.parse.Franchises: return await runHtmlParser(franchiseParser).then(persistFranchises);
+    case commands.parse.Leagues: return await runHtmlParser(leagueParser).then(storage.persistLeagues);
+    case commands.parse.Seasons: return await runHtmlParser(seasonParser).then(storage.persistSeasons);
+    case commands.parse.Franchises: return await runHtmlParser(franchiseParser).then(storage.persistFranchises);
     case commands.parse.Teams: {
       const franchises = await runHtmlParser(franchiseParser);
       const franchiseIds = franchises.map(x => x.id);
@@ -195,7 +195,7 @@ async function main() {
         franchiseIds.map(id => runHtmlParser(makeTeamParser(id)))
       ).then(xs => xs.flat());
       
-      return await persistTeams(teams);
+      return await storage.persistTeams(teams);
     }
 
     case commands.parse.Players: {
@@ -210,25 +210,25 @@ async function main() {
       const players = res.map(x => x.player);
       const playerSeasons = res.map(x => x.seasons).flat();
 
-      await persistPlayers(players);
-      return await persistPlayerSeasons(playerSeasons);
+      await storage.persistPlayers(players);
+      return await storage.persistPlayerSeasons(playerSeasons);
     }
 
     case commands.parse.Awards: {
       const {awards, multiWinnerAwards, awardRecipients} = await runAwardsParsers();
 
-      await persistAwards(awards);
-      await persistMultiWinnerAwards(multiWinnerAwards);
-      return await persistAwardRecipients(awardRecipients);
+      await storage.persistAwards(awards);
+      await storage.persistMultiWinnerAwards(multiWinnerAwards);
+      return await storage.persistAwardRecipients(awardRecipients);
     }
 
     // *** graph commands
     case commands.graph.Build: {
-      const nbaData = await loadNBAData();
+      const nbaData = await storage.loadNBAData();
 
       const graph = await buildGraph(nbaData, GRAPH_CONFIG);
 
-      return await persistGraph(graph);
+      return await storage.persistGraph(graph);
     }
 
     // *** misc commands
@@ -271,40 +271,50 @@ async function main() {
     }
 
     case commands.misc.ParsePrimaryColors: {
-      const spriteIds = await loadSpriteIds();
+      const spriteIds = await storage.loadSpriteIds();
 
       return await execSeq(spriteIds.map(spriteId =>
         async () => {
           const colors = await parseSpriteColorPallette(spriteId);
-          return persistJSON(spriteColorsPath(spriteId))(colors);
+          return storage.persistJSON(spriteColorsPath(spriteId))(colors);
         }
       ));
     }
 
     // for testing, debugging, etc
     case commands.misc.Test: {
-      const players = await loadPlayers();
-      const recipients = await loadAwardRecipients();
-      const awards = await loadAwards();
-      const multiWinnerAwards = await loadMultiWinnerAwards();
+      const nbaData = await storage.loadNBAData();
+      const graph = await buildGraph(nbaData, GRAPH_CONFIG);
+      const graph2 = graph.copy();
+      // graph.remove
 
-      const playerIds = players.map(x => x.id);
+      graph2.forEachNode((node) => {
+        const attrs = graph2.getNodeAttributes(node);
 
-      const allPlayerAwards = players.map(({id, name}) => {
-        const awardsIds = recipients.filter(x => x.recipientId === id).map(x => x.awardId);
+        if (attrs.nbaType === 'player' || attrs.nbaType === 'team') {
+          // attrs.hidden = true;
+        } else {
+          graph2.dropNode(node);
+        }
 
-        const playerAwards = awardsIds.map(awardId => {
-          const award = awards.find(x => x.id === awardId);
-          const mwa = multiWinnerAwards.find(x => x.id === awardId);
-
-          return (award ?? mwa)?.name;
-        });
-
-        return {id, name, count: playerAwards.length, awards: playerAwards};
+        // return attrs;
       });
 
-      const sorted = allPlayerAwards.sort((a, b) => b.count - a.count);
-      console.log(sorted.slice(0, 100));
+      // const path = bidirectional(graph2, 'NBA', 'ABA');
+      const path = bidirectional(graph2, 'curryst01', 'ervinju01');
+
+      // result
+      // [
+      //   'curryst01', 'GSW_2010',
+      //   'bellra01',  'PHI_2001',
+      //   'hillty01',  'CLE_1995',
+      //   'coltest01', 'PHI_1987',
+      //   'ervinju01'
+      // ]
+
+      console.log(path);
+      console.log(graph.edge('GSW_2010', 'curryst01'));
+
 
       return;
     }
