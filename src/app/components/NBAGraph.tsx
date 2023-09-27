@@ -32,7 +32,6 @@ const InnerComponents = ({nodes}: {nodes: GraphData['nodes']}) => {
 
   useEffect(() => {
     const camera = sigma.getCamera();
-
     const nba = sigma.getNodeDisplayData('NBA');
 
     if (nba) camera.animate({

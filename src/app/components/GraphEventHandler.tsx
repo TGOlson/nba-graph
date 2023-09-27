@@ -3,8 +3,8 @@ import { useEffect } from 'react';
 import { useCamera } from "@react-sigma/core";
 import { useSigma, useSetSettings } from "@react-sigma/core";
 import { Attributes } from 'graphology-types';
-import { NodeDisplayData } from 'sigma/types';
-import { NBAGraphNode, NodeAttributes } from '../../shared/types';
+import { EdgeDisplayData, NodeDisplayData } from 'sigma/types';
+import { EdgeAttributes, NBAGraphNode, NodeAttributes } from '../../shared/types';
 import { GraphFilters } from '../util/types';
 import { getIndex } from '../../shared/util';
 import { useWindowWidth } from '@react-hook/window-size';
@@ -46,16 +46,16 @@ const GraphEvents = ({filters, selectedNode: selectedNodeFull, setSelectedNode, 
   const selectedNode = selectedNodeFull?.key ?? null;
 
   useEffect(() => {
-    if (selectedNode) gotoNode(selectedNode, {duration: 250});
+    if (selectedNode) gotoNode(selectedNode, {duration: 150, easing: 'linear'});
   }, [selectedNode]);
 
   useEffect(() => {
     setSettings({
       nodeReducer: (node: string, baseData: Attributes): Partial<NodeDisplayData & NodeAttributes> => {
-        // a little type cohersion to make typescript happy
-        // copy node data and then mutate below...
-        // makes iterative updates below easier
-        const data = {...baseData} as (NodeDisplayData & NodeAttributes);
+        // A little type cohersion to make typescript happy
+        // Note: we mutate this data object below, 
+        // this is ok because sigma copys the data object before passing it to the reducer
+        const data = baseData as (NodeDisplayData & NodeAttributes);
 
         // On screens smaller than 600px, scale down the nodes
         // Otherwise sigma resizes itself and gets too smushed and hard to read
@@ -79,9 +79,8 @@ const GraphEvents = ({filters, selectedNode: selectedNodeFull, setSelectedNode, 
 
         // if a neighbor of selected or hovered, emphasize node
         // only emphasize on hover is there is no selected node
-        
         const activeBorderColor = data.nbaType === 'player' ? '#ffffff' : data.borderColor;
-        if ((selectedNode && graph.neighbors(selectedNode).includes(node) || (hoveredNode && !selectedNode && graph.neighbors(hoveredNode).includes(node)))) {
+        if ((selectedNode && graph.areNeighbors(selectedNode, node) || (hoveredNode && !selectedNode && graph.areNeighbors(hoveredNode, node)))) {
           const activeNodeKey = selectedNode ?? hoveredNode;
           const activeNode = graph.getNodeAttributes(activeNodeKey); 
           
@@ -138,9 +137,15 @@ const GraphEvents = ({filters, selectedNode: selectedNodeFull, setSelectedNode, 
         data.zIndex = 0;
         return data;
       },
-      edgeReducer: (edge: string, data: Attributes): Attributes => {
+      edgeReducer: (edge: string, baseData: Attributes): Attributes => {
+        const data = baseData as (EdgeDisplayData & EdgeAttributes);
         // if nothing selected or hovered, hide all edges
-        if (!hoveredNode && !selectedNode) return { ...data, zIndex: 0, hidden: true };
+
+        if (!hoveredNode && !selectedNode) {
+          data.zIndex = 0;
+          data.hidden = true;
+          return data;
+        }
 
         // check neighbors
         const graph = sigma.getGraph();
@@ -152,17 +157,26 @@ const GraphEvents = ({filters, selectedNode: selectedNodeFull, setSelectedNode, 
         const edgeAttrs = graph.getEdgeAttributes(edge);
         if (edgeAttrs.nbaType === 'award' && edgeAttrs.year) {
           const year = edgeAttrs.year as number;
-          if (!isWithinYearRange(filters, year)) return { ...data, hidden: true };
+          if (!isWithinYearRange(filters, year)) {
+            data.hidden = true;
+            return data;
+          }
         }
 
-        const isSelectedNeighbor = selectedNode && graph.extremities(edge).includes(selectedNode);
-        const isHoveredNeighbor = hoveredNode && !selectedNode && graph.extremities(edge).includes(hoveredNode);
+        const isSelectedNeighbor = selectedNode && graph.hasExtremity(edge, selectedNode);
+        const isHoveredNeighbor = hoveredNode && !selectedNode && graph.hasExtremity(edge, hoveredNode);
 
         // if a neighbor of selected or hovered, draw edge node
         // only draw edge on hover is there is no selected node
-        if (isSelectedNeighbor || isHoveredNeighbor) return {...data, size: 1.6, hidden: false, zIndex: 100};
+        if (isSelectedNeighbor || isHoveredNeighbor) {
+          data.size = 1.6;
+          data.hidden = false;
+          data.zIndex = 100;
+          return data;
+        }
 
-        return { ...data, hidden: true };
+        data.hidden = true;
+        return data;
       }
     });
   }, [hoveredNode, selectedNode, setSettings, sigma, filters, width]);
