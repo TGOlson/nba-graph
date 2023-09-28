@@ -41,7 +41,7 @@ const App = () => {
       setTimeout(() => {
         console.log('Graph loaded');
         setGraphLoaded(true);
-      }, 1500);
+      }, 1000);
     }).catch((err) => { throw err; });
   }, []);
 
@@ -60,7 +60,7 @@ const App = () => {
         zIndex: 1000,
         // display: graphLoaded ? 'none' : 'flex',
         visibility: graphLoaded ? 'hidden' : 'flex',
-        transition: 'visibility 1s, opacity 1s linear',
+        transition: 'visibility 0.5s, opacity 0.5s ease-in',
         }}>
           {graphLoaded ? null : (
             <Box sx={{textAlign: 'center', mt: -4}}>

@@ -151,4 +151,5 @@ The output graph data is stored in `./data/graph/graph.json`. The graph is built
   * [error-handling] catch errors for too small of texture size support (aim for 4kx4k)
   * [cleanup] update readme, move docs around
   * [cleanup] git lfs to store scraped data?
+  * [experiment] shareable urls?
   * [experiment] fastest path search?
