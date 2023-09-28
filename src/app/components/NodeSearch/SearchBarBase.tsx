@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 
 import Autocomplete, { createFilterOptions } from '@mui/joy/Autocomplete';
 import SearchIcon from '@mui/icons-material/Search';
+import ClearIcon from '@mui/icons-material/Clear';
+import IconButton from '@mui/joy/IconButton';
 
 import { Option, OptionSubItem, BaseSearchOptionProps } from './SearchOption';
 import { ListboxComponent } from './ReactWindowAdapters';
@@ -47,10 +49,15 @@ const SearchBarBase = ({options, onSelect}: SearchBarBaseProps) => {
         listbox: ListboxComponent,
       }}
 
+      slotProps={{
+        input: {
+          className: 'node-search-input',
+        },
+      }}
+
       onOpen={(_e) => {
         if (optionSelected) setOptionSelected(false);
       }}
-
       onFocus={() => setFocused(true)}
       onBlur={() => onBlur()}
       onMouseEnter={() => setHovered(true)}
@@ -58,10 +65,19 @@ const SearchBarBase = ({options, onSelect}: SearchBarBaseProps) => {
       clearOnBlur
       clearOnEscape
       disableListWrap
+
       placeholder='Search'
       startDecorator={<SearchIcon />}
       open={inputValue.length > 1 && !optionSelected}
       forcePopupIcon={false}
+
+      endDecorator={(
+        inputValue.length > 1 
+          ? <IconButton size='sm' onClick={() => setInputValue('')}>
+              <ClearIcon />
+            </IconButton>
+          : null
+      )}
       
       options={options}
       renderOption={(props, option) => {

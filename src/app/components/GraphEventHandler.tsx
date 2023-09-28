@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 
-import { useCamera } from "@react-sigma/core";
+import { useCamera, useRegisterEvents } from "@react-sigma/core";
 import { useSigma, useSetSettings } from "@react-sigma/core";
 import { Attributes } from 'graphology-types';
 import { EdgeDisplayData, NodeDisplayData } from 'sigma/types';
@@ -38,16 +38,34 @@ const GraphEvents = ({filters, selectedNode: selectedNodeFull, setSelectedNode, 
   const sigma = useSigma();
   (window as any).sigma = sigma; // eslint-disable-line
 
-  const width = useWindowWidth();
-
   const setSettings = useSetSettings();
+  const registerEvents = useRegisterEvents();
   const { gotoNode } = useCamera();
+  const width = useWindowWidth();
 
   const selectedNode = selectedNodeFull?.key ?? null;
 
   useEffect(() => {
     if (selectedNode) gotoNode(selectedNode, {duration: 150, easing: 'linear'});
   }, [selectedNode]);
+
+
+  useEffect(() => {
+    const nodeSearchInput = document.querySelector<HTMLInputElement>('.node-search-input');
+
+    registerEvents({
+      // Not the most ideal, but here is what we are doing --
+      // We want to blur the search input when the user clicks on the graph
+      // However, by default *at least* ios safari (maybe other mobile devices) don't blur the input when clicking on the graph
+      // Which ends up looking really strange when you are exploring nodes and a prior search is still in the input
+      // So just manually clear it... idk could be worse ¯\_(ツ)_/¯
+      touchdown: () => {
+        if (nodeSearchInput && document.activeElement === nodeSearchInput) {
+          nodeSearchInput.blur();
+        }
+      }
+    });
+  }, [registerEvents]);
 
   useEffect(() => {
     setSettings({
