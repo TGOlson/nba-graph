@@ -63,6 +63,10 @@ const GraphEvents = ({filters, selectedNode: selectedNodeFull, setSelectedNode, 
         if (nodeSearchInput && document.activeElement === nodeSearchInput) {
           nodeSearchInput.blur();
         }
+      },
+      updated: (state) => {
+        // Prevent rotation on phone, it's annoying
+        if (state.angle !== 0) sigma.getCamera().setState({angle: 0});
       }
     });
   }, [registerEvents]);
