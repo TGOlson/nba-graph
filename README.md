@@ -146,10 +146,11 @@ The output graph data is stored in `./data/graph/graph.json`. The graph is built
   * ~~improve locations (do this last after adding more node types)~~
   * ~~graph load~~
   * ~~[cleanup] goto node doesn't work on small screens because of overflow...~~
-  * [images] fun AI logo
-  * [images] favicon
+  * ~~[images] fun AI logo -> kinda, keep it simple : )~~
+  * ~~[experiment] fastest path search? => separate project~~
+  * ~~[images] favicon~~
   * [error-handling] catch errors for too small of texture size support (aim for 4kx4k)
   * [cleanup] update readme, move docs around
   * [cleanup] git lfs to store scraped data?
+  * faster serving of assets?
   * [experiment] shareable urls?
-  * [experiment] fastest path search?

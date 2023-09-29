@@ -15,6 +15,7 @@ import { logDebug } from './util/logger';
 
 import "./App.css";
 import { Sprite } from './util/types';
+import { Logo } from './components/Logo';
 
 const App = () => {
   const [data, setData] = useState<GraphData | null>(null);
@@ -63,8 +64,9 @@ const App = () => {
         transition: 'visibility 0.5s, opacity 0.5s ease-in',
         }}>
           {graphLoaded ? null : (
-            <Box sx={{textAlign: 'center', mt: -4}}>
-              <Typography sx={{mb: 1}}>NBA Graph</Typography>
+            <Box sx={{textAlign: 'center', mt: -14}}>
+              <Logo />
+              <Typography level="body-sm" sx={{mb: 4}}>Visualizing basketball history</Typography>
               <CircularProgress />
             </Box>
           )}

@@ -22,6 +22,7 @@ import { getProp } from '../../shared/util';
 import NodeCountTable from './NodeCountTable';
 import { SearchOptionPlaceholder } from './NodeSearch/SearchOption';
 import { NBAGraphNode } from '../../shared/types';
+import { Logo } from './Logo';
 
 type SidePanelProps = {
   filters: GraphFilters;
@@ -180,7 +181,7 @@ const SidePanel = ({filters, nodeCounts, selectedNode, onFilterChange}: SidePane
         }}
       >
         <Box sx={{p: 2, pb: 0}}>
-          <Typography level="title-lg" fontSize='24px'>NBA Graph</Typography>
+          <Logo fontSize={24} />
           <ModalClose />
         </Box>
         <DialogContent sx={{gap: 1.5, p: 2}}>
