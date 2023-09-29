@@ -172,7 +172,7 @@ const SidePanel = ({filters, nodeCounts, selectedNode, onFilterChange}: SidePane
         disableEnforceFocus
         onClose={() => setDrawerOpen(false)}
         sx={{
-          width: {sm: 'fit-content'},
+          width: 'fit-content',
         }}
         slotProps={{
           backdrop: {sx: {display: {sm: 'none'}}},

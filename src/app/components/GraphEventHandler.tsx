@@ -8,12 +8,12 @@ import { EdgeAttributes, NBAGraphNode, NodeAttributes } from '../../shared/types
 import { GraphFilters } from '../util/types';
 import { getIndex } from '../../shared/util';
 import { useWindowWidth } from '@react-hook/window-size';
+import { useHoveredNode } from '../hooks/useHoveredNode';
 
 type GraphEventsProps = {
   filters: GraphFilters;
   selectedNode: NBAGraphNode | null;
   setSelectedNode: (node: NBAGraphNode | null) => void;
-  hoveredNode: string | null;
 };
 
 export const isVisibleNode = (filters: GraphFilters, {seasons, nbaType}: NodeAttributes): boolean => {
@@ -34,7 +34,7 @@ const isWithinYearRange = (filters: GraphFilters, year: number): boolean => {
   return year >= filters.minYear && year <= filters.maxYear;
 };
 
-const GraphEvents = ({filters, selectedNode: selectedNodeFull, setSelectedNode, hoveredNode}: GraphEventsProps) => {
+const GraphEvents = ({filters, selectedNode: selectedNodeFull, setSelectedNode}: GraphEventsProps) => {
   const sigma = useSigma();
   (window as any).sigma = sigma; // eslint-disable-line
 
@@ -42,6 +42,7 @@ const GraphEvents = ({filters, selectedNode: selectedNodeFull, setSelectedNode, 
   const registerEvents = useRegisterEvents();
   const { gotoNode } = useCamera();
   const width = useWindowWidth();
+  const hoveredNode = useHoveredNode();
 
   const selectedNode = selectedNodeFull?.key ?? null;
 

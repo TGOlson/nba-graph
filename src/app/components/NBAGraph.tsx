@@ -62,7 +62,7 @@ const InnerComponents = ({nodes}: {nodes: GraphData['nodes']}) => {
 
   return (
     <React.Fragment>
-      <GraphEvents filters={filters} {...useSelectedNodeRes} />
+      <GraphEvents filters={filters} selectedNode={selectedNode} setSelectedNode={setSelectedNode} />
       <SidePanel filters={filters} nodeCounts={nodeCounts} selectedNode={selectedNode} onFilterChange={onFilterChange}/>
       <NodeSearch nodes={visibleNodes} setSelectedNode={setSelectedNode}/>
       <ZoomControl />

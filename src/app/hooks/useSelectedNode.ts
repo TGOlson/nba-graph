@@ -1,13 +1,16 @@
 import { EventHandlers, useRegisterEvents, useSigma } from "@react-sigma/core";
 import { useEffect, useState } from "react";
-import { SigmaNodeEventPayload } from "sigma/sigma";
 import { logDebug } from "../util/logger";
 import { NBAGraphNode } from "../../shared/types";
+import Sigma from "sigma";
 
 type UseSelectedNode = {
   selectedNode: NBAGraphNode | null;
   setSelectedNode: (node: NBAGraphNode | string | null) => void;
-  hoveredNode: string | null;
+};
+
+const getNodeAttributes = (sigma: Sigma, node: string): NBAGraphNode['attributes'] => {
+  return sigma.getGraph().getNodeAttributes(node) as NBAGraphNode['attributes'];
 };
 
 export const useSelectedNode = (): UseSelectedNode => {
@@ -19,33 +22,27 @@ export const useSelectedNode = (): UseSelectedNode => {
   const registerEvents: (eventHandlers: Partial<EventHandlers>) => void = useRegisterEvents();
 
   const [selectedNode, setSelectedNode] = useState<NBAGraphNode | null>(null);
-  const [hoveredNode, setHoveredNode] = useState<string | null>(null);
 
   useEffect(() => {
     registerEvents({
-      clickNode: (baseEvent) => {
-        const event = baseEvent as SigmaNodeEventPayload & {syntheticClickEventFromSearch: boolean};
-
-        const attributes = sigma.getGraph().getNodeAttributes(event.node) as NBAGraphNode['attributes'];
+      clickNode: (event) => {
+        const attributes = getNodeAttributes(sigma, event.node);
         const node = {key: event.node, attributes};
         
-        logDebug('Click event', baseEvent, 'node', node);
+        logDebug('Click event', event, 'node', node);
     
-        if (selectedNode && selectedNode.key === node.key && !event.syntheticClickEventFromSearch) {
+        if (selectedNode && selectedNode.key === node.key) {
           setSelectedNode(null);
         } else {
           setSelectedNode(node);
         }
-        setHoveredNode(null);
       },
-      enterNode: (event) => setHoveredNode(event.node),
-      leaveNode: () => setHoveredNode(null),
     });
-  }, [sigma, registerEvents, selectedNode, hoveredNode]);
+  }, [sigma, registerEvents, selectedNode]);
 
   const setSelectedNodeFn = (node: NBAGraphNode | string | null) => {
     if (typeof node === 'string') {
-      const attributes = sigma.getGraph().getNodeAttributes(node) as NBAGraphNode['attributes'];
+      const attributes = getNodeAttributes(sigma, node);
       setSelectedNode({key: node, attributes});
     } else {
       setSelectedNode(node);
@@ -54,7 +51,6 @@ export const useSelectedNode = (): UseSelectedNode => {
 
   return {
     selectedNode, 
-    setSelectedNode: setSelectedNodeFn,
-    hoveredNode
+    setSelectedNode: setSelectedNodeFn
   };
 };
