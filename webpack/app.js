@@ -37,6 +37,7 @@ module.exports = {
     new CopyPlugin({
       patterns: [
         { from: 'public/index.html', to: 'index.html' },
+        { from: 'public/favicon.svg', to: 'favicon.svg' },
         { from: 'data/graph', to: 'assets/data/graph' },
         { from: 'data/sprites/*.png', to: 'assets/sprites/[name].png' },
       ],
