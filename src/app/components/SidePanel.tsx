@@ -17,12 +17,14 @@ import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import DialogContent from '@mui/joy/DialogContent';
 
-import { GraphFilters } from '../util/types';
-import { getProp } from '../../shared/util';
 import NodeCountTable from './NodeCountTable';
 import { SearchOptionPlaceholder } from './NodeSearch/SearchOption';
+import Logo from './Logo';
+
+import { GraphFilters } from '../util/types';
+import { getProp } from '../../shared/util';
 import { NBAGraphNode } from '../../shared/types';
-import { Logo } from './Logo';
+import ContactLinks from './ContactLinks';
 
 type SidePanelProps = {
   filters: GraphFilters;
@@ -211,15 +213,7 @@ const SidePanel = ({filters, nodeCounts, selectedNode, onFilterChange}: SidePane
           <Typography level="body-sm">Visible nodes</Typography>
           <NodeCountTable nodeCounts={nodeCounts} />
           <Divider inset='none' sx={{mt: 1}}/>
-          <Link 
-            href="https://github.com/TGOlson/nba-graph" 
-            level="body-sm" 
-            target="_blank"
-            sx={{width: 'fit-content'}}
-            rel="noreferrer"
-          >
-            GitHub
-          </Link>
+          <ContactLinks />
         </DialogContent>
       </Drawer>
     </React.Fragment>

@@ -9,7 +9,7 @@ type LogoProps = {
   fontSize?: number;
 };
 
-export const Logo = ({fontSize = 36}: LogoProps) => {
+const Logo = ({fontSize = 36}: LogoProps) => {
   return (
     <Box sx={{display: 'flex', alignItems: 'center', gap: 1}}>
       <HubIcon color="primary" sx={{fontSize, mb: 0.5}} />
@@ -17,3 +17,5 @@ export const Logo = ({fontSize = 36}: LogoProps) => {
     </Box>
   );
 };
+
+export default Logo;

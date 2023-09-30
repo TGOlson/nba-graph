@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 
 import Stack from '@mui/joy/Stack';
 import Box from '@mui/joy/Box';
@@ -9,20 +9,24 @@ import map from 'ramda/src/map';
 import uniqBy from 'ramda/src/uniqBy';
 
 import NBAGraph from './components/NBAGraph';
+import Logo from './components/Logo';
+import TextureSizeWarningModal from './components/TextureSizeWarningModal';
+
 import { fetchGraphData, GraphData } from './api';
 import { fetchImage } from './api';
 import { logDebug } from './util/logger';
+import { Sprite } from './util/types';
 
 import "./App.css";
-import { Sprite } from './util/types';
-import { Logo } from './components/Logo';
 
 const App = () => {
   const [data, setData] = useState<GraphData | null>(null);
   const [sprites, setSprites] = useState<Sprite[] | null>(null);
   const [graphLoaded, setGraphLoaded] = useState<boolean>(false);
+  const [showTextureWarningModal, setShowTextureWarningModal] = useState<boolean>(false);
   
   useEffect(() => {
+    const start = new Date().getTime();
     logDebug('Fetching graph data');
     void fetchGraphData().then((data) => { 
       setData(data);
@@ -37,14 +41,29 @@ const App = () => {
     }).then((sprites) => {
       setSprites(sprites);
 
-      // set an extra timeout to avoid flickering on graph load
-      // TODO: might actually work better to load the graph offscreen first 
-      setTimeout(() => {
-        console.log('Graph loaded');
-        setGraphLoaded(true);
-      }, 1000);
+      const maxSpriteSize = sprites.reduce((max, {image}) => Math.max(max, image.width, image.height), 0);
+
+      const gl = document.createElement('canvas').getContext('webgl') as WebGLRenderingContext;
+      const maxTextureSizeSupported = gl.getParameter(gl.MAX_TEXTURE_SIZE) as number;
+        
+      if (maxSpriteSize > maxTextureSizeSupported) {
+        setShowTextureWarningModal(true);
+        logDebug(`[warning] Max sprite size (${maxSpriteSize}) is larger than max supported texture size (${maxTextureSizeSupported})`);
+      }
+
+      const end = new Date().getTime();
+      const extraLoadDelay = Math.max(0, 1000 - (end - start));
+
+      // Use 1000ms as the minimum load time to prevent weird flickering of loading screen
+      setTimeout(() => setGraphLoaded(true), extraLoadDelay);
     }).catch((err) => { throw err; });
   }, []);
+
+  // Memoize the graph component so that it doesn't re-render during the additional load delay
+  const graphComponent = useMemo(() => {
+    if (!data || !sprites) return null;
+    return <NBAGraph data={data} sprites={sprites} />;
+  }, [data, sprites]);
 
   return (
     <React.Fragment>
@@ -59,7 +78,6 @@ const App = () => {
         opacity: graphLoaded ? 0 : 1,
         backgroundColor: '#fcfcfc',
         zIndex: 1000,
-        // display: graphLoaded ? 'none' : 'flex',
         visibility: graphLoaded ? 'hidden' : 'flex',
         transition: 'visibility 0.5s, opacity 0.5s ease-in',
         }}>
@@ -71,7 +89,8 @@ const App = () => {
             </Box>
           )}
       </Stack>}
-      {data && sprites ? <NBAGraph data={data} sprites={sprites} /> : null}
+      {graphComponent}
+      <TextureSizeWarningModal open={showTextureWarningModal} setOpen={setShowTextureWarningModal} />
     </React.Fragment>
   );
 };
