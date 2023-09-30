@@ -9,7 +9,7 @@ module.exports = {
   output: {
     filename: 'assets/js/app.bundle.js',
     path: path.resolve(__dirname, '../dist'),
-    publicPath: '/nba-graph/',
+    publicPath: '/',
   },
   module: { 
     rules: [{

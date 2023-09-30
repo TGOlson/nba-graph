@@ -11,7 +11,7 @@ import { EdgeAttributes, NodeAttributes, Palette, SelectionMap, SpriteNodeAttrib
 import { GraphConfig } from "./config";
 import { loadSpriteColors, loadSpriteIds, loadSpriteMapping } from "../storage";
 import { getProp, notNull, singleYearStr } from "../../shared/util";
-import { assets } from "../../shared/constants";
+import { assets } from "../../shared/assets";
 import { dedupeSeasonTokens, filterYears, getPlayerNodeSize, toMap } from "./util";
 
 const PLAYER_DEFAULT_CROP_ID = 'player_default';

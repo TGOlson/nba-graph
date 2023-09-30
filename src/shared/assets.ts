@@ -1,4 +1,4 @@
-const BASE_PATH = '/nba-graph/assets';
+const BASE_PATH = '/assets';
 const BASE_GRAPH_PATH = `${BASE_PATH}/data/graph`;
 const BASE_SPRITE_PATH = `${BASE_PATH}/sprites`;
 
