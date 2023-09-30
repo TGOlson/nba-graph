@@ -56,8 +56,8 @@ _note: files in this directory are working docs, used to track in-progress desig
   * ~~[images] fun AI logo -> kinda, keep it simple : )~~
   * ~~[experiment] fastest path search? => separate project~~
   * ~~[images] favicon~~
+  * ~~[cleanup] git lfs to store scraped data?~~
   * [error-handling] catch errors for too small of texture size support (aim for 4kx4k)
-  * [cleanup] update readme, move docs around
-  * [cleanup] git lfs to store scraped data?
   * faster serving of assets?
+  * [cleanup] update readme, move docs around
   * [experiment] shareable urls?
