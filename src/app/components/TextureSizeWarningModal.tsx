@@ -6,7 +6,7 @@ import ModalDialog from '@mui/joy/ModalDialog';
 import DialogContent from '@mui/joy/DialogContent';
 import DialogTitle from '@mui/joy/DialogTitle';
 import ContactLinks from './ContactLinks';
-import { Typography } from '@mui/joy';
+import { Divider, Typography } from '@mui/joy';
 
 type TextureSizeWarningModalProps = {
   open: boolean;
@@ -19,10 +19,11 @@ const TextureSizeWarningModal = ({open, setOpen}: TextureSizeWarningModalProps) 
     <ModalDialog variant="plain">
       <ModalClose />
       <DialogTitle>Heads up!</DialogTitle>
-      <DialogContent>Your system might not support how images are rendered on the graph.</DialogContent>
-      <DialogContent>Some images may not display correctly. However, everything else should continue work fine!</DialogContent>
-      <DialogContent>
-        <Typography level="body-xs">Questions? Get in touch:</Typography>
+      <DialogContent>Your system might not support how images are shown on the graph. Some images may not display correctly.</DialogContent>
+      <DialogContent>However, everything else should work as expected. Have fun!</DialogContent>
+      <Divider inset='none' />
+      <DialogContent sx={{display: 'flex', flexDirection: 'row', gap: 0.75}}>
+        <Typography level="body-xs">Questions? Get in touch.</Typography>
         <ContactLinks />
       </DialogContent>
     </ModalDialog>

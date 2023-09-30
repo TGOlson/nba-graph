@@ -24,11 +24,11 @@ const ContactLinks = () => {
       <ContactLink href="https://github.com/TGOlson/nba-graph">
         GitHub
       </ContactLink>
-      <Divider orientation='vertical' sx={{mt: 0.25, mb: 0.25, mr: 1, ml: 1}} />
+      <Divider orientation='vertical' sx={{mt: 0.25, mb: 0.25, mr: 0.75, ml: 0.75}} />
       <ContactLink href="https://twitter.com/TyGuyO">
         Twitter
       </ContactLink>
-      <Divider orientation='vertical' sx={{mt: 0.25, mb: 0.25, mr: 1, ml: 1}} />
+      <Divider orientation='vertical' sx={{mt: 0.25, mb: 0.25, mr: 0.75, ml: 0.75}} />
       <ContactLink href="https://docs.google.com/document/d/1XGBmlh5__Gfm0tUL6QLjE_r43t7PSiBx1sORVxn8Wvk/edit#bookmark=id.jjuudsnpiqaz">
         Other
       </ContactLink>

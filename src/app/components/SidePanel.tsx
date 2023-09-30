@@ -212,7 +212,7 @@ const SidePanel = ({filters, nodeCounts, selectedNode, onFilterChange}: SidePane
           <Divider inset='none' sx={{mt: 2, mb: 1}}/>
           <Typography level="body-sm">Visible nodes</Typography>
           <NodeCountTable nodeCounts={nodeCounts} />
-          <Divider inset='none' sx={{mt: 1}}/>
+          <Divider inset='none' sx={{mt: 1, mb: 0.5}}/>
           <ContactLinks />
         </DialogContent>
       </Drawer>
