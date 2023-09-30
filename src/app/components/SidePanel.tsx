@@ -192,6 +192,7 @@ const SidePanel = ({filters, nodeCounts, selectedNode, onFilterChange}: SidePane
           <Divider inset='none' sx={{mb: 1}} />
           <YearFilters filters={filters} onFilterChange={onFilterChange} />
           <Typography level="body-sm">Leagues</Typography>
+          {/* TODO: would be better to get a list of leagues and programattically generate this */}
           {([
             ['NBA', '1950-2023'],
             ['ABA', '1968-1976'],
