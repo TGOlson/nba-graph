@@ -1,12 +1,12 @@
 export type NBAType = 
-   'league' |
-   'season' |
-   'franchise' |
-   'team' |
-   'player' |
+  'league' |
+  'season' |
+  'franchise' |
+  'team' |
+  'player' |
   //  'player-season' | // edge-only type
-   'award' |
-   'multi-winner-award';
+  'award' |
+  'multi-winner-award';
   //  'award-recipient'; // edge-only type
  
 

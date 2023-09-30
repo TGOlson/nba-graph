@@ -4,7 +4,6 @@ export type Sprite = {
 };
 
 export type GraphFilters = {
-  // implemented
   awards: boolean;
   shortCareerPlayers: boolean;
   leagues: {
