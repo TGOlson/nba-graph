@@ -4,7 +4,6 @@ import { useCamera } from "@react-sigma/core";
 import { useSigma } from "@react-sigma/core";
 import { Attributes } from 'graphology-types';
 import { CameraState, EdgeDisplayData, NodeDisplayData } from 'sigma/types';
-import { useWindowWidth } from '@react-hook/window-size';
 
 import { useHoveredNode } from '../hooks/useHoveredNode';
 import { EdgeAttributes, NBAGraphNode, NodeAttributes } from '../../shared/types';
@@ -15,6 +14,7 @@ type GraphEventsProps = {
   filters: GraphFilters;
   selectedNode: NBAGraphNode | null;
   setSelectedNode: (node: NBAGraphNode | null) => void;
+  nodeSizeScalingFactor: number;
 };
 
 export const isVisibleNode = (filters: GraphFilters, {seasons, nbaType}: NodeAttributes): boolean => {
@@ -35,11 +35,10 @@ const isWithinYearRange = (filters: GraphFilters, year: number): boolean => {
   return year >= filters.minYear && year <= filters.maxYear;
 };
 
-const GraphEvents = ({filters, selectedNode: selectedNodeFull, setSelectedNode}: GraphEventsProps) => {
+const GraphEvents = ({filters, selectedNode: selectedNodeFull, setSelectedNode, nodeSizeScalingFactor}: GraphEventsProps) => {
   const sigma = useSigma();
   const { gotoNode } = useCamera();
   const hoveredNode = useHoveredNode();
-  const width = useWindowWidth();
 
   const selectedNode = selectedNodeFull?.key ?? null;
 
@@ -84,7 +83,6 @@ const GraphEvents = ({filters, selectedNode: selectedNodeFull, setSelectedNode}:
 
       // On screens smaller than 600px, scale down the nodes
       // Otherwise sigma resizes itself and gets too smushed and hard to read
-      const nodeSizeScalingFactor = Math.min(1, width / 600);
       data.size = data.size * nodeSizeScalingFactor;
 
       if (!isVisibleNode(filters, data)) {
@@ -205,7 +203,7 @@ const GraphEvents = ({filters, selectedNode: selectedNodeFull, setSelectedNode}:
       data.hidden = true;
       return data;
     });
-  }, [sigma, width, filters, hoveredNode, selectedNode]);
+  }, [sigma, filters, hoveredNode, selectedNode, nodeSizeScalingFactor]);
 
 
   return null;

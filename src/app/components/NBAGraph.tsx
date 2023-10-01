@@ -15,6 +15,7 @@ import { NBAGraphNode } from '../../shared/types';
 import { useSelectedNode } from '../hooks/useSelectedNode';
 
 import "@react-sigma/core/lib/react-sigma.min.css";
+import { useWindowWidth } from '@react-hook/window-size';
 
 type DisplayGraphProps = {
   data: GraphData;
@@ -23,13 +24,20 @@ type DisplayGraphProps = {
 
 const InnerComponents = ({nodes}: {nodes: GraphData['nodes']}) => {
   const sigma = useSigma();
-
+  
   // for debugging...
   (window as any).sigma = sigma; // eslint-disable-line
+  
+  const width = useWindowWidth();
+
+  // On screens smaller than 600px, scale down the nodes
+  // Otherwise sigma resizes itself and gets too smushed and hard to read
+  const nodeSizeScalingFactor = Math.min(1, width / 600);
 
   const [filters, setFilters] = useState<GraphFilters>(DEFAULT_FILTERS);
   const [selectedNode, setSelectedNode] = useSelectedNode();
 
+  // Run once to center on NBA node when app starts
   useEffect(() => {
     const camera = sigma.getCamera();
     const nba = sigma.getNodeDisplayData('NBA');
@@ -37,7 +45,7 @@ const InnerComponents = ({nodes}: {nodes: GraphData['nodes']}) => {
     if (nba) camera.animate({
       x: nba.x,
       y: nba.y,
-      ratio: 1 / 3,
+      ratio: 1 / 3 * nodeSizeScalingFactor,
     }, {duration: 1000});
   }, []);
 
@@ -62,7 +70,7 @@ const InnerComponents = ({nodes}: {nodes: GraphData['nodes']}) => {
 
   return (
     <React.Fragment>
-      <GraphEvents filters={filters} selectedNode={selectedNode} setSelectedNode={setSelectedNode} />
+      <GraphEvents filters={filters} selectedNode={selectedNode} setSelectedNode={setSelectedNode} nodeSizeScalingFactor={nodeSizeScalingFactor} />
       <SidePanel filters={filters} nodeCounts={nodeCounts} selectedNode={selectedNode} onFilterChange={onFilterChange}/>
       <NodeSearch nodes={visibleNodes} setSelectedNode={setSelectedNode}/>
       <ZoomControl />
