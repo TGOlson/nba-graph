@@ -2,19 +2,19 @@ import React, { useEffect, useState } from 'react';
 import Graph from 'graphology';
 import { SigmaContainer, useSigma } from "@react-sigma/core";
 
-import "@react-sigma/core/lib/react-sigma.min.css";
-
-import { GraphData } from '../api';
-import makeNodeSpriteProgramTriangles from '../program/node-sprite-triangles';
-import { GraphFilters, Sprite } from '../util/types';
-
 import GraphEvents, { isVisibleNode } from './GraphEventHandler';
 import SidePanel, { DEFAULT_FILTERS } from './SidePanel';
 import NodeSearch from './NodeSearch';
 import ZoomControl from './ZoomControl';
+
+import { GraphFilters, Sprite } from '../util/types';
+import { GraphData } from '../api';
+import makeNodeSpriteProgramTriangles from '../program/node-sprite-triangles';
 import { logDebug } from '../util/logger';
 import { NBAGraphNode } from '../../shared/types';
 import { useSelectedNode } from '../hooks/useSelectedNode';
+
+import "@react-sigma/core/lib/react-sigma.min.css";
 
 type DisplayGraphProps = {
   data: GraphData;
@@ -22,11 +22,13 @@ type DisplayGraphProps = {
 };
 
 const InnerComponents = ({nodes}: {nodes: GraphData['nodes']}) => {
-  const [filters, setFilters] = useState<GraphFilters>(DEFAULT_FILTERS);
-  const useSelectedNodeRes = useSelectedNode();
-  const {selectedNode, setSelectedNode} = useSelectedNodeRes;
-
   const sigma = useSigma();
+
+  // for debugging...
+  (window as any).sigma = sigma; // eslint-disable-line
+
+  const [filters, setFilters] = useState<GraphFilters>(DEFAULT_FILTERS);
+  const [selectedNode, setSelectedNode] = useSelectedNode();
 
   useEffect(() => {
     const camera = sigma.getCamera();

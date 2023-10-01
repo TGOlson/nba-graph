@@ -35,8 +35,8 @@ const isWithinYearRange = (filters: GraphFilters, year: number): boolean => {
 };
 
 const GraphEvents = ({filters, selectedNode: selectedNodeFull, setSelectedNode}: GraphEventsProps) => {
+  console.log('rendering graph events');
   const sigma = useSigma();
-  (window as any).sigma = sigma; // eslint-disable-line
 
   const setSettings = useSetSettings();
   const registerEvents = useRegisterEvents();
