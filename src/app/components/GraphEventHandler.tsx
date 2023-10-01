@@ -1,14 +1,15 @@
 import { useEffect } from 'react';
 
-import { useCamera, useRegisterEvents } from "@react-sigma/core";
-import { useSigma, useSetSettings } from "@react-sigma/core";
+import { useCamera } from "@react-sigma/core";
+import { useSigma } from "@react-sigma/core";
 import { Attributes } from 'graphology-types';
-import { EdgeDisplayData, NodeDisplayData } from 'sigma/types';
-import { EdgeAttributes, NBAGraphNode, NodeAttributes } from '../../shared/types';
-import { GraphFilters } from '../util/types';
-import { getIndex } from '../../shared/util';
+import { CameraState, EdgeDisplayData, NodeDisplayData } from 'sigma/types';
 import { useWindowWidth } from '@react-hook/window-size';
+
 import { useHoveredNode } from '../hooks/useHoveredNode';
+import { EdgeAttributes, NBAGraphNode, NodeAttributes } from '../../shared/types';
+import { getIndex } from '../../shared/util';
+import { GraphFilters } from '../util/types';
 
 type GraphEventsProps = {
   filters: GraphFilters;
@@ -35,14 +36,10 @@ const isWithinYearRange = (filters: GraphFilters, year: number): boolean => {
 };
 
 const GraphEvents = ({filters, selectedNode: selectedNodeFull, setSelectedNode}: GraphEventsProps) => {
-  console.log('rendering graph events');
   const sigma = useSigma();
-
-  const setSettings = useSetSettings();
-  const registerEvents = useRegisterEvents();
   const { gotoNode } = useCamera();
-  const width = useWindowWidth();
   const hoveredNode = useHoveredNode();
+  const width = useWindowWidth();
 
   const selectedNode = selectedNodeFull?.key ?? null;
 
@@ -50,31 +47,37 @@ const GraphEvents = ({filters, selectedNode: selectedNodeFull, setSelectedNode}:
     if (selectedNode) gotoNode(selectedNode, {duration: 150, easing: 'linear'});
   }, [selectedNode]);
 
-
   useEffect(() => {
     const nodeSearchInput = document.querySelector<HTMLInputElement>('.node-search-input');
 
-    registerEvents({
-      // Not the most ideal, but here is what we are doing --
-      // We want to blur the search input when the user clicks on the graph
-      // However, by default *at least* ios safari (maybe other mobile devices) don't blur the input when clicking on the graph
-      // Which ends up looking really strange when you are exploring nodes and a prior search is still in the input
-      // So just manually clear it... idk could be worse ¯\_(ツ)_/¯
-      touchdown: () => {
-        if (nodeSearchInput && document.activeElement === nodeSearchInput) {
-          nodeSearchInput.blur();
-        }
-      },
-      updated: (state) => {
-        // Prevent rotation on phone, it's annoying
-        if (state.angle !== 0) sigma.getCamera().setState({angle: 0});
+    // Not the most ideal, but here is what we are doing --
+    // We want to blur the search input when the user clicks on the graph
+    // However, by default *at least* ios safari (maybe other mobile devices) don't blur the input when clicking on the graph
+    // Which ends up looking really strange when you are exploring nodes and a prior search is still in the input
+    // So just manually clear it... idk could be worse ¯\_(ツ)_/¯
+    const touchHandler = () => {
+      if (nodeSearchInput && document.activeElement === nodeSearchInput) {
+        nodeSearchInput.blur();
       }
-    });
-  }, [registerEvents]);
+    };
+    
+    const cameraHandler = (state: CameraState) => {
+      // Prevent rotation on phone, it's annoying
+      if (state.angle !== 0) sigma.getCamera().setState({angle: 0});
+    };
+    
+    sigma.getTouchCaptor().on('touchdown', touchHandler);
+    sigma.getCamera().on('updated', cameraHandler);
+
+    return () => {
+      sigma.getTouchCaptor().off('touchdown', touchHandler);
+      sigma.getCamera().off('updated', cameraHandler);
+    };
+  }, [sigma]);
 
   useEffect(() => {
-    setSettings({
-      nodeReducer: (node: string, baseData: Attributes): Partial<NodeDisplayData & NodeAttributes> => {
+    // console.log('setting graph events');
+    sigma.setSetting('nodeReducer', (node: string, baseData: Attributes): Partial<NodeDisplayData & NodeAttributes> => {
         // A little type cohersion to make typescript happy
         // Note: we mutate this data object below, 
         // this is ok because sigma copys the data object before passing it to the reducer
@@ -159,8 +162,10 @@ const GraphEvents = ({filters, selectedNode: selectedNodeFull, setSelectedNode}:
         data.highlighted = false;
         data.zIndex = 0;
         return data;
-      },
-      edgeReducer: (edge: string, baseData: Attributes): Attributes => {
+      });
+
+
+      sigma.setSetting('edgeReducer', (edge: string, baseData: Attributes): Attributes => {
         const data = baseData as (EdgeDisplayData & EdgeAttributes);
         // if nothing selected or hovered, hide all edges
 
@@ -200,9 +205,8 @@ const GraphEvents = ({filters, selectedNode: selectedNodeFull, setSelectedNode}:
 
         data.hidden = true;
         return data;
-      }
-    });
-  }, [hoveredNode, selectedNode, setSettings, sigma, filters, width]);
+      });
+  }, [sigma, width, filters, hoveredNode, selectedNode]);
 
 
   return null;
