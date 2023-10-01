@@ -19,27 +19,22 @@ export async function fetchGraphData(): Promise<GraphData> {
     fetchJSON<GraphOptions>(assets.graph.options),
     fetchJSON<NBAGraphNode[]>(assets.graph.nodes),
     fetchJSON<NBAGraphEdge[]>(assets.graph.edges),
-  ])
-    .then(([
-      attributes,
-      options,
-      nodes,
-      edges,
-    ]) => {
-      return { attributes, options, nodes, edges };
-    });
+  ]).then(([
+    attributes,
+    options,
+    nodes,
+    edges,
+  ]) => {
+    return { attributes, options, nodes, edges };
+  });
 }
 
 export const fetchImage = (url: string): Promise<HTMLImageElement> => {
   return new Promise((resolve, reject) => {
     const img = new Image();
-    img.onload = () => {
-      resolve(img);
-    };
-
-    img.onerror = (err) => {
-      reject(err);
-    };
+    
+    img.onload = () => resolve(img);
+    img.onerror = (err) => reject(err);
 
     img.src = url;
   });

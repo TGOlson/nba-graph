@@ -76,136 +76,135 @@ const GraphEvents = ({filters, selectedNode: selectedNodeFull, setSelectedNode}:
   }, [sigma]);
 
   useEffect(() => {
-    // console.log('setting graph events');
     sigma.setSetting('nodeReducer', (node: string, baseData: Attributes): Partial<NodeDisplayData & NodeAttributes> => {
-        // A little type cohersion to make typescript happy
-        // Note: we mutate this data object below, 
-        // this is ok because sigma copys the data object before passing it to the reducer
-        const data = baseData as (NodeDisplayData & NodeAttributes);
+      // A little type cohersion to make typescript happy
+      // Note: we mutate this data object below, 
+      // this is ok because sigma copys the data object before passing it to the reducer
+      const data = baseData as (NodeDisplayData & NodeAttributes);
 
-        // On screens smaller than 600px, scale down the nodes
-        // Otherwise sigma resizes itself and gets too smushed and hard to read
-        const nodeSizeScalingFactor = Math.min(1, width / 600);
-        data.size = data.size * nodeSizeScalingFactor;
+      // On screens smaller than 600px, scale down the nodes
+      // Otherwise sigma resizes itself and gets too smushed and hard to read
+      const nodeSizeScalingFactor = Math.min(1, width / 600);
+      data.size = data.size * nodeSizeScalingFactor;
 
-        if (!isVisibleNode(filters, data)) {
-          if (selectedNode === node) setSelectedNode(null);
-          data.hidden = true;
-          return data;
-        }
-
-        // if nothing selected or hovered, quick return default
-        if (!hoveredNode && !selectedNode) return data;
-
-        const nodeIsSelected = selectedNode === node;
-        const nodeIsHovered = hoveredNode === node;
-
-        // check neighbors...
-        const graph = sigma.getGraph();
-
-        // if a neighbor of selected or hovered, emphasize node
-        // only emphasize on hover is there is no selected node
-        const activeBorderColor = data.nbaType === 'player' ? '#ffffff' : data.borderColor;
-        if ((selectedNode && graph.areNeighbors(selectedNode, node) || (hoveredNode && !selectedNode && graph.areNeighbors(hoveredNode, node)))) {
-          const activeNodeKey = selectedNode ?? hoveredNode;
-          const activeNode = graph.getNodeAttributes(activeNodeKey); 
-          
-          let highlighted = true;
-          let muted = false;
-
-          // this one is a little tricky...
-          // some awards are given to multiple people over multiple years, but don't have nodes differentiating the year (eg. MVP)
-          // in the case that year filters are applied, we want to hide the edge if the year is not in the range
-          // TODO: this problably signals some sort of problem with the data modeling, maybe later consider tidying this up somehow...
-          if ((activeNode.nbaType === 'award' && data.nbaType === 'player') || (activeNode.nbaType === 'player' && data.nbaType === 'award')) {
-            const edge = graph.edge(activeNode.nbaType === 'award' ? node : activeNodeKey, activeNode.nbaType === 'award' ? activeNodeKey : node);            
-            const edgeAttrs = graph.getEdgeAttributes(edge);
-
-            if (edgeAttrs.year && !isWithinYearRange(filters, edgeAttrs.year as number)) {
-              highlighted = false;
-              muted = true;
-            }
-          }
-
-          data.zIndex = 700;
-          data.highlighted = highlighted;
-          data.muted = muted;
-          data.borderColor = activeBorderColor;
-          data.size = data.size + (nodeIsHovered ? 2 : 1);
-          return data;
-        }
-
-        // if current reducer node is selected or hovered, apply styles
-        if (nodeIsSelected && nodeIsHovered) {
-          data.zIndex = 1000;
-          data.highlighted = true;
-          data.borderColor = activeBorderColor;
-          data.size = data.size + 4;
-          return data;
-        }
-        if (nodeIsSelected) {
-          data.zIndex = 900;
-          data.highlighted = true;
-          data.borderColor = activeBorderColor;
-          data.size = data.size + 3;
-          return data;
-        }
-        if (nodeIsHovered) {
-          data.zIndex = 800;
-          data.highlighted = true;
-          data.borderColor = activeBorderColor;
-          data.size = data.size + 1;
-          return data;
-        }
-
-        data.muted = true;
-        data.highlighted = false;
-        data.zIndex = 0;
+      if (!isVisibleNode(filters, data)) {
+        if (selectedNode === node) setSelectedNode(null);
+        data.hidden = true;
         return data;
-      });
+      }
 
+      // if nothing selected or hovered, quick return default
+      if (!hoveredNode && !selectedNode) return data;
 
-      sigma.setSetting('edgeReducer', (edge: string, baseData: Attributes): Attributes => {
-        const data = baseData as (EdgeDisplayData & EdgeAttributes);
-        // if nothing selected or hovered, hide all edges
+      const nodeIsSelected = selectedNode === node;
+      const nodeIsHovered = hoveredNode === node;
 
-        if (!hoveredNode && !selectedNode) {
-          data.zIndex = 0;
-          data.hidden = true;
-          return data;
-        }
+      // check neighbors...
+      const graph = sigma.getGraph();
 
-        // check neighbors
-        const graph = sigma.getGraph();
+      // if a neighbor of selected or hovered, emphasize node
+      // only emphasize on hover is there is no selected node
+      const activeBorderColor = data.nbaType === 'player' ? '#ffffff' : data.borderColor;
+      if ((selectedNode && graph.areNeighbors(selectedNode, node) || (hoveredNode && !selectedNode && graph.areNeighbors(hoveredNode, node)))) {
+        const activeNodeKey = selectedNode ?? hoveredNode;
+        const activeNode = graph.getNodeAttributes(activeNodeKey); 
+        
+        let highlighted = true;
+        let muted = false;
 
         // this one is a little tricky...
         // some awards are given to multiple people over multiple years, but don't have nodes differentiating the year (eg. MVP)
         // in the case that year filters are applied, we want to hide the edge if the year is not in the range
         // TODO: this problably signals some sort of problem with the data modeling, maybe later consider tidying this up somehow...
-        const edgeAttrs = graph.getEdgeAttributes(edge);
-        if (edgeAttrs.nbaType === 'award' && edgeAttrs.year) {
-          const year = edgeAttrs.year as number;
-          if (!isWithinYearRange(filters, year)) {
-            data.hidden = true;
-            return data;
+        if ((activeNode.nbaType === 'award' && data.nbaType === 'player') || (activeNode.nbaType === 'player' && data.nbaType === 'award')) {
+          const edge = graph.edge(activeNode.nbaType === 'award' ? node : activeNodeKey, activeNode.nbaType === 'award' ? activeNodeKey : node);            
+          const edgeAttrs = graph.getEdgeAttributes(edge);
+
+          if (edgeAttrs.year && !isWithinYearRange(filters, edgeAttrs.year as number)) {
+            highlighted = false;
+            muted = true;
           }
         }
 
-        const isSelectedNeighbor = selectedNode && graph.hasExtremity(edge, selectedNode);
-        const isHoveredNeighbor = hoveredNode && !selectedNode && graph.hasExtremity(edge, hoveredNode);
+        data.zIndex = 700;
+        data.highlighted = highlighted;
+        data.muted = muted;
+        data.borderColor = activeBorderColor;
+        data.size = data.size + (nodeIsHovered ? 2 : 1);
+        return data;
+      }
 
-        // if a neighbor of selected or hovered, draw edge node
-        // only draw edge on hover is there is no selected node
-        if (isSelectedNeighbor || isHoveredNeighbor) {
-          data.size = 1.6;
-          data.hidden = false;
-          data.zIndex = 100;
-          return data;
-        }
+      // if current reducer node is selected or hovered, apply styles
+      if (nodeIsSelected && nodeIsHovered) {
+        data.zIndex = 1000;
+        data.highlighted = true;
+        data.borderColor = activeBorderColor;
+        data.size = data.size + 4;
+        return data;
+      }
+      if (nodeIsSelected) {
+        data.zIndex = 900;
+        data.highlighted = true;
+        data.borderColor = activeBorderColor;
+        data.size = data.size + 3;
+        return data;
+      }
+      if (nodeIsHovered) {
+        data.zIndex = 800;
+        data.highlighted = true;
+        data.borderColor = activeBorderColor;
+        data.size = data.size + 1;
+        return data;
+      }
 
+      data.muted = true;
+      data.highlighted = false;
+      data.zIndex = 0;
+      return data;
+    });
+
+
+    sigma.setSetting('edgeReducer', (edge: string, baseData: Attributes): Attributes => {
+      const data = baseData as (EdgeDisplayData & EdgeAttributes);
+      // if nothing selected or hovered, hide all edges
+
+      if (!hoveredNode && !selectedNode) {
+        data.zIndex = 0;
         data.hidden = true;
         return data;
-      });
+      }
+
+      // check neighbors
+      const graph = sigma.getGraph();
+
+      // this one is a little tricky...
+      // some awards are given to multiple people over multiple years, but don't have nodes differentiating the year (eg. MVP)
+      // in the case that year filters are applied, we want to hide the edge if the year is not in the range
+      // TODO: this problably signals some sort of problem with the data modeling, maybe later consider tidying this up somehow...
+      const edgeAttrs = graph.getEdgeAttributes(edge);
+      if (edgeAttrs.nbaType === 'award' && edgeAttrs.year) {
+        const year = edgeAttrs.year as number;
+        if (!isWithinYearRange(filters, year)) {
+          data.hidden = true;
+          return data;
+        }
+      }
+
+      const isSelectedNeighbor = selectedNode && graph.hasExtremity(edge, selectedNode);
+      const isHoveredNeighbor = hoveredNode && !selectedNode && graph.hasExtremity(edge, hoveredNode);
+
+      // if a neighbor of selected or hovered, draw edge node
+      // only draw edge on hover is there is no selected node
+      if (isSelectedNeighbor || isHoveredNeighbor) {
+        data.size = 1.6;
+        data.hidden = false;
+        data.zIndex = 100;
+        return data;
+      }
+
+      data.hidden = true;
+      return data;
+    });
   }, [sigma, width, filters, hoveredNode, selectedNode]);
 
 

@@ -1,5 +1,5 @@
-// Note: this is mainly copied from https://github.com/jacomyal/sigma.js
-// Modified to use a large sprite file, and to use triangles rendering for better resolution
+// Note: this is largely copied from https://github.com/jacomyal/sigma.js
+// Modified to use a large sprite file, and to use gl.TRIANGLES rendering for better resolution
 // => https://github.com/jacomyal/sigma.js/pull/1206/files#diff-dcd59c129b10e8a7369ea98a6d576d8a40fbf150e06ca94e5177ee4e531a4987
 
 import { NodeDisplayData } from 'sigma/types';
@@ -83,10 +83,10 @@ export default function makeNodeSpriteProgramTriangles(sprite: Sprite) {
       gl.enableVertexAttribArray(this.borderColorLocation);
       gl.enableVertexAttribArray(this.mutedImageLocation);
 
-      gl.vertexAttribPointer(this.textureLocation, 3, gl.FLOAT, false, this.attributes * Float32Array.BYTES_PER_ELEMENT, 16,);
-      gl.vertexAttribPointer(this.angleLocation, 1, gl.FLOAT, false, this.attributes * Float32Array.BYTES_PER_ELEMENT, 28,);
-      gl.vertexAttribPointer(this.borderColorLocation, 4, gl.UNSIGNED_BYTE, true, this.attributes * Float32Array.BYTES_PER_ELEMENT, 32,);
-      gl.vertexAttribPointer(this.mutedImageLocation, 1, gl.FLOAT, false, this.attributes * Float32Array.BYTES_PER_ELEMENT, 36,);
+      gl.vertexAttribPointer(this.textureLocation, 3, gl.FLOAT, false, this.attributes * Float32Array.BYTES_PER_ELEMENT, 16);
+      gl.vertexAttribPointer(this.angleLocation, 1, gl.FLOAT, false, this.attributes * Float32Array.BYTES_PER_ELEMENT, 28);
+      gl.vertexAttribPointer(this.borderColorLocation, 4, gl.UNSIGNED_BYTE, true, this.attributes * Float32Array.BYTES_PER_ELEMENT, 32);
+      gl.vertexAttribPointer(this.mutedImageLocation, 1, gl.FLOAT, false, this.attributes * Float32Array.BYTES_PER_ELEMENT, 36);
 
       gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, textureImage);
       gl.generateMipmap(gl.TEXTURE_2D);

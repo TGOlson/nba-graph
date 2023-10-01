@@ -1,5 +1,5 @@
-// Note: this is mainly copied from https://github.com/jacomyal/sigma.js
-// Modified to use a large sprite file, and to use triangles rendering for better resolution
+// Note: this is largely copied from https://github.com/jacomyal/sigma.js
+// Modified to use a large sprite file, and to use gl.TRIANGLES rendering for better resolution
 // => https://github.com/jacomyal/sigma.js/pull/1206/files#diff-dcd59c129b10e8a7369ea98a6d576d8a40fbf150e06ca94e5177ee4e531a4987
 
 export const VERTEX_SHADER_GLSL = `
