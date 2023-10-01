@@ -31,9 +31,10 @@ On the technical side, this has been a pretty cool project to work on. At a high
 * Scrapping and parsing close to the *entirety* of basketball-reference data
 * Constructing graph entities from the parsed data using [`graphology`](https://graphology.github.io/)
 * Rendering the constructed graph with WebGL using [`sigma.js`](https://github.com/jacomyal/sigma.js)
+* Building an app around the graph to support searching, filtering, & other UI actions
 
 There was also *a lot* of UI tinkering required to make displaying 7k+ interconnected nodes look semi-reasonable. 
 
-This project also had some unique challenges given the size and scope of the graph. The largest of which was that there were over 4k unique player and team images to display. To support these in the graph I had to generate large sprite files for the images, and rewrite a large portion of the `sigma.js` WebGL node rendering logic to support sprite rendering and image scaling.
+This project also had some unique challenges given the size and scope of the graph. The largest of which was that there were over 4k unique player and team images to display. To support these in the graph I had to generate large sprite files for the images, and rewrite a majority of the `sigma.js` WebGL node rendering logic to support sprite rendering and image scaling.
 
 Lastly, check out the [dev docs](docs/dev.md) if you want play around with the data yourself. And feel free to open a PR or issue with ideas for changes!
