@@ -17,8 +17,16 @@ const ContactLink = ({href, children}: {href: string, children: string}) => {
   );
 };
 
-const ContactLinks = () => (
+const ContactLinks = ({showAbout = false}: {showAbout?: boolean}) => (
   <Box display='flex'>
+    {showAbout && (
+      <React.Fragment>
+        <ContactLink href="https://github.com/TGOlson/nba-graph/blob/main/README.md">
+          About
+        </ContactLink>
+        <Divider orientation='vertical' sx={{mt: 0.25, mb: 0.25, mr: 0.75, ml: 0.75}} />
+      </React.Fragment>
+    )}
     <ContactLink href="https://github.com/TGOlson/nba-graph">
       GitHub
     </ContactLink>

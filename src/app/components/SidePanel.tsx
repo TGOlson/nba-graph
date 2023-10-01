@@ -214,7 +214,7 @@ const SidePanel = ({filters, nodeCounts, selectedNode, onFilterChange}: SidePane
           <Typography level="body-sm">Visible nodes</Typography>
           <NodeCountTable nodeCounts={nodeCounts} />
           <Divider inset='none' sx={{mt: 1, mb: 0.5}}/>
-          <ContactLinks />
+          <ContactLinks showAbout />
         </DialogContent>
       </Drawer>
     </React.Fragment>
