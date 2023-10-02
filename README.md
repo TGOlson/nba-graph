@@ -8,7 +8,7 @@ This project is an experiment to explore NBA history in a new way. I want it to 
 
 What you see is a large [graph](https://en.wikipedia.org/wiki/Graph_(abstract_data_type)) that includes every player, team, franchise, award (and more!) that has ever existed in basketball history.
 
-In all, the graph contains: 5108 players, 1728 teams, 325 awards, 86 seasons, 53 franchises, and 3 professional basketball leagues. All connected by over 37,000 [edges](https://en.wikipedia.org/wiki/Glossary_of_graph_theory#edge).
+In all, the graph contains: 5108 players, 1728 teams, 325 awards, 86 seasons, 53 franchises, and 3 professional basketball leagues. That's 7303 [nodes](https://en.wikipedia.org/wiki/Vertex_(graph_theory)) connected by over 37,000 [edges](https://en.wikipedia.org/wiki/Glossary_of_graph_theory#edge).
 
 As of today, it encompasses everything up until the end of the 2022-23 NBA season. That means Victor Wembanyama isn't on the graph yet, and Damian Lillard has only ever played for the Blazers -- but once the 2023-24 season kicks off all this will be updated!
 
