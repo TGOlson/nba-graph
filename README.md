@@ -2,6 +2,8 @@
 
 Visualizing basketball history. https://nbagraph.com
 
+<img width="600" alt="Screen Shot 2023-10-02 at 1 40 22 PM" src="https://github.com/TGOlson/nba-graph/assets/3476796/3ec43d40-0ff0-4f10-b54e-9cef4a4273c6">
+
 ## about
 
 This project is an experiment to explore NBA history in a new way. I want it to be like browsing www.basketball-reference.com, but all at once. 
