@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 
+import { useNavigate, useParams } from "react-router-dom";
 import { useSigma } from "@react-sigma/core";
 import Sigma from "sigma";
 import { SigmaNodeEventPayload } from "sigma/sigma";
@@ -7,20 +8,62 @@ import { SigmaNodeEventPayload } from "sigma/sigma";
 import { logDebug } from "../util/logger";
 import { NBAGraphNode } from "../../shared/types";
 
-type UseSelectedNode = [
-  NBAGraphNode | null,
-  (node: NBAGraphNode | string | null) => void,
-];
+export const hasNode = (sigma: Sigma, node: string): boolean => {
+  return sigma.getGraph().hasNode(node);
+};
 
-const getNodeAttributes = (sigma: Sigma, node: string): NBAGraphNode['attributes'] => {
+export const getNodeAttributes = (sigma: Sigma, node: string): NBAGraphNode['attributes'] => {
   return sigma.getGraph().getNodeAttributes(node) as NBAGraphNode['attributes'];
 };
 
-// Note: this is prettttyyyy similar to a normal hook,
-// except that multiple instances have the potential to diverge if both calling 'setSelectedNode'
-export const useSelectedNode = (): UseSelectedNode => {
+const nodeToParam = (sigma: Sigma, node: string): string => {
+  const {nbaType} = getNodeAttributes(sigma, node);
+
+  if (nbaType === 'player') return node;
+
+  return node.toLowerCase().replace(/_/g, '-');
+};
+
+const paramToNode = (sigma: Sigma, param: string): string | null => {
+  const playerNode = param;
+  const otherNode = param.toUpperCase().replace(/-/g, '_');
+
+  if (hasNode(sigma, playerNode)) return playerNode;
+  if (hasNode(sigma, otherNode)) return otherNode;
+
+  return null;
+};
+
+export const useSelectedNode = (): [string | null, (nodeId: string | null) => void] => {
+  const navigate = useNavigate();
+  const params = useParams();
   const sigma = useSigma();
-  const [selectedNode, setSelectedNode] = useState<NBAGraphNode | null>(null);
+
+  const paramNodeId = params.nodeId;
+
+  const [selectedNode, _setSelectedNodeInternal] = useState<string | null>(() => {
+    return paramNodeId ? paramToNode(sigma, paramNodeId) : null;
+  });
+
+  useEffect(() => {
+    const node = paramNodeId ? paramToNode(sigma, paramNodeId) : null;
+
+    if (node) {
+      _setSelectedNodeInternal(node);
+    } else {
+      navigate('/');
+      _setSelectedNodeInternal(null);
+    }
+  }, [paramNodeId]);
+
+  const setSelectedNode = (node: string | null) => {
+    if (node) {
+      const param = nodeToParam(sigma, node);
+      navigate(`/${param}`);
+    } else {
+      navigate('/');
+    }
+  };
 
   useEffect(() => {
     const handler = (event: SigmaNodeEventPayload) => {
@@ -29,10 +72,10 @@ export const useSelectedNode = (): UseSelectedNode => {
       
       logDebug('Click event', event, 'node', node);
   
-      if (selectedNode && selectedNode.key === node.key) {
+      if (selectedNode === event.node) {
         setSelectedNode(null);
       } else {
-        setSelectedNode(node);
+        setSelectedNode(event.node);
       }
     };
 
@@ -43,14 +86,5 @@ export const useSelectedNode = (): UseSelectedNode => {
     };
   }, [sigma, selectedNode, setSelectedNode]);
 
-  const setSelectedNodeFn = (node: NBAGraphNode | string | null) => {
-    if (typeof node === 'string') {
-      const attributes = getNodeAttributes(sigma, node);
-      setSelectedNode({key: node, attributes});
-    } else {
-      setSelectedNode(node);
-    }
-  };
-
-  return [selectedNode, setSelectedNodeFn];
+  return [selectedNode, setSelectedNode];
 };

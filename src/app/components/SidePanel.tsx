@@ -23,12 +23,13 @@ import Logo from './Logo';
 
 import { GraphFilters } from '../util/types';
 import { getProp } from '../../shared/util';
-import { NBAGraphNode } from '../../shared/types';
 import ContactLinks from './ContactLinks';
+import { getNodeAttributes } from '../hooks/useSelectedNode';
+import { useSigma } from '@react-sigma/core';
 
 type SidePanelProps = {
   filters: GraphFilters;
-  selectedNode: NBAGraphNode | null;
+  selectedNode: string | null;
   nodeCounts: {[key: string]: {visible: number, total: number}};
   onFilterChange: (change: Partial<GraphFilters>) => void;
 };
@@ -132,12 +133,16 @@ const YearFilters = ({filters, onFilterChange}: Pick<SidePanelProps, 'filters' |
 };
 
 const SelectedNodeLink = ({selectedNode}: Pick<SidePanelProps, 'selectedNode'>) => {
-  const previewOption = selectedNode 
-    ? {key: selectedNode.key, searchString: '', attrs: selectedNode.attributes}
+  const sigma = useSigma();
+
+  const nodeAttributes = selectedNode ? getNodeAttributes(sigma, selectedNode) : null;
+
+  const previewOption = selectedNode && nodeAttributes 
+    ? {key: selectedNode, searchString: '', attrs: nodeAttributes}
     : {message: 'Nothing selected', subMessage: 'Click the graph to get started!'};
   
-  const href = selectedNode 
-    ? `https://www.basketball-reference.com${selectedNode.attributes.url}` 
+  const href = nodeAttributes 
+    ? `https://www.basketball-reference.com${nodeAttributes.url}` 
     : undefined;
 
   return (

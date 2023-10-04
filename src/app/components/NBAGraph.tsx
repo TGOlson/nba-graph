@@ -40,11 +40,11 @@ const InnerComponents = ({nodes}: {nodes: GraphData['nodes']}) => {
   // Run once to center on NBA node when app starts
   useEffect(() => {
     const camera = sigma.getCamera();
-    const nba = sigma.getNodeDisplayData('NBA');
+    const initialNode = sigma.getNodeDisplayData(selectedNode ?? 'NBA');
 
-    if (nba) camera.animate({
-      x: nba.x,
-      y: nba.y,
+    if (initialNode) camera.animate({
+      x: initialNode.x,
+      y: initialNode.y,
       ratio: 1 / 3 * nodeSizeScalingFactor,
     }, {duration: 1000});
   }, []);

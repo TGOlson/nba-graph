@@ -6,14 +6,14 @@ import { Attributes } from 'graphology-types';
 import { CameraState, EdgeDisplayData, NodeDisplayData } from 'sigma/types';
 
 import { useHoveredNode } from '../hooks/useHoveredNode';
-import { EdgeAttributes, NBAGraphNode, NodeAttributes } from '../../shared/types';
+import { EdgeAttributes, NodeAttributes } from '../../shared/types';
 import { getIndex } from '../../shared/util';
 import { GraphFilters } from '../util/types';
 
 type GraphEventsProps = {
   filters: GraphFilters;
-  selectedNode: NBAGraphNode | null;
-  setSelectedNode: (node: NBAGraphNode | null) => void;
+  selectedNode: string | null;
+  setSelectedNode: (node: string | null) => void;
   nodeSizeScalingFactor: number;
 };
 
@@ -35,12 +35,10 @@ const isWithinYearRange = (filters: GraphFilters, year: number): boolean => {
   return year >= filters.minYear && year <= filters.maxYear;
 };
 
-const GraphEvents = ({filters, selectedNode: selectedNodeFull, setSelectedNode, nodeSizeScalingFactor}: GraphEventsProps) => {
+const GraphEvents = ({filters, selectedNode, setSelectedNode, nodeSizeScalingFactor}: GraphEventsProps) => {
   const sigma = useSigma();
   const { gotoNode } = useCamera();
   const hoveredNode = useHoveredNode();
-
-  const selectedNode = selectedNodeFull?.key ?? null;
 
   useEffect(() => {
     if (selectedNode) gotoNode(selectedNode, {duration: 150, easing: 'linear'});
