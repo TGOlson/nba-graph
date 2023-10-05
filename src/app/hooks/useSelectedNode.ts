@@ -20,8 +20,10 @@ const nodeToParam = (sigma: Sigma, node: string): string => {
   const {nbaType} = getNodeAttributes(sigma, node);
 
   if (nbaType === 'player') return node;
+  if (nbaType === 'award' || nbaType === 'multi-winner-award') return node.toLowerCase().replace(/_/g, '-');
 
-  return node.toLowerCase().replace(/_/g, '-');
+  // keep team/franchise/league/season uppercase
+  return node.replace(/_/g, '-');
 };
 
 const paramToNode = (sigma: Sigma, param: string): string | null => {
