@@ -8,3 +8,7 @@ body {
   cursor: auto;
   background-color: inherit !important;
 }
+
+.logo-container:hover .logo-overlay {
+  visibility: visible;
+}

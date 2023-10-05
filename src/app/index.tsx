@@ -6,18 +6,28 @@ import { CssVarsProvider } from "@mui/joy/styles";
 import CssBaseline from "@mui/joy/CssBaseline";
 import '@fontsource/inter';
 
-import App from "./App";
-import ErrorPage from "./components/ErrorPage";
+import Graph from "./pages/Graph";
+import ErrorPage from "./pages/ErrorPage";
+import Logos from "./pages/Logos";
 
 const router = createHashRouter([
   {
     path: "/",
-    element: <App />,
+    element: null,
     errorElement: <ErrorPage />,
     children: [
       {
+        index: true,
+        element: <Graph />,
+      },
+      {
+        path: "logos",
+        element: <Logos />,
+
+      },
+      {
         path: "/:nodeId",
-        element: <App />,
+        element: <Graph />,
       },
     ],
   },

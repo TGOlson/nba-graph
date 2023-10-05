@@ -38,7 +38,7 @@ const SearchOptionImage = (props: SearchOptionImageProps) => {
         background: `url(${image}) ${-1 * x}px ${-1 * y}px`,
       }}
       />
-      </Box>
+     </Box>
   );
 };
 
