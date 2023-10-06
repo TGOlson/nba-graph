@@ -7,6 +7,7 @@ import IconButton from '@mui/joy/IconButton';
 
 import { Option, OptionSubItem, BaseSearchOptionProps } from './SearchOption';
 import { ListboxComponent } from './ReactWindowAdapters';
+import { NBAGraphNode } from '../../../shared/types';
 
 type SearchBarBaseProps = {
   options: Option[];
@@ -121,4 +122,47 @@ const SearchBarBase = ({options, onSelect}: SearchBarBaseProps) => {
   );
 };
 
-export default SearchBarBase;
+type NodeSearchProps = {
+  nodes: NBAGraphNode[];
+  setSelectedNode: (node: string) => void;
+};
+
+const NodeSearch = ({nodes, setSelectedNode}: NodeSearchProps) => {
+  const subItemsByRollupId = nodes.reduce<{[key: string]: OptionSubItem[]}>((acc, node) => {
+    const attrs = node.attributes;
+    if (attrs.rollupId) {
+      const prev = acc[attrs.rollupId] ?? [];
+
+      prev.push({
+        key: node.key,
+        attrs,
+      });
+      acc[attrs.rollupId] = prev;
+    }
+    return acc;
+  }, {});
+    
+  const options: Option[] = nodes.filter(x => !x.attributes.rollupId).map((node) => {
+    const isPlayer = node.attributes.nbaType === 'player';
+    const subItems = subItemsByRollupId[node.key];
+
+    const subItemsSearchArr = subItems?.map(x => x.attrs.label) ?? [];
+    const searchString = [...new Set([
+      node.attributes.label, 
+      isPlayer ? '' : node.key, 
+      isPlayer ? '' : node.attributes.nbaType, 
+      ...subItemsSearchArr
+    ])].join(' ');
+
+    return {
+      key: node.key,
+      searchString,
+      subItems,
+      attrs: node.attributes,
+    };
+  });
+
+  return <SearchBarBase options={options} onSelect={setSelectedNode} />;
+};
+
+export default NodeSearch;

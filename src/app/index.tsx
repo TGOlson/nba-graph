@@ -2,22 +2,51 @@ import React from "react";
 import ReactDOMClient from 'react-dom/client';
 import { RouterProvider, createHashRouter } from "react-router-dom";
 
+import '@fontsource/inter';
 import { CssVarsProvider } from "@mui/joy/styles";
 import CssBaseline from "@mui/joy/CssBaseline";
-import '@fontsource/inter';
 
-import App from "./App";
-import ErrorPage from "./components/ErrorPage";
+import "./index.css";
+
+import GraphPage from "./pages/GraphPage";
+import PathPage from "./pages/PathPage";
+// import LogoPage from "./pages/LogoPage";
+import ErrorPage from "./pages/ErrorPage";
 
 const router = createHashRouter([
   {
     path: "/",
-    element: <App />,
+    element: null,
     errorElement: <ErrorPage />,
     children: [
       {
-        path: "/:nodeId",
-        element: <App />,
+        index: true,
+        element: <GraphPage />,
+      },
+      // Hide logo page for now...
+      // {
+      //   path: "logos",
+      //   element: <LogoPage />,
+      // },
+      {
+        path: "paths",
+        element: <PathPage />,
+      },
+      {
+        path: "paths/:path",
+        element: <PathPage />,
+      },
+      {
+        path: "graph",
+        element: <GraphPage />,
+      },
+      {
+        path: "graph/:nodeId",
+        element: <GraphPage />,
+      },
+      {
+        path: ":nodeId",
+        element: <GraphPage />,
       },
     ],
   },

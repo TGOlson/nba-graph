@@ -8,25 +8,22 @@ import Typography from '@mui/joy/Typography';
 import map from 'ramda/src/map';
 import uniqBy from 'ramda/src/uniqBy';
 
-import NBAGraph from './components/NBAGraph';
-import Logo from './components/Logo';
-import TextureSizeWarningModal from './components/TextureSizeWarningModal';
+import NBAGraph from '../components/NBAGraph';
+import Logo from '../components/Logo';
+import TextureSizeWarningModal from '../components/TextureSizeWarningModal';
 
-import { fetchGraphData, GraphData } from './api';
-import { fetchImage } from './api';
-import { logDebug } from './util/logger';
-import { Sprite } from './util/types';
+import { fetchGraphData, GraphData } from '../api';
+import { fetchImage } from '../api';
+import { logDebug } from '../util/logger';
+import { Sprite } from '../util/types';
 
-import "./App.css";
-
-const App = () => {
+const GraphPage = () => {
   const [data, setData] = useState<GraphData | null>(null);
   const [sprites, setSprites] = useState<Sprite[] | null>(null);
   const [graphLoaded, setGraphLoaded] = useState<boolean>(false);
   const [showTextureWarningModal, setShowTextureWarningModal] = useState<boolean>(false);
   
   useEffect(() => {
-    const start = new Date().getTime();
     logDebug('Fetching graph data');
     void fetchGraphData().then((data) => { 
       setData(data);
@@ -51,11 +48,8 @@ const App = () => {
         logDebug(`[warning] Max sprite size (${maxSpriteSize}) is larger than max supported texture size (${maxTextureSizeSupported})`);
       }
 
-      const end = new Date().getTime();
-      const extraLoadDelay = Math.max(0, 1000 - (end - start));
-
-      // Use 1000ms as the minimum load time to prevent weird flickering of loading screen
-      setTimeout(() => setGraphLoaded(true), extraLoadDelay);
+      // Use timeout to prevent weird flickering of loading screen
+      setTimeout(() => setGraphLoaded(true), 0);
     }).catch((err) => { throw err; });
   }, []);
 
@@ -95,4 +89,4 @@ const App = () => {
   );
 };
 
-export default App;
+export default GraphPage;

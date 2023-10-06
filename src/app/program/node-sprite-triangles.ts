@@ -76,7 +76,6 @@ export default function makeNodeSpriteProgramTriangles(sprite: Sprite) {
       // Initialize WebGL texture:
       this.texture = gl.createTexture() as WebGLTexture;
 
-      // console.log('this.texture', this.texture)
       gl.bindTexture(gl.TEXTURE_2D, this.texture);
       gl.enableVertexAttribArray(this.textureLocation);
       gl.enableVertexAttribArray(this.angleLocation);
