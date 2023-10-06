@@ -144,16 +144,16 @@ const PathDisplay = ({graph, searchNodes}: PathDisplayProps) => {
       })}
       </Box>
       <Box sx={{width: '100%'}}>
-      <Typography>weighted</Typography>
-      {pathWeighted?.map((node) =>  {
-        const option: Option = {
-          key: node.key,
-          searchString: '',
-          attrs: node.attributes,
-        };
-        
-        return <SearchOptionPlaceholder key={node.key} option={option} />;
-      })}
+        <Typography>Weighted path</Typography>
+        {pathWeighted?.map((node) =>  {
+          const option: Option = {
+            key: node.key,
+            searchString: '',
+            attrs: node.attributes,
+          };
+          
+          return <SearchOptionPlaceholder key={node.key} option={option} />;
+        })}
       </Box>
     </Box>
   );
