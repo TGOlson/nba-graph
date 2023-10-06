@@ -53,7 +53,7 @@ export const useSelectedNode = (): [string | null, (nodeId: string | null) => vo
     if (node) {
       _setSelectedNodeInternal(node);
     } else {
-      navigate('/');
+      navigate('/graph');
       _setSelectedNodeInternal(null);
     }
   }, [paramNodeId]);
@@ -61,9 +61,9 @@ export const useSelectedNode = (): [string | null, (nodeId: string | null) => vo
   const setSelectedNode = (node: string | null) => {
     if (node) {
       const param = nodeToParam(sigma, node);
-      navigate(`/${param}`);
+      navigate(`/graph/${param}`);
     } else {
-      navigate('/');
+      navigate('/graph');
     }
   };
 

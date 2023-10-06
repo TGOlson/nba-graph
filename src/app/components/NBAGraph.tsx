@@ -1,6 +1,11 @@
 import React, { useEffect, useState } from 'react';
+
 import Graph from 'graphology';
 import { SigmaContainer, useSigma } from "@react-sigma/core";
+import "@react-sigma/core/lib/react-sigma.min.css";
+import { useWindowWidth } from '@react-hook/window-size';
+
+import Box from '@mui/joy/Box';
 
 import GraphEvents, { isVisibleNode } from './GraphEventHandler';
 import SidePanel, { DEFAULT_FILTERS } from './SidePanel';
@@ -13,9 +18,6 @@ import makeNodeSpriteProgramTriangles from '../program/node-sprite-triangles';
 import { logDebug } from '../util/logger';
 import { NBAGraphNode } from '../../shared/types';
 import { useSelectedNode } from '../hooks/useSelectedNode';
-
-import "@react-sigma/core/lib/react-sigma.min.css";
-import { useWindowWidth } from '@react-hook/window-size';
 
 type DisplayGraphProps = {
   data: GraphData;
@@ -72,7 +74,9 @@ const InnerComponents = ({nodes}: {nodes: GraphData['nodes']}) => {
     <React.Fragment>
       <GraphEvents filters={filters} selectedNode={selectedNode} setSelectedNode={setSelectedNode} nodeSizeScalingFactor={nodeSizeScalingFactor} />
       <SidePanel filters={filters} nodeCounts={nodeCounts} selectedNode={selectedNode} onFilterChange={onFilterChange}/>
-      <NodeSearch nodes={visibleNodes} setSelectedNode={setSelectedNode}/>
+      <Box sx={{top: 0, right: 0, m: 1, position: 'absolute'}}>
+        <NodeSearch nodes={visibleNodes} setSelectedNode={setSelectedNode}/>
+      </Box>
       <ZoomControl />
     </React.Fragment>
   );

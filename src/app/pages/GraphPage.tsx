@@ -17,16 +17,15 @@ import { fetchImage } from '../api';
 import { logDebug } from '../util/logger';
 import { Sprite } from '../util/types';
 
-import "../App.css";
-
-const Graph = () => {
+const GraphPage = () => {
   const [data, setData] = useState<GraphData | null>(null);
   const [sprites, setSprites] = useState<Sprite[] | null>(null);
   const [graphLoaded, setGraphLoaded] = useState<boolean>(false);
   const [showTextureWarningModal, setShowTextureWarningModal] = useState<boolean>(false);
   
+  console.log('rendering Graph page');
+
   useEffect(() => {
-    const start = new Date().getTime();
     logDebug('Fetching graph data');
     void fetchGraphData().then((data) => { 
       setData(data);
@@ -51,11 +50,8 @@ const Graph = () => {
         logDebug(`[warning] Max sprite size (${maxSpriteSize}) is larger than max supported texture size (${maxTextureSizeSupported})`);
       }
 
-      const end = new Date().getTime();
-      const extraLoadDelay = Math.max(0, 1000 - (end - start));
-
-      // Use 1000ms as the minimum load time to prevent weird flickering of loading screen
-      setTimeout(() => setGraphLoaded(true), extraLoadDelay);
+      // Use timeout to prevent weird flickering of loading screen
+      setTimeout(() => setGraphLoaded(true), 0);
     }).catch((err) => { throw err; });
   }, []);
 
@@ -95,4 +91,4 @@ const Graph = () => {
   );
 };
 
-export default Graph;
+export default GraphPage;

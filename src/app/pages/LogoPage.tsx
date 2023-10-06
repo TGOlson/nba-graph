@@ -10,10 +10,9 @@ import { NBAGraphNode } from '../../shared/types';
 import { CardOverflow, Typography } from '@mui/joy';
 import { multiYearStr } from '../../shared/util';
 
-import "../App.css";
 import { useNavigate } from 'react-router-dom';
 
-const Logos = () => {
+const LogoPage = () => {
   const [franchises, setFranchises] = useState<NBAGraphNode[]>([]);
   const [teams, setTeams] = useState<{[key: string]: NBAGraphNode[]}>({});
 
@@ -137,4 +136,4 @@ const Logos = () => {
   
 };
 
-export default Logos;
+export default LogoPage;
