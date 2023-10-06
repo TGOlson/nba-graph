@@ -8,8 +8,6 @@ import { NBAGraphNode } from '../../shared/types';
 import PathSearch from '../components/PathSearch';
 
 const PathPage = () => {
-  console.log('rendering Paths');
-
   const [players, setPlayers] = useState<NBAGraphNode[]>([]);
   const [graph, setGraph] = useState<Graph | null>(null);
 

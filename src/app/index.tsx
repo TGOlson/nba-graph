@@ -9,8 +9,8 @@ import CssBaseline from "@mui/joy/CssBaseline";
 import "./index.css";
 
 import GraphPage from "./pages/GraphPage";
-import LogoPage from "./pages/LogoPage";
 import PathPage from "./pages/PathPage";
+// import LogoPage from "./pages/LogoPage";
 import ErrorPage from "./pages/ErrorPage";
 
 const router = createHashRouter([
@@ -23,10 +23,11 @@ const router = createHashRouter([
         index: true,
         element: <GraphPage />,
       },
-      {
-        path: "logos",
-        element: <LogoPage />,
-      },
+      // Hide logo page for now...
+      // {
+      //   path: "logos",
+      //   element: <LogoPage />,
+      // },
       {
         path: "paths",
         element: <PathPage />,

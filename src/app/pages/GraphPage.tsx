@@ -23,8 +23,6 @@ const GraphPage = () => {
   const [graphLoaded, setGraphLoaded] = useState<boolean>(false);
   const [showTextureWarningModal, setShowTextureWarningModal] = useState<boolean>(false);
   
-  console.log('rendering Graph page');
-
   useEffect(() => {
     logDebug('Fetching graph data');
     void fetchGraphData().then((data) => { 
