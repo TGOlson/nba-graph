@@ -1,3 +1,5 @@
 /node_modules
 /dist
-/data
+/data/img
+/data/parsed
+/data/www.basketball-reference.com
