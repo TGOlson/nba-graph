@@ -3,13 +3,11 @@
 ### quick start
 
 1. Install deps: `npm install`
-2. Pull large files: `git lfs pull` (will add `data/{img,parsed,www...}.tar.gz` to project dir, make sure `git-lfs` is installed)
-3. Unzip `data/{img,parsed,www...}.tar.gz`
-4. Start graph cli tool: `npm run graph:watch`
-5. Build graph entities: `node ./dist/graph.bundle.js --build-graph`
-6. Serve app: `npm run app:serve` (@ localhost:3000)
+2. Serve app: `npm run app:serve` (@ localhost:3000)
 
-And that's it! More details about certain steps below. 
+And that's it! Critical data files `data/graph` and `data/sprites` are stored in the repo. 
+
+To play around with the underlying data, either follow the `bootstrapping` section below, or ask for access for the full [data.tar.gz](https://drive.google.com/file/d/1At8X417yNU_yd8B51iJHZRBThLHNBB7U/view?usp=drive_link) file.
 
 ### setup
 
@@ -34,9 +32,6 @@ npm run app:{build,serve}
 Bootstrapping this project from scratch is possible, but will take quite a long time (>5 hours of download time from `www.basketball-reference.com` due to rate limiting).
 
 Use the below commands from the graph cli tool to download and generate files. 
-
-_note: if you plan on bootstrapping the data from scratch, skip the `git lfs` commands_
-
 
 ### graph
 
