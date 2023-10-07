@@ -1,4 +1,0 @@
-data.tar.gz filter=lfs diff=lfs merge=lfs -text
-data/img.tar.gz filter=lfs diff=lfs merge=lfs -text
-data/parsed.tar.gz filter=lfs diff=lfs merge=lfs -text
-data/www.basketball-reference.com.tar.gz filter=lfs diff=lfs merge=lfs -text
