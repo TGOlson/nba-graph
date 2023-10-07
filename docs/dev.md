@@ -3,8 +3,8 @@
 ### quick start
 
 1. Install deps: `npm install`
-2. Pull large files: `git lfs pull` (will add `data.tar.gz` to project dir, make sure `git-lfs` is installed)
-3. Unzip `data.tar.gz` (will create `data/{img,parsed,sprites,www...}`)
+2. Pull large files: `git lfs pull` (will add `data/{img,parsed,www...}.tar.gz` to project dir, make sure `git-lfs` is installed)
+3. Unzip `data/{img,parsed,www...}.tar.gz`
 4. Start graph cli tool: `npm run graph:watch`
 5. Build graph entities: `node ./dist/graph.bundle.js --build-graph`
 6. Serve app: `npm run app:serve` (@ localhost:3000)
