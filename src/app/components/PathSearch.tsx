@@ -14,6 +14,7 @@ import Typography from '@mui/joy/Typography';
 import Tooltip from '@mui/joy/Tooltip';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import LinkIcon from '@mui/icons-material/Link';
+import ShareIcon from '@mui/icons-material/Share';
 
 import { Option, SearchOptionPlaceholder } from './NodeSearchSimple/SearchOption';
 import NodeSearchSimple from './NodeSearchSimple';
@@ -105,10 +106,15 @@ const PathDisplay = ({graph, searchNodes}: PathDisplayProps) => {
   };
 
   return (
-    <Box sx={{m: 'auto', mt: {xs: 1.5, sm: 2}, gap: {xs: 1.5, sm: 2}, display: 'flex', flexDirection: 'column', alignItems: 'center', maxWidth: 300}}>
-      <Box sx={{width: '100%'}}>
-        <Typography level='title-lg' fontSize={36}>NBA Paths</Typography>
+    <Box sx={{m: 'auto', height: '100vh', pt: 1.5, gap: 1.5, display: 'flex', flexDirection: 'column', alignItems: 'center', maxWidth: 300}}>
+      <Box sx={{width: '100%', position: 'relative'}}>
+          <Typography level='title-lg' fontSize={36}>NBA Paths</Typography>
         <Typography level='body-sm'>Connect any players in basketball history.</Typography>
+        <Tooltip open={showCopyTooltip} title='Copied link!' placement='left' size='sm' sx={{position: 'absolute', top: 0, right: -20}}>
+          <IconButton disabled={!source || !target} color='primary' onClick={copyPath}>
+            <ShareIcon />
+          </IconButton>
+        </Tooltip>
       </Box>
       <Divider sx={{ml: -2, mr: -2}} />
       <Box sx={{width: '100%', gap: 2, display: 'flex', flexDirection: 'column'}}>
@@ -122,17 +128,7 @@ const PathDisplay = ({graph, searchNodes}: PathDisplayProps) => {
         </FormControl>
       </Box>
       <Divider sx={{ml: -2, mr: -2, mt: 1}} />
-      <Box sx={{width: '100%'}}>
-        {source && target ? 
-          <Box sx={{display: 'flex', justifyContent: 'flex-end', mt:{xs: -1, sm: -1.5}}}>
-            <Tooltip open={showCopyTooltip} title='Copied!' placement='left' size='sm'>
-              <IconButton size='sm' color='neutral' sx={{"--IconButton-size": "22px"}} onClick={copyPath}>
-                <LinkIcon sx={{mr: 0.5}}/>
-                <Typography level='body-xs'>Copy link</Typography>
-              </IconButton>
-            </Tooltip>
-          </Box>
-        : null}
+      <Box sx={{width: '100%', overflowY: 'scroll', mb: 2, mt: -1.5}}>
         {path?.map((node, index) =>  {
           const option: Option = {
             key: node.key,
@@ -144,7 +140,7 @@ const PathDisplay = ({graph, searchNodes}: PathDisplayProps) => {
           const showSubLabel = node.attributes.nbaType === 'team';
 
           return (
-            <Box key={node.key}>
+            <Box key={node.key} sx={{mt: index === 0 ? 1.5 : undefined}}>
               <Box 
                 sx={{
                   display: 'flex', 
