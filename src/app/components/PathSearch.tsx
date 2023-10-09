@@ -1,19 +1,23 @@
 import React, { useEffect, useState } from 'react';
 
-import Box from '@mui/joy/Box';
-
-import { NBAGraphNode } from '../../shared/types';
-import { Divider, FormControl, FormLabel, IconButton, Typography } from '@mui/joy';
-
 import Graph from 'graphology';
-// import NodeSearch from '../components/NodeSearch';
 import { bidirectional } from 'graphology-shortest-path';
 import dijkstra from 'graphology-shortest-path/dijkstra';
+import { Link as RouterLink, useNavigate, useParams } from 'react-router-dom';
+
+import Box from '@mui/joy/Box';
+import Divider from '@mui/joy/Divider';
+import FormControl from '@mui/joy/FormControl';
+import FormLabel from '@mui/joy/FormLabel';
+import IconButton from '@mui/joy/IconButton';
+import Typography from '@mui/joy/Typography';
+import Tooltip from '@mui/joy/Tooltip';
+import OpenInNewIcon from '@mui/icons-material/OpenInNew';
+import LinkIcon from '@mui/icons-material/Link';
+
 import { Option, SearchOptionPlaceholder } from './NodeSearchSimple/SearchOption';
 import NodeSearchSimple from './NodeSearchSimple';
-import { Link, useNavigate, useParams } from 'react-router-dom';
-import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
-import OpenInNewIcon from '@mui/icons-material/OpenInNew';
+import { NBAGraphNode } from '../../shared/types';
 
 type PathDisplayProps = {
   graph: Graph;
@@ -44,6 +48,7 @@ const PathDisplay = ({graph, searchNodes}: PathDisplayProps) => {
 
   const [source, setSource] = useState<string | null>(sourceFromPath(graph, pathParam));
   const [target, setTarget] = useState<string | null>(targetFromPath(graph, pathParam));
+  const [showCopyTooltip, setShowCopyTooltip] = useState<boolean>(false);
 
   useEffect(() => {
     const [source, target] = sourceTargetFromPath(graph, pathParam);
@@ -70,9 +75,10 @@ const PathDisplay = ({graph, searchNodes}: PathDisplayProps) => {
     ? bidirectional(graph, source, target)?.map(toNode)
     : null;
 
-  const pathWeighted = source && target
-    ? dijkstra.bidirectional(graph, source, target, (_, attr) => (attr as NBAGraphNode['attributes']).size).map(toNode)
-    : null;
+  // TODO: maybe toggle?
+  // const pathWeighted = source && target
+  //   ? dijkstra.bidirectional(graph, source, target, (_, attr) => (attr as NBAGraphNode['attributes']).size).map(toNode)
+  //   : null;
 
   const onSourceChange = (source: string | null) => {
     navigateToPath(source, target);
@@ -84,21 +90,32 @@ const PathDisplay = ({graph, searchNodes}: PathDisplayProps) => {
     setTarget(target);
   };
 
+  const copyPath = () => {
+    if (!source || !target) return;
+
+    const url = `${window.location.origin}/paths/${source}.${target}`;
+
+    void navigator.clipboard.writeText(url).then(() => {
+      setShowCopyTooltip(true);
+
+      setTimeout(() => {
+        setShowCopyTooltip(false);
+      }, 1500);
+    });
+  };
+
   return (
-    <Box sx={{m: 'auto', mt: 2, gap: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', maxWidth: 300}}>
-      <Box>
+    <Box sx={{m: 'auto', mt: {xs: 1.5, sm: 2}, gap: {xs: 1.5, sm: 2}, display: 'flex', flexDirection: 'column', alignItems: 'center', maxWidth: 300}}>
+      <Box sx={{width: '100%'}}>
         <Typography level='title-lg' fontSize={36}>NBA Paths</Typography>
-        <Typography level='body-sm'>Find a path between any two players in basketball history!</Typography>
+        <Typography level='body-sm'>Connect any players in basketball history.</Typography>
       </Box>
       <Divider sx={{ml: -2, mr: -2}} />
-      <Box sx={{width: '100%'}}>
+      <Box sx={{width: '100%', gap: 2, display: 'flex', flexDirection: 'column'}}>
         <FormControl>
           <FormLabel>Source</FormLabel>
           <NodeSearchSimple initialNode={source} nodes={searchNodes} onChange={onSourceChange} />
         </FormControl>
-        <Box sx={{mt: 1, mb: -1, display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
-          <ArrowDownwardIcon fontSize='small' />
-        </Box>
         <FormControl>
           <FormLabel>Target</FormLabel>
           <NodeSearchSimple initialNode={target} nodes={searchNodes} onChange={onTargetChange} />
@@ -106,53 +123,55 @@ const PathDisplay = ({graph, searchNodes}: PathDisplayProps) => {
       </Box>
       <Divider sx={{ml: -2, mr: -2, mt: 1}} />
       <Box sx={{width: '100%'}}>
-
-      {path?.map((node) =>  {
-        const option: Option = {
-          key: node.key,
-          searchString: '',
-          attrs: node.attributes,
-        };
-
-        const showSubLabel = node.attributes.nbaType !== 'player';
-        return (
-          <Box 
-            key={node.key} 
-            sx={{
-              display: 'flex', 
-              justifyContent: 'space-between', 
-              alignItems: 'center',
-              '&:hover': {
-                backgroundColor: 'var(--joy-palette-neutral-plainHoverBg)',
-              },
-              '& .path-graph-link': {
-                visibility: 'hidden',
-              },
-              '&:hover .path-graph-link': {
-                visibility: 'visible',
-              },
-            }}
-          >
-            <SearchOptionPlaceholder  option={option} showSubLabel={showSubLabel} />
-            <Link className='path-graph-link' to={`/graph/${node.key}`} style={{marginRight: '8px'}}>
-              <IconButton size='sm' color='primary'>
-                <OpenInNewIcon />
+        {source && target ? 
+          <Box sx={{display: 'flex', justifyContent: 'flex-end', mt:{xs: -1, sm: -1.5}}}>
+            <Tooltip open={showCopyTooltip} title='Copied!' placement='left' size='sm'>
+              <IconButton size='sm' color='neutral' sx={{"--IconButton-size": "22px"}} onClick={copyPath}>
+                <LinkIcon sx={{mr: 0.5}}/>
+                <Typography level='body-xs'>Copy link</Typography>
               </IconButton>
-            </Link>
+            </Tooltip>
           </Box>
-        );
-      })}
-      </Box>
-      <Box sx={{width: '100%'}}>
-        {pathWeighted ? <Typography>Weighted path</Typography> : null}
-        {pathWeighted?.map((node) =>  {
+        : null}
+        {path?.map((node, index) =>  {
           const option: Option = {
             key: node.key,
             searchString: '',
             attrs: node.attributes,
           };
-          
-          return <SearchOptionPlaceholder key={node.key} option={option} />;
+
+          const isLastItem = index === path.length - 1;
+          const showSubLabel = node.attributes.nbaType === 'team';
+
+          return (
+            <Box key={node.key}>
+              <Box 
+                sx={{
+                  display: 'flex', 
+                  pl: 2,
+                  justifyContent: 'space-between', 
+                  alignItems: 'center',
+                  '&:hover': {
+                    backgroundColor: 'var(--joy-palette-neutral-plainHoverBg)',
+                  },
+                  '& .path-graph-link': {
+                    visibility: 'hidden',
+                  },
+                  '&:hover .path-graph-link': {
+                    visibility: 'visible',
+                  },
+                }}
+                >
+                <SearchOptionPlaceholder option={option} showSubLabel={showSubLabel} />
+                <RouterLink className='path-graph-link' to={`/graph/${node.key}`} style={{marginRight: '8px'}}>
+                  <IconButton size='sm' color='primary'>
+                    <OpenInNewIcon />
+                  </IconButton>
+                </RouterLink>
+              </Box>
+              {isLastItem ? null : <Divider orientation='vertical' sx={{ml: '39px', height: 12}}/>}
+            </Box>
+          );
         })}
       </Box>
     </Box>
