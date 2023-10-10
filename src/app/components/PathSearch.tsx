@@ -13,7 +13,11 @@ import Tooltip from '@mui/joy/Tooltip';
 import Avatar from '@mui/joy/Avatar';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import ShareIcon from '@mui/icons-material/Share';
-import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
+import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
+import CircleIcon from '@mui/icons-material/Circle';
+
+import SouthIcon from '@mui/icons-material/South';
+
 
 import { Option, SearchOptionPlaceholder } from './NodeSearchSimple/SearchOption';
 import NodeSearchSimple from './NodeSearchSimple';
@@ -105,21 +109,25 @@ const PathDisplay = ({graph, searchNodes}: PathDisplayProps) => {
   };
 
   return (
-    <Box sx={{m: 'auto', height: '100vh', pt: 1.5, gap: 1.5, display: 'flex', flexDirection: 'column', alignItems: 'center', maxWidth: 332}}>
+    <Box sx={{m: 'auto', height: '100vh', pt: 1.5, display: 'flex', flexDirection: 'column', alignItems: 'center', maxWidth: 332}}>
       <Box sx={{width: '100%', position: 'relative', pl: 2, pr: 2}}>
-          <Typography level='title-lg' fontSize={36}>NBA Paths</Typography>
+          <Typography level='h4'>NBA Paths</Typography>
         <Typography level='body-sm'>Connect any players in basketball history.</Typography>
       </Box>
-      <Divider />
-      <Box sx={{width: '100%', gap: 1, pl: 2, pr: 2, display: 'flex', flexDirection: 'column'}}>
-        <NodeSearchSimple initialNode={source} autocompleteProps={{placeholder: 'Player A'}} nodes={searchNodes} onChange={onSourceChange} />
-        <Box sx={{width: '100%', display: 'flex', justifyContent: 'center'}}>
-          <ArrowDownwardIcon fontSize='small' />
+      <Divider sx={{mt: 1.5, mb: 1.5}} />
+      <Box sx={{width: '100%', gap: 1.5, pl: 2, pr: 2, display: 'flex', alignItems: 'center'}}>
+        <Box sx={{display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0.5}}>
+          <RadioButtonUncheckedIcon color="primary" fontSize='small' />
+          <SouthIcon color="primary" fontSize='small' />
+          <CircleIcon color="primary" fontSize='small' />
         </Box>
-        <NodeSearchSimple initialNode={target} autocompleteProps={{placeholder: 'Player B'}} nodes={searchNodes} onChange={onTargetChange} />
+        <Box sx={{display: 'flex', width: '100%', flexDirection: 'column', gap: 1}}>
+          <NodeSearchSimple initialNode={source} autocompleteProps={{size: 'md', placeholder: 'Player A'}} nodes={searchNodes} onChange={onSourceChange} />
+          <NodeSearchSimple initialNode={target} autocompleteProps={{size: 'md', placeholder: 'Player B'}} nodes={searchNodes} onChange={onTargetChange} />
+        </Box>
       </Box>
-      <Divider />
-      <Box sx={{width: '100%', overflowY: 'scroll', mb: 2, pl: 2, display: 'flex', flexDirection: 'column', mt: -0.5}}>
+      <Divider sx={{mt: 1.5}}/>
+      <Box sx={{width: '100%', mb: 2, pl: 2, display: 'flex', flexDirection: 'column', overflowY: 'scroll'}}>
         {path 
           ? <Box sx={{display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
             <Typography level='body-sm' sx={{textAlign: 'right'}}>Path of {(path.length - 1) / 2 + 1} steps</Typography> 
