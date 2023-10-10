@@ -11,11 +11,12 @@ type SearchBarBaseProps = {
   defaultValue?: Option | null;
   options: Option[];
   onChange: (id: string | null) => void;
+  autocompleteProps?: Partial<React.ComponentProps<typeof Autocomplete<Option>>>;
 };
 
 // Simplified version of node search with no subitems
 // TODO: see if this can be merged with NodeSearch
-const SearchBarBase = ({defaultValue, options, onChange}: SearchBarBaseProps) => {
+const SearchBarBase = ({defaultValue, options, onChange, autocompleteProps}: SearchBarBaseProps) => {
   const [value, setValue] = useState<Option | null>(defaultValue ?? null);
 
   return (
@@ -54,6 +55,8 @@ const SearchBarBase = ({defaultValue, options, onChange}: SearchBarBaseProps) =>
         setValue(value);
         onChange(value ? value.key : null);
       }}
+
+      {...autocompleteProps}
     />
   );
 };
@@ -62,9 +65,10 @@ type NodeSearchSimpleProps = {
   initialNode?: string | null;
   nodes: NBAGraphNode[];
   onChange: (node: string | null) => void;
+  autocompleteProps?: Partial<React.ComponentProps<typeof Autocomplete<Option>>>;
 };
 
-const NodeSearchSimple = ({initialNode, nodes, onChange}: NodeSearchSimpleProps) => {
+const NodeSearchSimple = ({initialNode, nodes, onChange, autocompleteProps}: NodeSearchSimpleProps) => {
   const options: Option[] = nodes.map((node) => {
     const isPlayer = node.attributes.nbaType === 'player';
 
@@ -83,7 +87,7 @@ const NodeSearchSimple = ({initialNode, nodes, onChange}: NodeSearchSimpleProps)
 
   const defaultValue = initialNode ? options.find((option) => option.key === initialNode) : undefined;
 
-  return <SearchBarBase defaultValue={defaultValue} options={options} onChange={onChange} />;
+  return <SearchBarBase defaultValue={defaultValue} options={options} onChange={onChange} autocompleteProps={autocompleteProps} />;
 };
 
 export default NodeSearchSimple;

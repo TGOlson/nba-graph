@@ -2,19 +2,17 @@ import React, { useEffect, useState } from 'react';
 
 import Graph from 'graphology';
 import { bidirectional } from 'graphology-shortest-path';
-import dijkstra from 'graphology-shortest-path/dijkstra';
+// import dijkstra from 'graphology-shortest-path/dijkstra';
 import { Link as RouterLink, useNavigate, useParams } from 'react-router-dom';
 
 import Box from '@mui/joy/Box';
 import Divider from '@mui/joy/Divider';
-import FormControl from '@mui/joy/FormControl';
-import FormLabel from '@mui/joy/FormLabel';
 import IconButton from '@mui/joy/IconButton';
 import Typography from '@mui/joy/Typography';
 import Tooltip from '@mui/joy/Tooltip';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
-import LinkIcon from '@mui/icons-material/Link';
 import ShareIcon from '@mui/icons-material/Share';
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 
 import { Option, SearchOptionPlaceholder } from './NodeSearchSimple/SearchOption';
 import NodeSearchSimple from './NodeSearchSimple';
@@ -106,29 +104,26 @@ const PathDisplay = ({graph, searchNodes}: PathDisplayProps) => {
   };
 
   return (
-    <Box sx={{m: 'auto', height: '100vh', pt: 1.5, gap: 1.5, display: 'flex', flexDirection: 'column', alignItems: 'center', maxWidth: 300}}>
-      <Box sx={{width: '100%', position: 'relative'}}>
+    <Box sx={{m: 'auto', height: '100vh', pt: 1.5, gap: 1.5, display: 'flex', flexDirection: 'column', alignItems: 'center', maxWidth: 332}}>
+      <Box sx={{width: '100%', position: 'relative', pl: 2, pr: 2}}>
           <Typography level='title-lg' fontSize={36}>NBA Paths</Typography>
         <Typography level='body-sm'>Connect any players in basketball history.</Typography>
-        <Tooltip open={showCopyTooltip} title='Copied link!' placement='left' size='sm' sx={{position: 'absolute', top: 0, right: -20}}>
+        <Tooltip open={showCopyTooltip} title='Link copied!' placement='left' size='sm' sx={{position: 'absolute', top: 0, right: -12}}>
           <IconButton disabled={!source || !target} color='primary' onClick={copyPath}>
             <ShareIcon />
           </IconButton>
         </Tooltip>
       </Box>
-      <Divider sx={{ml: -2, mr: -2}} />
-      <Box sx={{width: '100%', gap: 2, display: 'flex', flexDirection: 'column'}}>
-        <FormControl>
-          <FormLabel>Source</FormLabel>
-          <NodeSearchSimple initialNode={source} nodes={searchNodes} onChange={onSourceChange} />
-        </FormControl>
-        <FormControl>
-          <FormLabel>Target</FormLabel>
-          <NodeSearchSimple initialNode={target} nodes={searchNodes} onChange={onTargetChange} />
-        </FormControl>
+      <Divider />
+      <Box sx={{width: '100%', gap: 1, pl: 2, pr: 2, display: 'flex', flexDirection: 'column'}}>
+        <NodeSearchSimple initialNode={source} autocompleteProps={{placeholder: 'Player A'}} nodes={searchNodes} onChange={onSourceChange} />
+        <Box sx={{width: '100%', display: 'flex', justifyContent: 'center'}}>
+          <ArrowDownwardIcon fontSize='small' />
+        </Box>
+        <NodeSearchSimple initialNode={target} autocompleteProps={{placeholder: 'Player B'}} nodes={searchNodes} onChange={onTargetChange} />
       </Box>
-      <Divider sx={{ml: -2, mr: -2, mt: 1}} />
-      <Box sx={{width: '100%', overflowY: 'scroll', mb: 2, mt: -1.5}}>
+      <Divider />
+      <Box sx={{width: '100%', overflowY: 'scroll', mb: 2, pl: 2, pr: 2, display: 'flex', flexDirection: 'column'}}>
         {path?.map((node, index) =>  {
           const option: Option = {
             key: node.key,
@@ -140,7 +135,7 @@ const PathDisplay = ({graph, searchNodes}: PathDisplayProps) => {
           const showSubLabel = node.attributes.nbaType === 'team';
 
           return (
-            <Box key={node.key} sx={{mt: index === 0 ? 1.5 : undefined}}>
+            <Box key={node.key}>
               <Box 
                 sx={{
                   display: 'flex', 

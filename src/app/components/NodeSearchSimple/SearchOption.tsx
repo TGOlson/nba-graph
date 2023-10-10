@@ -12,7 +12,6 @@ import { NodeAttributes } from '../../../shared/types';
 import { multiYearStr } from '../../../shared/util';
 
 export const OPTION_HEIGHT = 58; // px
-export const OPTION_SUBITEM_HEIGHT = 32; // px
 
 export type Option = {
   key: string;
