@@ -10,6 +10,7 @@ import Divider from '@mui/joy/Divider';
 import IconButton from '@mui/joy/IconButton';
 import Typography from '@mui/joy/Typography';
 import Tooltip from '@mui/joy/Tooltip';
+import Avatar from '@mui/joy/Avatar';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import ShareIcon from '@mui/icons-material/Share';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
@@ -108,11 +109,6 @@ const PathDisplay = ({graph, searchNodes}: PathDisplayProps) => {
       <Box sx={{width: '100%', position: 'relative', pl: 2, pr: 2}}>
           <Typography level='title-lg' fontSize={36}>NBA Paths</Typography>
         <Typography level='body-sm'>Connect any players in basketball history.</Typography>
-        <Tooltip open={showCopyTooltip} title='Link copied!' placement='left' size='sm' sx={{position: 'absolute', top: 0, right: -12}}>
-          <IconButton disabled={!source || !target} color='primary' onClick={copyPath}>
-            <ShareIcon />
-          </IconButton>
-        </Tooltip>
       </Box>
       <Divider />
       <Box sx={{width: '100%', gap: 1, pl: 2, pr: 2, display: 'flex', flexDirection: 'column'}}>
@@ -123,7 +119,18 @@ const PathDisplay = ({graph, searchNodes}: PathDisplayProps) => {
         <NodeSearchSimple initialNode={target} autocompleteProps={{placeholder: 'Player B'}} nodes={searchNodes} onChange={onTargetChange} />
       </Box>
       <Divider />
-      <Box sx={{width: '100%', overflowY: 'scroll', mb: 2, pl: 2, pr: 2, display: 'flex', flexDirection: 'column'}}>
+      <Box sx={{width: '100%', overflowY: 'scroll', mb: 2, pl: 2, display: 'flex', flexDirection: 'column', mt: -0.5}}>
+        {path 
+          ? <Box sx={{display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
+            <Typography level='body-sm' sx={{textAlign: 'right'}}>Path of {(path.length - 1) / 2 + 1} steps</Typography> 
+            <Tooltip open={showCopyTooltip} title='Link copied!' placement='left' size='sm'>
+              <IconButton disabled={!source || !target} color='primary' onClick={copyPath}>
+                <ShareIcon />
+              </IconButton>
+            </Tooltip>
+          </Box>
+          : null
+        }
         {path?.map((node, index) =>  {
           const option: Option = {
             key: node.key,
@@ -139,7 +146,7 @@ const PathDisplay = ({graph, searchNodes}: PathDisplayProps) => {
               <Box 
                 sx={{
                   display: 'flex', 
-                  pl: 2,
+                  // pl: 2,
                   justifyContent: 'space-between', 
                   alignItems: 'center',
                   '&:hover': {
@@ -152,15 +159,23 @@ const PathDisplay = ({graph, searchNodes}: PathDisplayProps) => {
                     visibility: 'visible',
                   },
                 }}
-                >
-                <SearchOptionPlaceholder option={option} showSubLabel={showSubLabel} />
+              >
+                <Box sx={{display: 'flex', alignItems: 'center', gap: 1.5}}>
+                  {index % 2 === 1
+                    ? <Box sx={{width: '24px'}}/>
+                    : <Avatar size="sm" color="primary" sx={{"--Avatar-size": "24px"}}>
+                      {index % 2 === 0 ? <Typography level="body-sm" fontWeight={700} >{index / 2 + 1}</Typography> : null}
+                    </Avatar>
+                  }
+                  <SearchOptionPlaceholder option={option} showSubLabel={showSubLabel} />
+                </Box>
                 <RouterLink className='path-graph-link' to={`/graph/${node.key}`} style={{marginRight: '8px'}}>
                   <IconButton size='sm' color='primary'>
                     <OpenInNewIcon />
                   </IconButton>
                 </RouterLink>
               </Box>
-              {isLastItem ? null : <Divider orientation='vertical' sx={{ml: '39px', height: 12}}/>}
+              {isLastItem ? null : <Divider orientation='vertical' sx={{ml: '58px', height: 12}}/>}
             </Box>
           );
         })}
