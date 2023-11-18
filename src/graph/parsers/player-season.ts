@@ -41,12 +41,10 @@ const parse = (basePlayer: PartialPlayer, $: cheerio.CheerioAPI): {player: Playe
   const seasons = just(maybePlayerSeasons);
 
   const image = $('#meta .media-item img').attr('src') ?? null;
-  const awards = $('#bling li a').toArray().map(el => $(el).text());
   
   const player: Player = {
     ...basePlayer, 
     image,
-    awards,
   };
 
 

@@ -51,7 +51,6 @@ export type Player = {
   id: string;
   name: string;
   image: string | null;
-  awards: string[]; // kind of a hack for now, later awards should be keyed by season w/ unique ids
   url: string;
 };
 
