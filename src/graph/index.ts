@@ -1,4 +1,4 @@
-import { downloadLeagueIndex, downloadPlayer, downloadPlayerIndex, downloadTeam, downloadImage, downloadTeamIndex, downloadPage } from "./download";
+import { downloadLeagueIndex, downloadPlayer, downloadPlayerIndex, downloadTeam, downloadImage, downloadTeamIndex, downloadPage } from "./storage/download";
 
 import { runHtmlParser } from "./parsers/html-parser";
 import { franchiseParser } from "./parsers/franchise";

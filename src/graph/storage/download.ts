@@ -1,10 +1,10 @@
 import * as cheerio from 'cheerio';
 import { mkdir, writeFile } from 'fs/promises';
-import { NBAType } from '../shared/nba-types';
-import { persistImage } from './storage';
+import { NBAType } from '../../shared/nba-types';
+import { persistImage } from '.';
 
-import { LEAGUES_URL, localPath, playerIndexUrl, playerUrl, TEAMS_URL, teamUrl } from './util/bref-url';
-import { Fetch } from './util/fetch';
+import { LEAGUES_URL, localPath, playerIndexUrl, playerUrl, TEAMS_URL, teamUrl } from '../util/bref-url';
+import { Fetch } from '../util/fetch';
 
 export async function downloadPage(fetch: Fetch, url: string): Promise<void> {
   console.log('Downloading url: ', url);
