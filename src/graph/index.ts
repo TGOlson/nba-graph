@@ -6,26 +6,16 @@ import {
 } from "./commands/download";
 
 import { parseAwards, parseFranchises, parseLeagues, parsePlayers, parseSeasons, parseTeams } from "./commands/parse";
-
-import * as storage from "./storage";
-import { imageDir, imgPath, spriteColorsPath, spriteMappingPath, spritePath } from "./storage/paths";
-
-import { buildGraph } from "./builder";
-import { GRAPH_CONFIG } from "./builder/config";
+import { buildGraph } from "./commands/graph";
+import { convertImages, parsePrimaryColors } from "./commands/image";
 
 import { makeDelayedFetch, makeFetch } from "./util/fetch";
-import { execSeq } from "./util/promise";
-import { createSpriteImage, parseSpriteColorPallette, playerTransform, teamTransform } from "./util/image";
-import path from "path";
-import { readdir } from "fs/promises";
-import Jimp from "jimp";
-import { bidirectional } from "graphology-shortest-path";
 
 const VERBOSE_FETCH = true;
 const FETCH_DELAY_MS = 6000; // basketball-reference seems to get mad at >~30 req/m
 
 const requireArg = (str: string | undefined, msg: string): string => {
-  if (!str) throw new Error(`Additional arguement required for command: ${msg}`);
+  if (!str) throw new Error(`Additional argument required for command: ${msg}`);
 
   return str;
 };
@@ -57,7 +47,6 @@ const commands = {
   },
   misc: {
     ConvertImages: '--convert-images',
-    // ConvertImagesTwo: '--convert-images-two',
     ParsePrimaryColors: '--parse-primary-colors',
     Test: '--test',
   },
@@ -101,99 +90,15 @@ async function main() {
     case commands.parse.Awards: return parseAwards();
 
     // *** graph commands
-    case commands.graph.Build: {
-      const nbaData = await storage.loadNBAData();
-
-      const graph = await buildGraph(nbaData, GRAPH_CONFIG);
-
-      return await storage.persistGraph(graph);
-    }
+    case commands.graph.Build: return buildGraph();
 
     // *** misc commands
-    case commands.misc.ConvertImages: {
-      const readDirPaths = (dir: string): Promise<string[]> => {
-        return readdir(dir).then(filenames => filenames.map(filename => path.resolve(dir, filename)));
-      };
-
-      const playerPaths = await readDirPaths(imageDir('player'));
-      const n = playerPaths.length;
-      const playerPaths0 = playerPaths.slice(0, n / 2);
-      const playerPaths1 = playerPaths.slice(n / 2, n);
-
-      const otherPaths = (await Promise.all([
-        readDirPaths(imageDir('team')),
-        readDirPaths(imageDir('franchise')),
-        readDirPaths(imageDir('award')),
-        readDirPaths(imageDir('league')),
-        [
-          imgPath(null, 'player_default', 'png'),
-          imgPath(null, 'team_default', 'png'),
-        ]
-      ])).flat();
-      
-      const otherTransform = (key: string, image: Jimp): Jimp => {
-        // Super hacky, but doesn't feel worth it to refactor transform scheme now...
-        // Basically use team transform for all 3 letter keys (with or without trailing years) that aren't NBA, ABA, or BAA
-        // We want to apploy this to all team and franchise images, and nothing else...
-        return key.match(/(?!NBA|ABA|BAA)[A-Z]{3}/) ? teamTransform(key, image) : image;
-      };
-
-      return Promise.all([
-        {paths: playerPaths0, transform: playerTransform, dedupe: false},
-        {paths: playerPaths1, transform: playerTransform, dedupe: false},
-        {paths: otherPaths, transform: otherTransform, dedupe: true},
-      ].map(({paths, transform, dedupe}, index) => {
-        const key = `sprite_${index}`;
-        return createSpriteImage(paths, spritePath(key), spriteMappingPath(key), transform, dedupe);
-      }));
-    }
-
-    case commands.misc.ParsePrimaryColors: {
-      const spriteIds = await storage.loadSpriteIds();
-
-      return await execSeq(spriteIds.map(spriteId =>
-        async () => {
-          const colors = await parseSpriteColorPallette(spriteId);
-          return storage.persistJSON(spriteColorsPath(spriteId))(colors);
-        }
-      ));
-    }
+    case commands.misc.ConvertImages: return convertImages();
+    case commands.misc.ParsePrimaryColors: return parsePrimaryColors();
 
     // for testing, debugging, etc
     case commands.misc.Test: {
-      const nbaData = await storage.loadNBAData();
-      const graph = await buildGraph(nbaData, GRAPH_CONFIG);
-      const graph2 = graph.copy();
-      // graph.remove
-
-      graph2.forEachNode((node) => {
-        const attrs = graph2.getNodeAttributes(node);
-
-        if (attrs.nbaType === 'player' || attrs.nbaType === 'team') {
-          // attrs.hidden = true;
-        } else {
-          graph2.dropNode(node);
-        }
-
-        // return attrs;
-      });
-
-      // const path = bidirectional(graph2, 'NBA', 'ABA');
-      const path = bidirectional(graph2, 'curryst01', 'ervinju01');
-
-      // result
-      // [
-      //   'curryst01', 'GSW_2010',
-      //   'bellra01',  'PHI_2001',
-      //   'hillty01',  'CLE_1995',
-      //   'coltest01', 'PHI_1987',
-      //   'ervinju01'
-      // ]
-
-      console.log(path);
-      console.log(graph.edge('GSW_2010', 'curryst01'));
-
-
+      console.log('Test!');
       return;
     }
 
