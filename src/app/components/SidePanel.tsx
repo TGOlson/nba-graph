@@ -27,6 +27,8 @@ import ContactLinks from './ContactLinks';
 import { getNodeAttributes } from '../hooks/useSelectedNode';
 import { useSigma } from '@react-sigma/core';
 
+import UpdateStats from '../../../data/stats.json';
+
 type SidePanelProps = {
   filters: GraphFilters;
   selectedNode: string | null;
@@ -219,6 +221,8 @@ const SidePanel = ({filters, nodeCounts, selectedNode, onFilterChange}: SidePane
           <Typography level="body-sm">Visible nodes</Typography>
           <NodeCountTable nodeCounts={nodeCounts} />
           <Divider inset='none' sx={{mt: 1, mb: 0.5}}/>
+          <Typography level="body-xs" fontStyle='italic'>Last updated {UpdateStats.lastUpdate}</Typography>
+          {/* <Divider inset='none' sx={{mt: 1, mb: 0.5}}/> */}
           <ContactLinks />
         </DialogContent>
       </Drawer>

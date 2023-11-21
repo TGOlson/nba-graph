@@ -30,10 +30,10 @@ const commands = {
     PlayerIndexAll: '--download-player-index-all',
     Player: '--download-player', // <player-id>
     PlayerGroup: '--download-player-group', // <letter>
-    PlayerAll: '--download-player-all',
+    PlayerAll: '--download-player-all', // <target-year?>
     FranchiseImages: '--download-franchise-images',
-    TeamImages: '--download-team-images',
-    PlayerImages: '--download-player-images',
+    TeamImages: '--download-team-images', // <target-year?>
+    PlayerImages: '--download-player-images', // <target-year?>
     Awards: '--download-awards',
     AllStar: '--download-allstar',
   },
@@ -45,9 +45,11 @@ const commands = {
     Players: '--parse-players', // James Harden + each season
     Awards: '--parse-awards', // MVP, DPOY, etc
   },
-  misc: {
+  image: {
     ConvertImages: '--convert-images',
     ParsePrimaryColors: '--parse-primary-colors',
+  },
+  misc: {
     Test: '--test',
   },
   graph: {
@@ -72,11 +74,11 @@ async function main() {
     case commands.download.PlayerIndexAll: return downloadPlayerIndexAll(delayedFetch);
     case commands.download.Player: return downloadPlayer(fetch, requireArg(arg, `${commands.download.Player} <player-id>`));
     case commands.download.PlayerGroup: return downloadPlayerGroup(delayedFetch, requireArg(arg, `${commands.download.PlayerGroup} <letter>`));
-    case commands.download.PlayerAll: return downloadPlayerAll(delayedFetch);
+    case commands.download.PlayerAll: return downloadPlayerAll(delayedFetch, arg ? parseInt(arg) : undefined);
 
     case commands.download.FranchiseImages: return downloadFranchiseImages(fetch);
-    case commands.download.TeamImages: return downloadTeamImages(fetch);
-    case commands.download.PlayerImages: return downloadPlayerImages(fetch, arg);
+    case commands.download.TeamImages: return downloadTeamImages(fetch, arg ? parseInt(arg) : undefined);
+    case commands.download.PlayerImages: return downloadPlayerImages(fetch, arg ? parseInt(arg) : undefined);
 
     case commands.download.Awards: return downloadAwards(delayedFetch);
     case commands.download.AllStar: return downloadAllStar(delayedFetch);
@@ -93,8 +95,8 @@ async function main() {
     case commands.graph.Build: return buildGraph();
 
     // *** misc commands
-    case commands.misc.ConvertImages: return convertImages();
-    case commands.misc.ParsePrimaryColors: return parsePrimaryColors();
+    case commands.image.ConvertImages: return convertImages();
+    case commands.image.ParsePrimaryColors: return parsePrimaryColors();
 
     // for testing, debugging, etc
     case commands.misc.Test: {

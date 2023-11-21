@@ -115,10 +115,8 @@ However, the following commands should also pass a target year arg to only targe
 * `--download-player-all 2024`
 * `--download-player-images 2024`
 * `--download-team-images 2024`
-* `--parse-players 2024`
-* `--parse-teams 2024`
 
-In theory it is safe to rerun all bootstrap commands, however, these are the most expensive commands to run and special casing only on the current season saves a lot of time. 
+In theory it is safe to rerun all bootstrap commands, however, these are the most expensive commands to run and special casing only on the current season saves a lot of time. This is still a little slow, and could surely be optimized, but isn't run frequently enough to be worth it yet!
 
 ### refs
 * http://sigmajs.org/

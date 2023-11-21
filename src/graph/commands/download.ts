@@ -41,12 +41,12 @@ export const downloadPlayerGroup = async (delayedFetch: Fetch, letter: string) =
   }));
 };
 
-export const downloadPlayerAll = async (delayedFetch: Fetch) => {
+export const downloadPlayerAll = async (delayedFetch: Fetch, targetYear?: number) => {
   const players = await Promise.all(
     azLowercase.map(x => runHtmlParser(makePlayerParser(x)))
   ).then(x => x.flat());
 
-  const playerIds = players.map(x => x.id);
+  const playerIds = players.filter(({yearMax}) => targetYear ? yearMax === targetYear : true).map(x => x.id);
 
   return execSeq(playerIds.map(id => {
     return () => downloadPlayer(delayedFetch, id);
@@ -64,8 +64,9 @@ export const downloadFranchiseImages = async (fetch: Fetch) => {
   return await execSeq(fns);
 };
 
-export const downloadTeamImages = async (fetch: Fetch) => {
-  const teams  = await loadTeams();
+export const downloadTeamImages = async (fetch: Fetch, targetYear?: number) => {
+  const teamsAll  = await loadTeams();
+  const teams = targetYear ? teamsAll.filter(x => x.year === targetYear) : teamsAll;
 
   const fns = teams.map(x => {
       return () => Download.downloadImage(fetch, x.image, 'team', x.id)
@@ -75,10 +76,12 @@ export const downloadTeamImages = async (fetch: Fetch) => {
   return await execSeq(fns);
 };
 
-export const downloadPlayerImages = async (fetch: Fetch, startAtId: string | undefined) => {
-  const players = await loadPlayers();
+export const downloadPlayerImages = async (fetch: Fetch, targetYear?: number) => {
+  const playersAll = await loadPlayers();
+  const players = targetYear ? playersAll.filter(x => x.yearMax === targetYear) : playersAll;
 
-  const startAt = startAtId ? players.findIndex(x => x.id == startAtId) : 0;
+  const startAt = 0; // TODO: add back?
+  // const startAt = startAtId ? players.findIndex(x => x.id == startAtId) : 0;
 
   const fns = players.slice(startAt, players.length).map((x, i) => {
       return async () => {
