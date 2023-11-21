@@ -27,7 +27,7 @@ export type GraphConfig = {
 
 export const GRAPH_CONFIG: GraphConfig = {
   startYear: null,
-  endYear: 2023,
+  endYear: 2024,
   sizes: {
     league: 15,
     season: 6,

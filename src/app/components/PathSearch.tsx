@@ -183,7 +183,7 @@ const PathDisplay = ({graph, searchNodes}: PathDisplayProps) => {
                   </IconButton>
                 </RouterLink>
               </Box>
-              {isLastItem ? null : <Divider orientation='vertical' sx={{ml: '58px', height: 10}}/>}
+              {isLastItem ? null : <Divider orientation='vertical' sx={{ml: '58px', height: 10, mt: -0.5, mb: -0.5}}/>}
             </Box>
           );
         })}

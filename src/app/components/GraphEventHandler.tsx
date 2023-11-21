@@ -22,7 +22,7 @@ export const isVisibleNode = (filters: GraphFilters, {seasons, nbaType}: NodeAtt
 
   if (!filters.shortCareerPlayers && nbaType === 'player') {
     const n = seasons.length;
-    const shortCareer = n <= 3 && getIndex(n - 1, seasons).year !== 2023;
+    const shortCareer = n <= 3 && getIndex(n - 1, seasons).year !== 2024;
     if (shortCareer) return false;
   }
 

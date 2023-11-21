@@ -1,35 +1,21 @@
-import { downloadLeagueIndex, downloadPlayer, downloadPlayerIndex, downloadTeam, downloadImage, downloadTeamIndex, downloadPage } from "./download";
+import { 
+  downloadLeagueIndex, downloadPlayer, downloadPlayerIndex, downloadTeam, 
+  downloadTeamIndex, downloadTeamAll, downloadPlayerIndexAll, downloadPlayerGroup, 
+  downloadPlayerAll, downloadFranchiseImages, downloadTeamImages, downloadPlayerImages, 
+  downloadAwards, downloadAllStar 
+} from "./commands/download";
 
-import { runHtmlParser } from "./parsers/html-parser";
-import { franchiseParser } from "./parsers/franchise";
-import { leagueParser } from "./parsers/league";
-import { makePlayerParser } from "./parsers/player";
-import { seasonParser } from "./parsers/season";
-import { makeTeamParser } from "./parsers/team";
-import { makePlayerSeasonParser } from "./parsers/player-season";
-
-import * as storage from "./storage";
-import { imageDir, imgPath, spriteColorsPath, spriteMappingPath, spritePath } from "./storage/paths";
-
-import { buildGraph } from "./builder";
-import { GRAPH_CONFIG } from "./builder/config";
+import { parseAwards, parseFranchises, parseLeagues, parsePlayers, parseSeasons, parseTeams } from "./commands/parse";
+import { buildGraph } from "./commands/graph";
+import { convertImages, parsePrimaryColors } from "./commands/image";
 
 import { makeDelayedFetch, makeFetch } from "./util/fetch";
-import { execSeq } from "./util/promise";
-import { createSpriteImage, parseSpriteColorPallette, playerTransform, teamTransform } from "./util/image";
-import { allStarUrl, awardUrls, LEAGUE_CHAMP_URL } from "./util/bref-url";
-import { validAllStarSeasons } from "./parsers/awards/all-star";
-import { runAwardsParsers } from "./parsers/awards";
-import path from "path";
-import { readdir } from "fs/promises";
-import Jimp from "jimp";
-import { bidirectional } from "graphology-shortest-path";
 
 const VERBOSE_FETCH = true;
 const FETCH_DELAY_MS = 6000; // basketball-reference seems to get mad at >~30 req/m
 
 const requireArg = (str: string | undefined, msg: string): string => {
-  if (!str) throw new Error(`Additional arguement required for command: ${msg}`);
+  if (!str) throw new Error(`Additional argument required for command: ${msg}`);
 
   return str;
 };
@@ -44,10 +30,10 @@ const commands = {
     PlayerIndexAll: '--download-player-index-all',
     Player: '--download-player', // <player-id>
     PlayerGroup: '--download-player-group', // <letter>
-    PlayerAll: '--download-player-all',
+    PlayerAll: '--download-player-all', // <target-year?>
     FranchiseImages: '--download-franchise-images',
-    TeamImages: '--download-team-images',
-    PlayerImages: '--download-player-images',
+    TeamImages: '--download-team-images', // <target-year?>
+    PlayerImages: '--download-player-images', // <target-year?>
     Awards: '--download-awards',
     AllStar: '--download-allstar',
   },
@@ -59,19 +45,17 @@ const commands = {
     Players: '--parse-players', // James Harden + each season
     Awards: '--parse-awards', // MVP, DPOY, etc
   },
-  misc: {
+  image: {
     ConvertImages: '--convert-images',
-    // ConvertImagesTwo: '--convert-images-two',
     ParsePrimaryColors: '--parse-primary-colors',
+  },
+  misc: {
     Test: '--test',
   },
   graph: {
     Build: '--build-graph'
   }
 };
-
-// ['a' ... 'z']
-const azLowercase: string[] = [...Array(26).keys()].map((x: number) => String.fromCharCode(x + 97));
 
 async function main() {
   const [_, __, cmd, arg] = process.argv;
@@ -84,238 +68,39 @@ async function main() {
     case commands.download.LeagueIndex: return downloadLeagueIndex(fetch);
     case commands.download.TeamIndex: return downloadTeamIndex(fetch);
     case commands.download.Team: return downloadTeam(fetch, requireArg(arg, `${commands.download.Team} <franchise-id>`));
-    case commands.download.TeamAll: {
-      const franchises = await runHtmlParser(franchiseParser);
+    case commands.download.TeamAll: return downloadTeamAll(delayedFetch);
 
-      return execSeq(franchises.map(franchise => {
-        return () => downloadTeam(delayedFetch, franchise.id);
-      }));
-    }
-      
     case commands.download.PlayerIndex: return downloadPlayerIndex(fetch, requireArg(arg, `${commands.download.PlayerIndex} <a-z letter>`));
-    case commands.download.PlayerIndexAll:
-      return execSeq(azLowercase.map(x => {
-        return () => downloadPlayerIndex(delayedFetch, x);
-      }));
-
+    case commands.download.PlayerIndexAll: return downloadPlayerIndexAll(delayedFetch);
     case commands.download.Player: return downloadPlayer(fetch, requireArg(arg, `${commands.download.Player} <player-id>`));
-    case commands.download.PlayerGroup: {
-      const section = requireArg(arg, `${commands.download.PlayerGroup} <letter>`);
-      const players = await runHtmlParser(makePlayerParser(section));
-      const playerIds = players.map(x => x.id);
+    case commands.download.PlayerGroup: return downloadPlayerGroup(delayedFetch, requireArg(arg, `${commands.download.PlayerGroup} <letter>`));
+    case commands.download.PlayerAll: return downloadPlayerAll(delayedFetch, arg ? parseInt(arg) : undefined);
 
-      return execSeq(playerIds.map(id => {
-        return () => downloadPlayer(delayedFetch, id);
-      }));
-    }
-    case commands.download.PlayerAll: {
-      const players = await Promise.all(
-        azLowercase.map(x => runHtmlParser(makePlayerParser(x)))
-      ).then(x => x.flat());
+    case commands.download.FranchiseImages: return downloadFranchiseImages(fetch);
+    case commands.download.TeamImages: return downloadTeamImages(fetch, arg ? parseInt(arg) : undefined);
+    case commands.download.PlayerImages: return downloadPlayerImages(fetch, arg ? parseInt(arg) : undefined);
 
-      const playerIds = players.map(x => x.id);
+    case commands.download.Awards: return downloadAwards(delayedFetch);
+    case commands.download.AllStar: return downloadAllStar(delayedFetch);
 
-      return execSeq(playerIds.map(id => {
-        return () => downloadPlayer(delayedFetch, id);
-      }));
-    }
-
-    case commands.download.FranchiseImages: {
-      const franchises = await storage.loadFranchises();
-
-      const fns = franchises.map(x => {
-          return () => downloadImage(fetch, x.image, 'franchise', x.id)
-            .catch(err => console.log('Error downloading image... skipping... ', x.id, err));
-      });
-
-      return await execSeq(fns);
-    }
-
-    case commands.download.TeamImages: {
-      const teams  = await storage.loadTeams();
-
-      const fns = teams.map(x => {
-          return () => downloadImage(fetch, x.image, 'team', x.id)
-            .catch(err => console.log('Error download image for. Skipping ', x.id, err));
-      });
-
-      return await execSeq(fns);
-    }
-
-    case commands.download.PlayerImages: {
-      const players = await storage.loadPlayers();
-
-      const startAtId = arg;
-      const startAt = startAtId ? players.findIndex(x => x.id == startAtId) : 0;
-
-      const fns = players.slice(startAt, players.length).map((x, i) => {
-          return async () => {
-            console.log(`[${i + startAt} of ${players.length}]: Fetching image for: ${x.id}`);
-
-            if (!x.image) {
-              console.log('No image found for player, skipping...', x.id);
-              return;
-            }
-
-            return await downloadImage(fetch, x.image, 'player', x.id);
-          };
-      });
-
-      return await execSeq(fns);
-    }
-
-    case commands.download.Awards: {
-      const urls = [
-        ...Object.values(awardUrls),
-        LEAGUE_CHAMP_URL,
-      ];
-      
-      return await execSeq(urls.map(url => {
-        return () => downloadPage(delayedFetch, url);
-      }));
-    }
-
-    case commands.download.AllStar: {
-      const allStarUrls = validAllStarSeasons.map(allStarUrl);
-
-      return await execSeq(allStarUrls.map(url => {
-        return () => downloadPage(delayedFetch, url);
-      }));
-    }
-
-    // *** extract commands
-    case commands.parse.Leagues: return await runHtmlParser(leagueParser).then(storage.persistLeagues);
-    case commands.parse.Seasons: return await runHtmlParser(seasonParser).then(storage.persistSeasons);
-    case commands.parse.Franchises: return await runHtmlParser(franchiseParser).then(storage.persistFranchises);
-    case commands.parse.Teams: {
-      const franchises = await runHtmlParser(franchiseParser);
-      const franchiseIds = franchises.map(x => x.id);
-
-      const teams = await Promise.all(
-        franchiseIds.map(id => runHtmlParser(makeTeamParser(id)))
-      ).then(xs => xs.flat());
-      
-      return await storage.persistTeams(teams);
-    }
-
-    case commands.parse.Players: {
-      const partialPlayers = await Promise.all(
-        azLowercase.map(x => runHtmlParser(makePlayerParser(x)))
-      ).then(xs => xs.flat());
-
-      const res = await Promise.all(
-        partialPlayers.map(player => runHtmlParser(makePlayerSeasonParser(player)))
-      );
-
-      const players = res.map(x => x.player);
-      const playerSeasons = res.map(x => x.seasons).flat();
-
-      await storage.persistPlayers(players);
-      return await storage.persistPlayerSeasons(playerSeasons);
-    }
-
-    case commands.parse.Awards: {
-      const {awards, multiWinnerAwards, awardRecipients} = await runAwardsParsers();
-
-      await storage.persistAwards(awards);
-      await storage.persistMultiWinnerAwards(multiWinnerAwards);
-      return await storage.persistAwardRecipients(awardRecipients);
-    }
+    // *** parse commands
+    case commands.parse.Leagues: return parseLeagues();
+    case commands.parse.Seasons: return parseSeasons();
+    case commands.parse.Franchises: return parseFranchises();
+    case commands.parse.Teams: return parseTeams();
+    case commands.parse.Players: return parsePlayers();
+    case commands.parse.Awards: return parseAwards();
 
     // *** graph commands
-    case commands.graph.Build: {
-      const nbaData = await storage.loadNBAData();
-
-      const graph = await buildGraph(nbaData, GRAPH_CONFIG);
-
-      return await storage.persistGraph(graph);
-    }
+    case commands.graph.Build: return buildGraph();
 
     // *** misc commands
-    case commands.misc.ConvertImages: {
-      const readDirPaths = (dir: string): Promise<string[]> => {
-        return readdir(dir).then(filenames => filenames.map(filename => path.resolve(dir, filename)));
-      };
-
-      const playerPaths = await readDirPaths(imageDir('player'));
-      const n = playerPaths.length;
-      const playerPaths0 = playerPaths.slice(0, n / 2);
-      const playerPaths1 = playerPaths.slice(n / 2, n);
-
-      const otherPaths = (await Promise.all([
-        readDirPaths(imageDir('team')),
-        readDirPaths(imageDir('franchise')),
-        readDirPaths(imageDir('award')),
-        readDirPaths(imageDir('league')),
-        [
-          imgPath(null, 'player_default', 'png'),
-          imgPath(null, 'team_default', 'png'),
-        ]
-      ])).flat();
-      
-      const otherTransform = (key: string, image: Jimp): Jimp => {
-        // Super hacky, but doesn't feel worth it to refactor transform scheme now...
-        // Basically use team transform for all 3 letter keys (with or without trailing years) that aren't NBA, ABA, or BAA
-        // We want to apploy this to all team and franchise images, and nothing else...
-        return key.match(/(?!NBA|ABA|BAA)[A-Z]{3}/) ? teamTransform(key, image) : image;
-      };
-
-      return Promise.all([
-        {paths: playerPaths0, transform: playerTransform, dedupe: false},
-        {paths: playerPaths1, transform: playerTransform, dedupe: false},
-        {paths: otherPaths, transform: otherTransform, dedupe: true},
-      ].map(({paths, transform, dedupe}, index) => {
-        const key = `sprite_${index}`;
-        return createSpriteImage(paths, spritePath(key), spriteMappingPath(key), transform, dedupe);
-      }));
-    }
-
-    case commands.misc.ParsePrimaryColors: {
-      const spriteIds = await storage.loadSpriteIds();
-
-      return await execSeq(spriteIds.map(spriteId =>
-        async () => {
-          const colors = await parseSpriteColorPallette(spriteId);
-          return storage.persistJSON(spriteColorsPath(spriteId))(colors);
-        }
-      ));
-    }
+    case commands.image.ConvertImages: return convertImages();
+    case commands.image.ParsePrimaryColors: return parsePrimaryColors();
 
     // for testing, debugging, etc
     case commands.misc.Test: {
-      const nbaData = await storage.loadNBAData();
-      const graph = await buildGraph(nbaData, GRAPH_CONFIG);
-      const graph2 = graph.copy();
-      // graph.remove
-
-      graph2.forEachNode((node) => {
-        const attrs = graph2.getNodeAttributes(node);
-
-        if (attrs.nbaType === 'player' || attrs.nbaType === 'team') {
-          // attrs.hidden = true;
-        } else {
-          graph2.dropNode(node);
-        }
-
-        // return attrs;
-      });
-
-      // const path = bidirectional(graph2, 'NBA', 'ABA');
-      const path = bidirectional(graph2, 'curryst01', 'ervinju01');
-
-      // result
-      // [
-      //   'curryst01', 'GSW_2010',
-      //   'bellra01',  'PHI_2001',
-      //   'hillty01',  'CLE_1995',
-      //   'coltest01', 'PHI_1987',
-      //   'ervinju01'
-      // ]
-
-      console.log(path);
-      console.log(graph.edge('GSW_2010', 'curryst01'));
-
-
+      console.log('Test!');
       return;
     }
 

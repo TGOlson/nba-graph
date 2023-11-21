@@ -83,7 +83,7 @@ All output data is stored in `./data`. Initial downloads are stored as raw `.htm
 
 Some download commands have dependencies on other data before they can be run. It is suggested to run download commands in the order listed above (league index -> team index -> team ...).
 
-_note: some commands may take a while to finish as basketball-reference severly rate limits requests_
+_note: some commands may take a while to finish as basketball-reference severely rate limits requests_
 
 2. Parsing
 
@@ -105,6 +105,18 @@ Create sprites and color palettes using downloaded images.
 Lastly, once all the data is downloaded and parsed, an output graph can be created.
 
 The output graph data is stored in `./data/graph/` as `json` files. The graph is built and constructed using the `graphology` library.
+
+5. Incremental updates
+
+Incremental updates can be done after the initial bootstrap process. In general, all the download and parse commands should be run as normal. 
+
+However, the following commands should also pass a target year arg to only target entities for the current season.
+
+* `--download-player-all 2024`
+* `--download-player-images 2024`
+* `--download-team-images 2024`
+
+In theory it is safe to rerun all bootstrap commands, however, these are the most expensive commands to run and special casing only on the current season saves a lot of time. This is still a little slow, and could surely be optimized, but isn't run frequently enough to be worth it yet!
 
 ### refs
 * http://sigmajs.org/

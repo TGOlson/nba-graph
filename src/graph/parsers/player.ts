@@ -11,6 +11,7 @@ const parse = ($: cheerio.CheerioAPI): PartialPlayer[] => {
   return $(SELECTOR).toArray().map((el: cheerio.AnyNode) => {
     const url = $('th[data-stat="player"] a', el).attr('href');
     const name = $('th[data-stat="player"] a[href]', el).text();
+    const yearMax = $('td[data-stat="year_max"]', el).text();
 
     if (!url) {
       throw new Error('Invalid response from player: no url');
@@ -28,6 +29,7 @@ const parse = ($: cheerio.CheerioAPI): PartialPlayer[] => {
       id: playerId,
       name,
       url,
+      yearMax: parseInt(yearMax)
     };
   });
 };

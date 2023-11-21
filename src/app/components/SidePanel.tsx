@@ -27,6 +27,8 @@ import ContactLinks from './ContactLinks';
 import { getNodeAttributes } from '../hooks/useSelectedNode';
 import { useSigma } from '@react-sigma/core';
 
+import UpdateStats from '../../../data/stats.json';
+
 type SidePanelProps = {
   filters: GraphFilters;
   selectedNode: string | null;
@@ -43,7 +45,7 @@ export const DEFAULT_FILTERS: GraphFilters = {
     BAA: true,
   },
   minYear: 1947,
-  maxYear: 2023,
+  maxYear: 2024,
 };
 
 const leagueLabel = (league: string, years: string): React.ReactNode => {
@@ -67,7 +69,7 @@ const YearFilters = ({filters, onFilterChange}: Pick<SidePanelProps, 'filters' |
           size='sm' 
           arrow 
           sx={{ml: '4px'}}
-          title={<Typography level='inherit' sx={{width: '250px'}}>Basketball reference league year (eg. 2023 is the 2022-23 NBA season)</Typography>}
+          title={<Typography level='inherit' sx={{width: '250px'}}>Basketball reference league year (eg. 2024 is the 2023-24 NBA season)</Typography>}
           placement='right'
           enterDelay={0}
         >
@@ -199,7 +201,7 @@ const SidePanel = ({filters, nodeCounts, selectedNode, onFilterChange}: SidePane
           <Typography level="body-sm">Leagues</Typography>
           {/* TODO: would be better to get a list of leagues and programattically generate this */}
           {([
-            ['NBA', '1950-2023'],
+            ['NBA', '1950-2024'],
             ['ABA', '1968-1976'],
             ['BAA', '1947-1949'],
           ] as [string, string][]).map(([league, years]) => (
@@ -219,6 +221,8 @@ const SidePanel = ({filters, nodeCounts, selectedNode, onFilterChange}: SidePane
           <Typography level="body-sm">Visible nodes</Typography>
           <NodeCountTable nodeCounts={nodeCounts} />
           <Divider inset='none' sx={{mt: 1, mb: 0.5}}/>
+          <Typography level="body-xs" fontStyle='italic'>Last updated {UpdateStats.lastUpdate}</Typography>
+          {/* <Divider inset='none' sx={{mt: 1, mb: 0.5}}/> */}
           <ContactLinks />
         </DialogContent>
       </Drawer>

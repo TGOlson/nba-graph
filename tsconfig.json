@@ -18,6 +18,7 @@
     "noUncheckedIndexedAccess": true,
     "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
     "paths": {
       "@mui/material": ["./node_modules/@mui/joy"]
     }

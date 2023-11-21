@@ -50,12 +50,12 @@ export type Team = {
 export type Player = {
   id: string;
   name: string;
+  yearMax: number;
   image: string | null;
-  awards: string[]; // kind of a hack for now, later awards should be keyed by season w/ unique ids
   url: string;
 };
 
-export type PartialPlayer = Pick<Player, 'id' | 'name' | 'url'>;
+export type PartialPlayer = Pick<Player, 'id' | 'name' | 'url' | 'yearMax'>;
 
 // James Harden HOU_2015, James Harden BKN_2021...
 export type PlayerSeason = {
